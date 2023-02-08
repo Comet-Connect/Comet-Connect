@@ -10,8 +10,8 @@ A clone of When2Meet with added features and a better UI. UTD senior design proj
  - Syncing with Google Calendar/UTD class schedule
 
 ## Team Members
-Aiden Duong
-Kevin Fan
-Zach (Madeline) Foster
-Danny Vu
+Aiden Duong  
+Kevin Fan  
+Zach (Madeline) Foster  
+Danny Vu  
 Niha Yadav
