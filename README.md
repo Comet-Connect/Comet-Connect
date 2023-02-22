@@ -34,8 +34,8 @@ When2Meet is focused on singular event planning and updating availability is a c
     - Github is one of the most widely used version control tools and is free to use. Furthermore, Git has built in integrations for VSCode, the IDE most of us will be using, to make source control even easier.
 
 - #### Project Management
-  - ##### Jira
-    - One of the most popular project management programs used. The management tool offers a simple workflow that allows you to start work on a task, and keep working on it until it's complete. It can be a great tool for managing agile software development
+  - ##### Github Project Boards
+    - Github project boards are already integrated within Github. All our project files and project management tools will be in the same place, making for a more streamlined process.
 
 ## Team Members
 Aiden Duong (AidanD21)  
