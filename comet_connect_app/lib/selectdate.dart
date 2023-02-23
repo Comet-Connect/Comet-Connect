@@ -15,24 +15,24 @@ class _SelectDateState extends State<SelectDate> {
   final List<Meeting> _events = [
     Meeting(
       'Board Meeting',
-      DateTime(2022, 03, 01, 9, 0, 0),
-      DateTime(2022, 03, 01, 12, 0, 0),
+      DateTime(2023, 02, 22, 9, 0, 0),
+      DateTime(2023, 02, 22, 12, 0, 0),
       Colors.blue,
       false,
     ),
     Meeting(
       'Business Lunch',
-      DateTime(2022, 03, 03, 12, 0, 0),
-      DateTime(2022, 03, 03, 13, 30, 0),
+      DateTime(2023, 02, 20, 12, 0, 0),
+      DateTime(2023, 02, 20, 13, 30, 0),
       Colors.green,
       false,
     ),
     Meeting(
       'Conference',
-      DateTime(2022, 03, 05, 13, 0, 0),
-      DateTime(2022, 03, 06, 18, 0, 0),
+      DateTime(2022, 02, 24, 10, 0, 0),
+      DateTime(2022, 02, 24, 12, 0, 0),
       Colors.pink,
-      true,
+      false,
     ),
   ];
 
@@ -93,9 +93,18 @@ class _SelectDateState extends State<SelectDate> {
                 _onItemTapped(2);
                 Navigator.pop(context);
               },
-
-              // Sign out option
             ),
+            // Sign out option
+            ListTile(
+              title: const Text('Help'),
+              selected: _selectedIndex == 2,
+              onTap: () {
+                _onItemTapped(2);
+                Navigator.pop(context);
+              }
+            ),
+
+            
           ],
         ),
       ),
