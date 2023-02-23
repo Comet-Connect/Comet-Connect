@@ -96,15 +96,18 @@ class _SelectDateState extends State<SelectDate> {
             ),
             // Sign out option
             ListTile(
-              title: const Text('Help'),
+              title: const Text('Sign Out'),
               selected: _selectedIndex == 2,
               onTap: () {
                 _onItemTapped(2);
                 Navigator.pop(context);
+                // Call Sign Out function
+
+                
               }
             ),
 
-            
+
           ],
         ),
       ),
