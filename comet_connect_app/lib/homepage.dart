@@ -74,29 +74,30 @@ class MyHomePage extends StatelessWidget {
       title: 'Home Page',
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('Welcome to my app!'),
+          title: const Text('Homepage'),
         ),
+        
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               const Text(
-                'Hello, world!',
+                'Welcome back, Comet!',
                 style: TextStyle(fontSize: 24.0),
               ),
               const SizedBox(height: 16.0),
               const Text(
-                'This is a sample home page.',
+                'This is your home page.',
                 style: TextStyle(fontSize: 18.0),
               ),
-              const SizedBox(height: 16.0),
-              ElevatedButton(
-                onPressed: () {
-                  // TODO: Implement button action
+              // const SizedBox(height: 16.0),
+              // ElevatedButton(
+              //   onPressed: () {
+              //     // TODO: Implement button action
                   
-                },
-                child: const Text('Learn more'),
-              ),
+              //   },
+              //   child: const Text('Learn more'),
+              //),
             ],
           ),
         ),

@@ -5,7 +5,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import './login_or_signup.dart';
 import './homepage.dart';
 import 'login.dart';
-import 'selectdate.dart.';
+import './selectdate.dart.';   
 
 void main() {
   runApp(const MyApp());
@@ -26,10 +26,10 @@ class _MyAppState extends State<MyApp> {
     if (loggedIn == true) {
       return const MyHomePage();
     } else {
-      //return const LoginOrSignup();    // good
-      //return const Login();          // no
-      //return const MyHomePage();     // eh
-      return const SelectDate(); //good
+      return const LoginOrSignup();    // good
+      //return const MyHomePage();     // modify
+      //return CalendarPage();         // no   My Calendar Page
+      //return const SelectDate();     //good
     }
   }
 

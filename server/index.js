@@ -15,19 +15,19 @@ const server = express()
 const wss = new Server({ server });
 
 // TODO: Change connection
-mongoose.connect('CONNECTION_MONGODB')
+mongoose.connect("http://127.0.0.1:57246/")
     .then((_) => console.log("Connected to database."))
     .catch((e) => console.log("Error:", e)); // Open MongoDB.
 
 wss.on('connection', function(ws, req) {
     ws.on('message', message => { // If there is any message
         // // Example usage:
-        // var loginResult = login(data.username, data.password);
-        // if (loginResult.success) {
-        //     ws.send("Login successful");
-        // } else {
-        //     ws.send("Login failed: " + loginResult.message);
-        // }
+        var loginResult = login(data.username, data.password);
+        if (loginResult.success) {
+            ws.send("Login successful");
+        } else {
+            ws.send("Login failed: " + loginResult.message);
+        }
 
 
         var datastring = message.toString();
@@ -36,14 +36,14 @@ wss.on('connection', function(ws, req) {
             var data = JSON.parse(datastring)
             if(data.auth == "chatappauthkey231r4"){
                 // TODO: Create login function
-                // function login(username, password) {
-                //     // TODO: Add login logic here
-                //     if (username === "chatuser" && password === "chatpass") {
-                //         return { success: true, message: "Login successful" };
-                //     } else {
-                //         return { success: false, message: "Invalid username or password" };
-                //     }
-                // }
+                function login(username, password) {
+                    // TODO: Add login logic here
+                    if (username === "chatuser" && password === "chatpass") {
+                        return { success: true, message: "Login successful" };
+                    } else {
+                        return { success: false, message: "Invalid username or password" };
+                    }
+                }
 
                 /** Once we create a basic backend, we start signing up users
                  *      -> Create Signup function
