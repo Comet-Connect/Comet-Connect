@@ -15,22 +15,22 @@ class _SelectDateState extends State<SelectDate> {
   final List<Meeting> _events = [
     Meeting(
       'Board Meeting',
-      DateTime(2023, 02, 22, 9, 0, 0),
-      DateTime(2023, 02, 22, 12, 0, 0),
+      DateTime(2023, 03, 03, 9, 0, 0),
+      DateTime(2023, 03, 03, 12, 0, 0),
       Colors.blue,
       false,
     ),
     Meeting(
       'Business Lunch',
-      DateTime(2023, 02, 20, 12, 0, 0),
-      DateTime(2023, 02, 20, 13, 30, 0),
+      DateTime(2023, 03, 03, 12, 0, 0),
+      DateTime(2023, 03, 03, 13, 30, 0),
       Colors.green,
       false,
     ),
     Meeting(
       'Conference',
-      DateTime(2022, 02, 24, 10, 0, 0),
-      DateTime(2022, 02, 24, 12, 0, 0),
+      DateTime(2022, 03, 02, 10, 0, 0),
+      DateTime(2022, 03, 02, 12, 0, 0),
       Colors.pink,
       false,
     ),
@@ -84,6 +84,7 @@ class _SelectDateState extends State<SelectDate> {
               onTap: () {
                 _onItemTapped(2);
                 Navigator.pop(context);
+                
               },
             ),
             ListTile(

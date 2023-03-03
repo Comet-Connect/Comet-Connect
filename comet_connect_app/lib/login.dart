@@ -1,97 +1,84 @@
 import 'dart:convert';
 
+import 'package:comet_connect_app/homepage.dart';
 import 'package:flutter/material.dart';
+import 'package:mongo_dart/mongo_dart.dart' as mongo;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
+// login(context, _mail, _pwd) async {
+//   String auth = "chatappauthkey231r4";
+//   if (_mail.isNotEmpty && _pwd.isNotEmpty) {
+//     IOWebSocketChannel channel;
+//     try {
+//       // Create connection.
+//       //channel = IOWebSocketChannel.connect('ws://localhost:51744/$_mail');
+      
+//       channel = IOWebSocketChannel.connect('ws://localhost:51744/');
+      
+//       // Data that will be sended to Node.js
+//       String signUpData =
+//           "{'auth':'$auth','cmd':'login','email':'$_mail','hash':'$_pwd'}";
+//       // Send data to Node.js
+//       channel.sink.add(signUpData);
+//       // listen for data from the server
+//       channel.stream.listen((event) async {
+//         event = event.replaceAll(RegExp("'"), '"');
+//         var loginData = json.decode(event);
+//         // Check if the status is succesfull
+//         if (loginData["status"] == 'succes') {
+//           // Close connection.
+//           channel.sink.close();
 
-login(context, _mail, _pwd) async {
+//           SharedPreferences prefs = await SharedPreferences.getInstance();
+//           prefs.setBool('loggedin', true);
+//           prefs.setString('mail', _mail);
+//           // Return user to login if succesfull
+//           Navigator.push(
+//             context,
+//             MaterialPageRoute(builder: (context) => const MyHomePage()),
+//           );
+//         } else {
+//           channel.sink.close();
+//           print("Error signing signing up");
+//         }
+//       });
+//     } catch (e) {
+//       print("Error on connecting to websocket: (login.dart) " + e.toString());
+//     }
+//   } else {
+//     print("Password are not equal");
+//   }
+// }
 
-  String auth = "chatappauthkey231r4";
-  if (_mail.isNotEmpty && _pwd.isNotEmpty) {
-    IOWebSocketChannel channel;
-    try {
-      // Create connection.
-      channel = IOWebSocketChannel.connect('ws://localhost:3000/login$_mail');
-    
-    // Data that will be sended to Node.js
-    String signUpData =
-        "{'auth':'$auth','cmd':'login','email':'$_mail','hash':'$_pwd'}";
-    // Send data to Node.js
-    channel.sink.add(signUpData);
-    // listen for data from the server
-    channel.stream.listen((event) async {
-      event = event.replaceAll(RegExp("'"), '"');
-      var loginData = json.decode(event);
-      // Check if the status is succesfull
-      if (loginData["status"] == 'succes') {
-        // Close connection.
-        channel.sink.close();
+void authenticateUser(
+  String username,
+  String password,
+  Function() onSuccess,
+  Function(String) onError,
+) async {
+  try {
+    // Connect to MongoDB server
+    final db = await mongo.Db.create('mongodb://localhost:57224/my_database');
+    await db.open();
 
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        prefs.setBool('loggedin', true);
-        prefs.setString('mail', _mail);
-        // Return user to login if succesfull
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const Login()),
-        );
-      } else {
-        channel.sink.close();
-        print("Error signing signing up");
-      }
-    });
-} catch (e) {
-      print("Error on connecting to websocket: " + e.toString());
+    // Query the users collection to find the user with the given username and password
+    final user = await db.collection('users').findOne(mongo.where.eq('username', username).eq('password', password));
+
+    // Close the database connection
+    await db.close();
+
+    if (user != null) {
+      // Authentication successful
+      onSuccess();
+    } else {
+      // Authentication failed
+      onError('Invalid username or password');
     }
-
-  } else {
-    print("Password are not equal");
+  } catch (error) {
+    // Handle database connection error
+    onError(error.toString());
   }
 }
 
-class Login extends StatelessWidget {
-  const Login({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    String? _mail;
-    String? _pwd;
-
-    return Scaffold(
-      appBar: AppBar(title: const Text("Login")),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          Center(
-            child: TextField(
-              keyboardType: TextInputType.emailAddress,
-              decoration: const InputDecoration(
-                hintText: 'Mail or password..',
-              ),
-              onChanged: (e) => _mail = e,
-            ),
-          ),
-          Center(
-            child: TextField(
-              obscureText: true,
-              enableSuggestions: false,
-              autocorrect: false,
-              decoration: const InputDecoration(
-                hintText: 'Password..',
-              ),
-              onChanged: (e) => _pwd = e,
-            ),
-          ),
-          Center(
-            child: MaterialButton(
-              onPressed: login(context, _mail, _pwd),
-              child: const Text("Login"),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
