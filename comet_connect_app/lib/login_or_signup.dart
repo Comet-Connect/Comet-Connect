@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:mongo_dart/mongo_dart.dart' as mongo;
 
-import './login.dart';
+import 'login.dart';
 import './signup.dart';
 
 class LoginOrSignup extends StatefulWidget {
@@ -41,6 +41,7 @@ class _LoginOrSignup extends State<LoginOrSignup> {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
+      
       body: Center(
         child: SizedBox(
           width: screenWidth / 2,
@@ -157,9 +158,10 @@ class _LoginOrSignup extends State<LoginOrSignup> {
                         _passwordController.text,
                         () {
                           // Authentication successful, navigate to home page
+                          //Navigator.pushNamed(context, '/home');
                           Navigator.pushReplacement(
                             context,
-                            MaterialPageRoute(builder: (context) => MyHomePage()),
+                            MaterialPageRoute(builder: (context) => const MyHomePage()),
                           );
                       },
                       (error) {
