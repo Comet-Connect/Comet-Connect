@@ -1,10 +1,5 @@
-import 'dart:convert';
-import 'dart:async';
 import 'package:comet_connect_app/homepage.dart';
 import 'package:flutter/material.dart';
-import 'package:web_socket_channel/io.dart';
-
-import './login.dart';
 
 // signUp(context, _mail, _user, _pwd, _cpwd) async {
 //   // Check if email is valid.
