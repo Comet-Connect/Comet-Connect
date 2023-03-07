@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-
-import '/login_or_signup.dart';
-import './homepage.dart';
-import 'login.dart';
-import './selectdate.dart.';   
+import 'pages/login_or_signup.dart';
+import 'pages/homepage.dart';
+import 'pages/groups_page.dart';
+import './selectdate.dart.';
 
 void main() {
   runApp(MyApp());
@@ -14,6 +12,17 @@ void main() {
 class MyApp extends StatelessWidget {
   final routerDelegate = MyRouterDelegate();
   final routeInformationParser = MyRouteInformationParser();
+
+  autoLogin() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool? loggedIn = prefs.getBool('loggedin');
+
+    if (loggedIn == true) {
+      return const MyHomePage();
+    } else {
+      return const LoginOrSignup();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,6 +46,14 @@ class MyRouterDelegate extends RouterDelegate<MyRoutePath>
     const MaterialPage(
       key: ValueKey('LoginOrSignup'),
       child: LoginOrSignup(),
+    ),
+    const MaterialPage(
+      key: ValueKey('home'),
+      child: MyHomePage(),
+    ),
+    const MaterialPage(
+      key: ValueKey('groups'),
+      child: MyHomePage(),
     ),
   ];
 
@@ -70,7 +87,7 @@ class MyRouterDelegate extends RouterDelegate<MyRoutePath>
     } else if (path.isHomePage) {
       _pages.add(
         const MaterialPage(
-          key: ValueKey('MyHomePage'),
+          key: ValueKey('home'),
           child: MyHomePage(),
         ),
       );
@@ -81,20 +98,20 @@ class MyRouterDelegate extends RouterDelegate<MyRoutePath>
           child: SelectDate(),
         ),
       );
-    // } else if (path.isGroupsPage) {
-    //   _pages.add(
-    //     MaterialPage(
-    //       key: const ValueKey('GroupsPage'),
-    //       child: GroupsPage(),
-    //     ),
-    //   );
-    // } else if (path.isHelpPage) {
-    //   _pages.add(
-    //     MaterialPage(
-    //       key: const ValueKey('HelpPage'),
-    //       child: HelpPage(),
-    //     ),
-    //   );
+    } else if (path.isGroupsPage) {
+      _pages.add(
+        const MaterialPage(
+          key: ValueKey('GroupsPage'),
+          child: GroupsPage(),
+        ),
+      );
+      // } else if (path.isHelpPage) {
+      //   _pages.add(
+      //     MaterialPage(
+      //       key: const ValueKey('HelpPage'),
+      //       child: HelpPage(),
+      //     ),
+      //   );
     }
     notifyListeners();
   }
@@ -102,16 +119,19 @@ class MyRouterDelegate extends RouterDelegate<MyRoutePath>
 
 class MyRouteInformationParser extends RouteInformationParser<MyRoutePath> {
   @override
-  Future<MyRoutePath> parseRouteInformation(RouteInformation routeInformation) async {
+  Future<MyRoutePath> parseRouteInformation(
+      RouteInformation routeInformation) async {
     final uri = Uri.parse(routeInformation.location!);
 
-    if (uri.pathSegments.length == 0) {
+    if (uri.pathSegments.isEmpty) {
       return MyRoutePath.login();
     } else if (uri.pathSegments.length == 1 && uri.pathSegments[0] == 'home') {
       return MyRoutePath.home();
-    } else if (uri.pathSegments.length == 1 && uri.pathSegments[0] == 'calendar') {
+    } else if (uri.pathSegments.length == 1 &&
+        uri.pathSegments[0] == 'calendar') {
       return MyRoutePath.calendar();
-    } else if (uri.pathSegments.length == 1 && uri.pathSegments[0] == 'groups') {
+    } else if (uri.pathSegments.length == 1 &&
+        uri.pathSegments[0] == 'groups') {
       return MyRoutePath.groups();
     } else if (uri.pathSegments.length == 1 && uri.pathSegments[0] == 'help') {
       return MyRoutePath.help();
@@ -206,4 +226,3 @@ class MyRoutePath {
         isHelpPage = false,
         isUnknown = true;
 }
-
