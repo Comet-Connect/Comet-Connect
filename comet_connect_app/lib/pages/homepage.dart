@@ -1,8 +1,8 @@
 import 'package:comet_connect_app/pages/groups_page.dart';
 import 'package:flutter/material.dart';
-import '../selectdate.dart.';
 import 'menu.dart';
 import 'login_or_signup.dart';
+import 'selectdate.dart.';
 
 class MyHomePage extends StatelessWidget {
   const MyHomePage({Key? key}) : super(key: key);
@@ -67,6 +67,7 @@ class MyHomePage extends StatelessWidget {
                         // ),
 
                         child: GridView.count(
+                          padding: const EdgeInsets.all(20),
                           crossAxisCount: 2,
                           children: const [
                             GroupTile(name: 'Group 1'),
@@ -142,7 +143,7 @@ class GroupTile extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       child: Card(
         color: Colors.blueGrey[100],
-        child: Container(
+        child: SizedBox(
           height: 100,
           child: Center(
             child: Text(

@@ -14,13 +14,13 @@ class _GroupsPageState extends State<GroupsPage> {
   bool _isListView = true;
   int _selectedItemCount = 5;
 
-  late mongo.Db _db; // Database
+  // late mongo.Db _db; // Database
 
-  @override
-  void initState() {
-    //super.initState();
-    //_db = mongo.Db('mongodb+srv://admin:bNGtOFxi3UTcv81W@cometconnect.cuwtjrg.mongodb.net/user_info');
-  }
+  // @override
+  // void initState() {
+  //   //super.initState();
+  //   //_db = mongo.Db('mongodb+srv://admin:bNGtOFxi3UTcv81W@cometconnect.cuwtjrg.mongodb.net/user_info');
+  // }
 
   @override
   Widget build(BuildContext context) {

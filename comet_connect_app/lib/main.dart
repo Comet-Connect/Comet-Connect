@@ -3,7 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'pages/login_or_signup.dart';
 import 'pages/homepage.dart';
 import 'pages/groups_page.dart';
-import './selectdate.dart.';
+import 'pages/selectdate.dart';
 
 void main() {
   runApp(MyApp());

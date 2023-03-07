@@ -1,7 +1,6 @@
 import 'dart:developer';
 
 import 'package:mongo_dart/mongo_dart.dart' as mongo;
-import 'package:mongo_dart/mongo_dart.dart';
 
 // login(context, _mail, _pwd) async {
 //   String auth = "chatappauthkey231r4";
@@ -57,20 +56,20 @@ void authenticateUser(
   try {
     print("Login.dart");
     // Connect to MongoDB server
-    const String MONGO_CONN_URL =
+    String mongoConnUrl =
         "mongodb+srv://admin:bNGtOFxi3UTcv81W@cometconnect.cuwtjrg.mongodb.net/user_info";
-    const String USER_COLLECTION = "users";
+    String userCollection = "users";
 
     //user = "admin";
     //pass = "bNGtOFxi3UTcv81W "
 
-    var db = await mongo.Db.create(MONGO_CONN_URL);
+    var db = await mongo.Db.create(mongoConnUrl);
     await db.open();
     inspect(db);
     
     // Query the users collection to find the user with the given username and password
     var user = await db
-        .collection(USER_COLLECTION)
+        .collection(userCollection)
         .findOne(mongo.where.eq('username', username).eq('password', password));
 
     // Close the database connection
