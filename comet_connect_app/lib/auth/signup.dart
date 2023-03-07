@@ -1,4 +1,4 @@
-import 'package:comet_connect_app/homepage.dart';
+import 'package:comet_connect_app/pages/homepage.dart';
 import 'package:flutter/material.dart';
 
 // signUp(context, _mail, _user, _pwd, _cpwd) async {
@@ -67,11 +67,13 @@ class _SignupPageState extends State<SignupPage> {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    return Scaffold(
+    return MaterialApp(
+      title: 'Sign up',
+      home: Scaffold(
       appBar: AppBar(
         title: const Text('Sign Up'),
       ),
+      // Main Body of Signup
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -147,6 +149,7 @@ class _SignupPageState extends State<SignupPage> {
           ),
         ),
       ),
+      )
     );
   }
 }

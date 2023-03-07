@@ -15,9 +15,12 @@ const server = express()
 const wss = new Server({ server });
 
 // TODO: Change connection
-mongoose.connect("http://127.0.0.1:57246/")
+const MONGO_CONN_URL =
+        "mongodb+srv://admin:bNGtOFxi3UTcv81W@cometconnect.cuwtjrg.mongodb.net/user_info";
+    const USER_COLLECTION = "users";
+mongoose.connect(MONGO_CONN_URL)
     .then((_) => console.log("Connected to database."))
-    .catch((e) => console.log("Error:", e)); // Open MongoDB.
+    .catch((e) => console.log("Errork (index.js):", e)); // Open MongoDB.
 
 wss.on('connection', function(ws, req) {
     ws.on('message', message => { // If there is any message

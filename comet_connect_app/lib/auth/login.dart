@@ -1,11 +1,7 @@
-import 'dart:convert';
+import 'dart:developer';
 
-import 'package:comet_connect_app/homepage.dart';
-import 'package:flutter/material.dart';
 import 'package:mongo_dart/mongo_dart.dart' as mongo;
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:web_socket_channel/io.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+import 'package:mongo_dart/mongo_dart.dart';
 
 // login(context, _mail, _pwd) async {
 //   String auth = "chatappauthkey231r4";
@@ -14,9 +10,9 @@ import 'package:google_sign_in/google_sign_in.dart';
 //     try {
 //       // Create connection.
 //       //channel = IOWebSocketChannel.connect('ws://localhost:51744/$_mail');
-      
+
 //       channel = IOWebSocketChannel.connect('ws://localhost:51744/');
-      
+
 //       // Data that will be sended to Node.js
 //       String signUpData =
 //           "{'auth':'$auth','cmd':'login','email':'$_mail','hash':'$_pwd'}";
@@ -59,12 +55,23 @@ void authenticateUser(
   Function(String) onError,
 ) async {
   try {
+    print("Login.dart");
     // Connect to MongoDB server
-    final db = await mongo.Db.create('mongodb://localhost:57224/my_database');
-    await db.open();
+    const String MONGO_CONN_URL =
+        "mongodb+srv://admin:bNGtOFxi3UTcv81W@cometconnect.cuwtjrg.mongodb.net/user_info";
+    const String USER_COLLECTION = "users";
 
+    //user = "admin";
+    //pass = "bNGtOFxi3UTcv81W "
+
+    var db = await mongo.Db.create(MONGO_CONN_URL);
+    await db.open();
+    inspect(db);
+    
     // Query the users collection to find the user with the given username and password
-    final user = await db.collection('users').findOne(mongo.where.eq('username', username).eq('password', password));
+    var user = await db
+        .collection(USER_COLLECTION)
+        .findOne(mongo.where.eq('username', username).eq('password', password));
 
     // Close the database connection
     await db.close();
@@ -78,7 +85,6 @@ void authenticateUser(
     }
   } catch (error) {
     // Handle database connection error
-    onError(error.toString());
+    onError("(login.dart)$error");
   }
 }
-
