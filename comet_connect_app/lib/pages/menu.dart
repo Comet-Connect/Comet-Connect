@@ -16,20 +16,21 @@ class HamburgerMenu extends StatelessWidget {
             accountName: const Text('Username'),
             accountEmail: const Text('user@example.com'),
             currentAccountPicture: const CircleAvatar(
-              backgroundImage: NetworkImage(
-                  'https://example.com/profile-picture.png'),
+              backgroundImage:
+                  NetworkImage('https://example.com/profile-picture.png'),
             ),
             otherAccountsPictures: [
               GestureDetector(
                 onTap: () async {
                   // Show a file picker dialog to let the user choose an image file
-                  final pickedFile = await ImagePicker().getImage(
-                      source: ImageSource.gallery, imageQuality: 50);
+                  final pickedFile = await ImagePicker()
+                      .getImage(source: ImageSource.gallery, imageQuality: 50);
 
                   // If the user picked an image file, update the profile picture
                   if (pickedFile != null) {
                     // Upload the image file to your server and get the image URL
-                    final imageUrl = await uploadProfilePicture(pickedFile as XFile);
+                    // final imageUrl =
+                    //     await uploadProfilePicture(pickedFile as XFile);
 
                     // Update the profile picture
                     // if (imageUrl != null) {
@@ -48,6 +49,7 @@ class HamburgerMenu extends StatelessWidget {
               ),
             ],
           ),
+          Spacer(),
           // List of Menu Items
           ListTile(
             leading: const Icon(Icons.home),
@@ -71,7 +73,6 @@ class HamburgerMenu extends StatelessWidget {
             title: const Text('H E L P'),
             onTap: () => Navigator.of(context).pushNamed('/help'),
           ),
-          const Spacer(),
           ListTile(
             leading: const Icon(Icons.logout),
             title: const Text('L O G O U T'),
@@ -86,7 +87,7 @@ class HamburgerMenu extends StatelessWidget {
       ),
     );
   }
-  
+
   // Image Uploader
   Future<String?> uploadProfilePicture(XFile imageFile) async {
     // Upload the image file to your server and get the image URL

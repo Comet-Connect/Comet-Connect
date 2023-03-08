@@ -3,13 +3,26 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'pages/login_or_signup.dart';
 import 'pages/homepage.dart';
 import 'pages/groups_page.dart';
-import './selectdate.dart.';
+import 'pages/selectdate.dart';
 
-void main() {
-  runApp(MyApp());
+// Define your API endpoint URLs
+const String loginUrl = 'http://192.168.1.229:3000/api/login';
+const String dataUrl = 'http://192.168.1.229:3000/api/data'; // MongoDB database
+//const String createUrl = 'http://localhost:3000/api/create';
+//const String updateUrl = 'http://localhost:3000/api/update';
+
+void main() async {
+  runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
   final routerDelegate = MyRouterDelegate();
   final routeInformationParser = MyRouteInformationParser();
 

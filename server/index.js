@@ -1,127 +1,191 @@
-// Once we Create a new Schema, connect it to our database
+const mongoose = require('mongoose');
 const express = require('express');
 const { Server } = require('ws');
-const mongoose = require('mongoose');
-const crypto = require('crypto'); // Used to hash passwords
+const bodyParser = require('body-parser');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const cors = require('cors');
+const User = require('./models/User');
+const MongoClient = require('mongodb').MongoClient;
+const app = express();
+const port = 3000  //process.env.PORT || 3000;
+const url = 'mongodb+srv://admin:bNGtOFxi3UTcv81W@cometconnect.cuwtjrg.mongodb.net/user_info?retryWrites=true&w=majority' 
+            //'mongodb+srv://admin:bNGtOFxi3UTcv81W@cometconnect.cuwtjrg.mongodb.net/user_info';
+app.use(bodyParser.json());
 
-const User = require('./user.js'); // Locate file
+const JWT_SECRET = 'Y8qKMoPgmy';
 
-const PORT = process.env.PORT || 3000; //port for https
-
-const server = express()
-    .use((req, res) => res.send("Hello, you!"))
-    .listen(PORT, () => console.log(`Listening on ${PORT}`));
-
-const wss = new Server({ server });
-
-// TODO: Change connection
-const MONGO_CONN_URL =
-        "mongodb+srv://admin:bNGtOFxi3UTcv81W@cometconnect.cuwtjrg.mongodb.net/user_info";
-    const USER_COLLECTION = "users";
-mongoose.connect(MONGO_CONN_URL)
-    .then((_) => console.log("Connected to database."))
-    .catch((e) => console.log("Errork (index.js):", e)); // Open MongoDB.
-
-wss.on('connection', function(ws, req) {
-    ws.on('message', message => { // If there is any message
-        // // Example usage:
-        var loginResult = login(data.username, data.password);
-        if (loginResult.success) {
-            ws.send("Login successful");
-        } else {
-            ws.send("Login failed: " + loginResult.message);
-        }
-
-
-        var datastring = message.toString();
-        if(datastring.charAt(0) == "{"){ // Check if message starts with '{' to check if it's json
-            datastring = datastring.replace(/\'/g, '"');
-            var data = JSON.parse(datastring)
-            if(data.auth == "chatappauthkey231r4"){
-                // TODO: Create login function
-                function login(username, password) {
-                    // TODO: Add login logic here
-                    if (username === "chatuser" && password === "chatpass") {
-                        return { success: true, message: "Login successful" };
-                    } else {
-                        return { success: false, message: "Invalid username or password" };
-                    }
-                }
-
-                /** Once we create a basic backend, we start signing up users
-                 *      -> Create Signup function
-                 *          -> checks if the username & email don't already exist and hash user's password
-                 * 
-                 *      -> Create Login function
-                 *          -> a way for users to log in
-                 */ 
-                    // Signup Function
-                    if (data.cmd === 'signup') {  // On Signup, look into database for an email
-                        // If mail doesn't exists it will return null
-                        User.findOne({email: data.email}).then((mail) => {
-                            // Check if email doesn't exist.
-                            if (mail == null) {
-                                User.findOne({username: data.username}).then((user) => {
-                                        // Check if username doesn't exists.
-                                        if (user == null) {
-                                            const hash = crypto.createHash("md5")
-                                            let hexPwd = hash.update(data.hash).digest('hex');
-                                            var signupData = "{'cmd':'"+data.cmd+"','status':'succes'}";
-                                            const user = new User({
-                                                email: data.email,
-                                                username: data.username,
-                                                password: hexPwd,
-                                            });
-                                            // Insert new user in db
-                                            user.save();
-                                            // Send info to user
-                                            ws.send(signupData);
-                                    } else {
-                                        // Send error message to user.
-                                        var signupData = "{'cmd':'"+data.cmd+"','status':'user_exists'}";  
-                                        ws.send(signupData);  
-                                    }
-                                });
-                            } else{
-                                // Send error message to user.
-                                var signupData = "{'cmd':'"+data.cmd+"','status':'mail_exists'}";    
-                                ws.send(signupData);
-                            }
-                        });
-                    }
-
-                    // Login Function
-                    if (data.cmd === 'login') {
-                        // Check if email exists 
-                        User.findOne({email: data.email}).then((r) => {
-                            // If email doesn't exists it will return null
-                            if (r != null) {
-                                const hash = crypto.createHash("md5")
-                                // Hash password to md5
-                                let hexPwd = hash.update(data.hashcode).digest('hex');
-                                // Check if password is correct
-                                if (hexPwd == r.password) {
-                                    // Send username to user and status code is succes.
-                                    var loginData = '{"username":"'+r.username+'","status":"succes"}';
-                                    // Send data back to user
-                                    ws.send(loginData);
-                                } else{
-                                    // Send error
-                                    var loginData = '{"cmd":"'+data.cmd+'","status":"wrong_pass"}';
-                                    ws.send(loginData);
-                                }
-                            } else{
-                                // Send error
-                                var loginData = '{"cmd":"'+data.cmd+'","status":"wrong_mail"}';
-                                ws.send(loginData);
-                            }
-                        });
-                    } 
+// Connect to MongoDB
+mongoose.connect(url, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+}).then(() => {  // Success
+  console.log('Connected to MongoDB');
+  const server = app.listen(port, () => console.log(`Listening on ${port}`));
+  const wss = new Server({ server });
+  
+  wss.on('connection', function (ws, req) {
+    console.log('WebSocket client connected');
+    
+    ws.on('message', async (message) => {
+      console.log('WebSocket message received:\n', JSON.stringify(message, "  "));
+      
+      try {
+        const data = JSON.parse(message);
+        if (data.auth === "chatappauthkey231r4" && data.cmd === 'login') {
+          // Check if email or username exists
+          const user = await User.findOne({ $or: [{ email: data.email }, { username: data.username }] });
+          
+          if (!user) {
+            ws.send(JSON.stringify({ "cmd": "login", "status": "wrong_credentials" }));
+          } else {
+            // Check if password is correct
+            const match = await user.checkPassword(data.password);
+            
+            if (match) {
+              ws.send(JSON.stringify({ "cmd": "login", "username": user.username, "status": "success" }));
+            } else {
+              ws.send(JSON.stringify({ "cmd": "login", "status": "wrong_credentials" }));
             }
+          }
+        } else {
+          ws.send(JSON.stringify({ "cmd": data.cmd, "status": "invalid_auth" }));
+        }
+      } catch (err) {
+        console.error('Error parsing WebSocket message: (index.js)', err);
+        ws.send(JSON.stringify({ "cmd": "error", "status": "parse_error" }));
+      }
+    });
+  });
+}).catch((err) => {
+  console.error('Error connecting to MongoDB:', err);
+  process.exit(1);
+});
+
+
+
+// wss.on('connection', function(ws, req) {
+//     ws.on('message', message => { // If there is any message
+//         var datastring = message.toString();
+//         print(datastring);
+//         if(datastring.charAt(0) == "{"){ // Check if message starts with '{' to check if it's json
+//             datastring = datastring.replace(/\'/g, '"');
+//             var data = JSON.parse(datastring)
+//             if(data.auth == "chatappauthkey231r4"){
+//                 // TODO: Create login function
+//                 if (data.cmd === 'login'){
+//                   // Check if email exists 
+//                   User.findOne({email: data.email}).then((r) => {
+//                       // If email doesn't exists it will return null
+//                       if (r != null){
+//                           const hash = crypto.createHash("md5")
+//                           // Hash password to md5
+//                           let hexPwd = hash.update(data.hashcode).digest('hex');
+//                           // Check if password is correct
+//                           if (hexPwd == r.password) {
+//                               // Send username to user and status code is succes.
+//                               var loginData = '{"username":"'+r.username+'","status":"succes"}';
+//                               // Send data back to user
+//                               ws.send(loginData);
+//                           } else{
+//                               // Send error
+//                               var loginData = '{"cmd":"'+data.cmd+'","status":"wrong_pass"}';
+//                               ws.send(loginData);
+//                           }
+//                       } else{
+//                           // Send error
+//                           var loginData = '{"cmd":"'+data.cmd+'","status":"wrong_mail"}';
+//                           ws.send(loginData);
+//                       }
+//                   });
+//               } 
+//             }
+//         }
+//     }) 
+// })
+
+
+  app.post('/api/login', async (req, res) => {
+    try {
+      // Connect to MongoDB
+      const client = await MongoClient.connect(url);
+      const db = client.db('user_info');
+      print(req);
+      // Get the user from the database
+      const user = await db.collection('users').findOne({ username: req.body.username });
+
+      // Check if the user exists and the password is correct
+      if (!user || !(await bcrypt.compare(req.body.password, user.password))) {
+        return res.status(401).json({ error: 'Invalid username or password' });
+      }
+
+      // Generate a JWT token and send it to the client
+      const token = jwt.sign({ userId: user._id }, JWT_SECRET);
+      res.json({ token });
+
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+
+// // Helper function to check if user exists in database
+// async function checkUser(username) {
+//     const client = new MongoClient(url, { useNewUrlParser: true, useUnifiedTopology: true });
+//     try {
+//       await client.connect();
+//       const db = client.db('user_info');
+//       const collection = db.collection('users');
+//       const user = await collection.findOne({ username: username });
+//       return user !== null;
+//     } finally {
+//       await client.close();
+//     }
+//   }
+  
+//   // Helper function to check if password matches hashed password in database
+//   async function checkPassword(username, password) {
+//     const client = new MongoClient(url, { useNewUrlParser: true, useUnifiedTopology: true });
+//     try {
+//       await client.connect();
+//       const db = client.db('user_info');
+//       const collection = db.collection('users');
+//       const user = await collection.findOne({ username: password });
+//       if (!user) {
+//         return false;
+//       }
+//       return await bcrypt.compare(password, user.password);
+//     } finally {
+//       await client.close();
+//     }
+//   }
+
+  // API endpoint to fetch data
+  app.get('/api/data', (req, res) => {
+    MongoClient.connect(url, (err, client) => {
+      if (err) {
+        console.error(err);
+        res.status(500).send('Error connecting to database');
+        return;
+      }
+      
+      const db = client.db('user_info');
+      
+      db.collection('users').find().toArray((err, results) => {
+        if (err) {
+          console.error(err);
+          res.status(500).send('Error fetching data from database');
+          return;
         }
         
-
-
-    }) 
-})
-
+        res.json(results);
+      });
+    });
+  });
+  
+//   // Start server
+// app.listen(port, () => {
+//     console.log(`Server started on port ${port}`);
+//   });
+  
