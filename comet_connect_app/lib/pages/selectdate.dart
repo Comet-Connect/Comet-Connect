@@ -36,13 +36,13 @@ class _SelectDateState extends State<SelectDate> {
     ),
   ];
 
-  int _selectedIndex = 0;
+  // int _selectedIndex = 0;
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
+  // void _onItemTapped(int index) {
+  //   setState(() {
+  //     _selectedIndex = index;
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -137,7 +137,6 @@ class MeetingDataSource extends CalendarDataSource {
     return appointments![index].from;
   }
 
-  @override
   DateTime getendTime(int index) {
     return appointments![index].to;
   }

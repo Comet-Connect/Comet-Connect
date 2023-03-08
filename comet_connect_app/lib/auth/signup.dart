@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'package:comet_connect_app/pages/homepage.dart';
 import 'package:flutter/material.dart';
 

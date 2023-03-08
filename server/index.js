@@ -32,6 +32,7 @@ mongoose.connect(url, {
       
       try {
         const data = JSON.parse(message);
+        // Login function
         if (data.auth === "chatappauthkey231r4" && data.cmd === 'login') {
           // Check if email or username exists
           const user = await User.findOne({ $or: [{ email: data.email }, { username: data.username }] });
@@ -48,7 +49,9 @@ mongoose.connect(url, {
               ws.send(JSON.stringify({ "cmd": "login", "status": "wrong_credentials" }));
             }
           }
-        } else {
+        }  // TODO: Signup function
+        
+        else {
           ws.send(JSON.stringify({ "cmd": data.cmd, "status": "invalid_auth" }));
         }
       } catch (err) {
