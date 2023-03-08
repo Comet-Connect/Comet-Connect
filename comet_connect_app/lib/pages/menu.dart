@@ -29,8 +29,8 @@ class HamburgerMenu extends StatelessWidget {
                   // If the user picked an image file, update the profile picture
                   if (pickedFile != null) {
                     // Upload the image file to your server and get the image URL
-                    final imageUrl =
-                        await uploadProfilePicture(pickedFile as XFile);
+                    // final imageUrl =
+                    //     await uploadProfilePicture(pickedFile as XFile);
 
                     // Update the profile picture
                     // if (imageUrl != null) {
@@ -49,6 +49,7 @@ class HamburgerMenu extends StatelessWidget {
               ),
             ],
           ),
+          Spacer(),
           // List of Menu Items
           ListTile(
             leading: const Icon(Icons.home),
@@ -72,7 +73,6 @@ class HamburgerMenu extends StatelessWidget {
             title: const Text('H E L P'),
             onTap: () => Navigator.of(context).pushNamed('/help'),
           ),
-          const Spacer(),
           ListTile(
             leading: const Icon(Icons.logout),
             title: const Text('L O G O U T'),
