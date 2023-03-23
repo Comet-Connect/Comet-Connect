@@ -11,11 +11,12 @@ login(context, _mailOrUsername, _pwd) async {
   if (_mailOrUsername.isNotEmpty && _pwd.isNotEmpty) {
     WebSocketChannel? channel;
     try {
-      // Create connection.
-      channel = WebSocketChannel.connect(
+        // Create connection.
+        channel = WebSocketChannel.connect(
         Uri.parse('ws://192.168.1.229:3000/$_mailOrUsername'),
       );
     } catch (e) {
+      // Print Error Message if Not able to connect to Mongoose Server
       print("Error on connecting to websocket: (login.dart) " + e.toString());
       showDialog(
         context: context,

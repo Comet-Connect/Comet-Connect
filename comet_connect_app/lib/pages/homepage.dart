@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'menu.dart';
 import 'login_or_signup.dart';
 import 'selectdate.dart.';
+import 'package:table_calendar/table_calendar.dart';
 
 class MyHomePage extends StatelessWidget {
   const MyHomePage({Key? key}) : super(key: key);
@@ -38,13 +39,16 @@ class MyHomePage extends StatelessWidget {
                 flex: 3,
                 child: Container(
                   color: Colors.blueGrey[500],
-                  child: const Center(
-                    // TODO: Insert user calendar from DB
-                    child: Text(
-                      'Calendar Preview',
-                      style: TextStyle(fontSize: 24),
-                    ),
-                  ),
+                  // child: const Center(
+                  //   // TODO: Insert user calendar from DB
+                  //   child: Text(
+                  //     'Calendar Preview',
+                  //     style: TextStyle(fontSize: 24),
+                  //   ),
+                  // ),
+
+                  
+
                 ),
               ),
               Expanded(

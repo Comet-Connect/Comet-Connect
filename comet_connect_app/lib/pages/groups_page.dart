@@ -51,7 +51,7 @@ class _GroupsPageState extends State<GroupsPage> {
                       Icon(Icons.grid_view),
                     ],
                   ),
-                  
+
                   // Search Bar
                   Expanded(
                     flex: 2,
