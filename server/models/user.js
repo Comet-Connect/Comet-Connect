@@ -34,22 +34,23 @@ userSchema.pre("save", async function (next) {
     next();
   });
   
-  // Check if the given password matches the user's password
-  userSchema.methods.checkPassword = async function (password) {
-    return await bcrypt.compare(password, this.password);
-  };
+// Check if the given password matches the user's password
+userSchema.methods.checkPassword = async function (password) {
+  return await bcrypt.compare(password, this.password);
+};
 
-const User = mongoose.model('User', userSchema);
+// add a user to the database
+userSchema.statics.addUser = async function (connection, username, password, first_name, last_name, email) {
+  const newUser = new User({
+    username: username,
+    password: password,
+    email: email,
+    first_name: first_name,
+    last_name: last_name
+  });
+  // connection.collection('UserInfo').insert(newUser)
+  return newUser.save();
+}
 
-// Create a new user
-// const newUser = new User({
-//     username: "dan",
-//     password: "123",
-//     email: "da@gmail.com",
-//     first_name: "danny",
-//     last_name: "vu"
-//   });
-// newUser.save();
-
+const User = mongoose.model('UserInfo', userSchema);
 module.exports = User;
-

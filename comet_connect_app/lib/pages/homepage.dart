@@ -2,7 +2,7 @@ import 'package:comet_connect_app/pages/groups_page.dart';
 import 'package:flutter/material.dart';
 import 'menu.dart';
 import 'login_or_signup.dart';
-import 'selectdate.dart.';
+import 'selectdate.dart';
 
 class MyHomePage extends StatelessWidget {
   const MyHomePage({Key? key}) : super(key: key);
@@ -26,7 +26,7 @@ class MyHomePage extends StatelessWidget {
         backgroundColor: Colors.grey[300],
         // Create Hambureger Menu
         drawer: const HamburgerMenu(),
-        
+
         // Main portion of home page
         body: Padding(
           // Padding around all edges

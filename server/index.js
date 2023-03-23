@@ -9,7 +9,9 @@ const User = require('./models/User');
 const MongoClient = require('mongodb').MongoClient;
 const app = express();
 const port = 3000  //process.env.PORT || 3000;
-const url = 'mongodb+srv://admin:bNGtOFxi3UTcv81W@cometconnect.cuwtjrg.mongodb.net/user_info?retryWrites=true&w=majority' 
+var db_username = encodeURIComponent('admin')
+var db_password = encodeURIComponent('bNGtOFxi3UTcv81W')
+const url = `mongodb+srv://${db_username}:${db_password}@cometconnect.cuwtjrg.mongodb.net/user_info`
             //'mongodb+srv://admin:bNGtOFxi3UTcv81W@cometconnect.cuwtjrg.mongodb.net/user_info';
 app.use(bodyParser.json());
 
@@ -51,6 +53,29 @@ mongoose.connect(url, {
           }
         }  // TODO: Signup function
         
+        else if (data.cmd === 'signup' && data.auth === 'chatappauthkey231r4') {
+          const matchingUsername = await User.findOne({username: data.username})
+          const matchingEmail = await User.findOne({email: data.email})
+
+          if (matchingUsername) {
+            ws.send(JSON.stringify({"cmd": "signup", "status": "existing_username"}));
+          }
+          else if (matchingEmail) {
+            ws.send(JSON.stringify({"cmd": "signup", "status": "existing_email"}));
+          }
+          else {
+            var connection = mongoose.connection;
+            const added = User.addUser(connection, data.username, data.password, data.first_name, data.last_name, data.email)
+
+            if (added) {
+              ws.send(JSON.stringify({"cmd": "signup", "status": "success"}))
+            }
+            else {
+              ws.send(JSON.stringify({"cmd": "signup", "status": "signup_error"}))
+            }
+          }
+        }
+
         else {
           ws.send(JSON.stringify({ "cmd": data.cmd, "status": "invalid_auth" }));
         }
@@ -115,7 +140,7 @@ mongoose.connect(url, {
       const db = client.db('user_info');
       print(req);
       // Get the user from the database
-      const user = await db.collection('users').findOne({ username: req.body.username });
+      const user = await db.collection('UserInfo').findOne({ username: req.body.username });
 
       // Check if the user exists and the password is correct
       if (!user || !(await bcrypt.compare(req.body.password, user.password))) {
@@ -139,7 +164,7 @@ mongoose.connect(url, {
 //     try {
 //       await client.connect();
 //       const db = client.db('user_info');
-//       const collection = db.collection('users');
+//       const collection = db.collection('UserInfo');
 //       const user = await collection.findOne({ username: username });
 //       return user !== null;
 //     } finally {
@@ -153,7 +178,7 @@ mongoose.connect(url, {
 //     try {
 //       await client.connect();
 //       const db = client.db('user_info');
-//       const collection = db.collection('users');
+//       const collection = db.collection('UserInfo');
 //       const user = await collection.findOne({ username: password });
 //       if (!user) {
 //         return false;
@@ -163,6 +188,35 @@ mongoose.connect(url, {
 //       await client.close();
 //     }
 //   }
+
+  // // Helper function to add a user to the database
+  // async function addUser(username, password, firstName, lastName, email) {
+  //   try {
+  //     const client = new MongoClient.connect(url);
+  //     const database = client.db("CommetConnectText")
+  //     const haiku = database.collection("UserInfo");
+  //     // create a document to insert
+  //     // const doc = {
+  //     //   username: username,
+  //     //   password: password,
+  //     //   first_name: firstName,
+  //     //   last_name: lastName,
+  //     //   email: email
+  //     // }
+  //     const doc = {
+  //       username: 'jd123',
+  //       password: 'password123#$',
+  //       first_name: 'john',
+  //       last_name: 'doe',
+  //       email: 'jd123@example.com'
+  //     }
+  //     const result = await haiku.insertOne(doc);
+  //     console.log(`A document was inserted with the _id: ${result.insertedId}`);
+  //     alert('Function called');
+  //   } finally {
+  //     await client.close();
+  //   }
+  // }
 
   // API endpoint to fetch data
   app.get('/api/data', (req, res) => {
@@ -175,7 +229,7 @@ mongoose.connect(url, {
       
       const db = client.db('user_info');
       
-      db.collection('users').find().toArray((err, results) => {
+      db.collection('UserInfo').find().toArray((err, results) => {
         if (err) {
           console.error(err);
           res.status(500).send('Error fetching data from database');
