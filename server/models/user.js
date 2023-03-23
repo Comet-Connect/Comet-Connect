@@ -32,24 +32,42 @@ userSchema.pre("save", async function (next) {
       user.password = await bcrypt.hash(user.password, 10);
     }
     next();
-  });
+});
   
-  // Check if the given password matches the user's password
-  userSchema.methods.checkPassword = async function (password) {
+// Check if the given password matches the user's password
+userSchema.methods.checkPassword = async function (password) {
     return await bcrypt.compare(password, this.password);
-  };
+};
 
 const User = mongoose.model('User', userSchema);
 
 // Create a new user
 // const newUser = new User({
-//     username: "dan",
+//     username: "bob",
 //     password: "123",
-//     email: "da@gmail.com",
-//     first_name: "danny",
-//     last_name: "vu"
+//     email: "bob@gmail.com",
+//     first_name: "bob",
+//     last_name: "test"
 //   });
 // newUser.save();
+
+
+// Update an existing user document
+// const user = await User.findOne({ email: 'johndoe@example.com' });
+// user.password = 'newpassword456';
+// await user.save();
+
+
+// // Query for all user documents
+// const allUsers = await User.find();
+
+
+// // Query for a specific user document by ID
+// const userById = await User.findById('1234567890abcdef');
+
+
+// // Delete a user document
+// await User.deleteOne({ email: 'johndoe@example.com' });
 
 module.exports = User;
 

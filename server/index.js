@@ -1,29 +1,33 @@
+// Current approach (wss)
 const mongoose = require('mongoose');
 const express = require('express');
 const { Server } = require('ws');
-const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const cors = require('cors');
 const User = require('./models/User');
+
+// Back up approach (app)
+const bodyParser = require('body-parser');
 const MongoClient = require('mongodb').MongoClient;
 const app = express();
+app.use(bodyParser.json());
+const JWT_SECRET = 'Y8qKMoPgmy';
+const jwt = require('jsonwebtoken');
+
+// URLs & Ports
 const port = 3000  //process.env.PORT || 3000;
 const url = 'mongodb+srv://admin:bNGtOFxi3UTcv81W@cometconnect.cuwtjrg.mongodb.net/user_info?retryWrites=true&w=majority' 
             //'mongodb+srv://admin:bNGtOFxi3UTcv81W@cometconnect.cuwtjrg.mongodb.net/user_info';
-app.use(bodyParser.json());
-
-const JWT_SECRET = 'Y8qKMoPgmy';
-
+            
 // Connect to MongoDB
 mongoose.connect(url, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 }).then(() => {  // Success
-  console.log('Connected to MongoDB');
+  console.log('\nConnected to MongoDB');
   const server = app.listen(port, () => console.log(`Listening on ${port}`));
   const wss = new Server({ server });
   
+  // Start up WebSocket Server
   wss.on('connection', function (ws, req) {
     console.log('WebSocket client connected');
     
@@ -32,6 +36,7 @@ mongoose.connect(url, {
       
       try {
         const data = JSON.parse(message);
+        // Login function
         if (data.auth === "chatappauthkey231r4" && data.cmd === 'login') {
           // Check if email or username exists
           const user = await User.findOne({ $or: [{ email: data.email }, { username: data.username }] });
@@ -48,13 +53,35 @@ mongoose.connect(url, {
               ws.send(JSON.stringify({ "cmd": "login", "status": "wrong_credentials" }));
             }
           }
-        } else {
+        }  // TODO: Signup function
+        
+        else {
           ws.send(JSON.stringify({ "cmd": data.cmd, "status": "invalid_auth" }));
         }
       } catch (err) {
         console.error('Error parsing WebSocket message: (index.js)', err);
         ws.send(JSON.stringify({ "cmd": "error", "status": "parse_error" }));
       }
+    
+    
+      // For Meetings 
+      const { type, payload } = JSON.parse(message);
+
+      if (type === 'CREATE_MEETING') {
+        createMeeting(payload)
+          .then((meeting) => {
+            wss.clients.forEach((client) => {
+              client.send(JSON.stringify({ type: 'MEETING_CREATED', payload: meeting }));
+            });
+          })
+          .catch((err) => {
+            console.error(err);
+            ws.send(JSON.stringify({ type: 'ERROR', payload: 'Server error' }));
+          });
+      }
+    
+    
+    
     });
   });
 }).catch((err) => {
@@ -63,48 +90,7 @@ mongoose.connect(url, {
 });
 
 
-
-// wss.on('connection', function(ws, req) {
-//     ws.on('message', message => { // If there is any message
-//         var datastring = message.toString();
-//         print(datastring);
-//         if(datastring.charAt(0) == "{"){ // Check if message starts with '{' to check if it's json
-//             datastring = datastring.replace(/\'/g, '"');
-//             var data = JSON.parse(datastring)
-//             if(data.auth == "chatappauthkey231r4"){
-//                 // TODO: Create login function
-//                 if (data.cmd === 'login'){
-//                   // Check if email exists 
-//                   User.findOne({email: data.email}).then((r) => {
-//                       // If email doesn't exists it will return null
-//                       if (r != null){
-//                           const hash = crypto.createHash("md5")
-//                           // Hash password to md5
-//                           let hexPwd = hash.update(data.hashcode).digest('hex');
-//                           // Check if password is correct
-//                           if (hexPwd == r.password) {
-//                               // Send username to user and status code is succes.
-//                               var loginData = '{"username":"'+r.username+'","status":"succes"}';
-//                               // Send data back to user
-//                               ws.send(loginData);
-//                           } else{
-//                               // Send error
-//                               var loginData = '{"cmd":"'+data.cmd+'","status":"wrong_pass"}';
-//                               ws.send(loginData);
-//                           }
-//                       } else{
-//                           // Send error
-//                           var loginData = '{"cmd":"'+data.cmd+'","status":"wrong_mail"}';
-//                           ws.send(loginData);
-//                       }
-//                   });
-//               } 
-//             }
-//         }
-//     }) 
-// })
-
-
+//API
   app.post('/api/login', async (req, res) => {
     try {
       // Connect to MongoDB
@@ -184,8 +170,18 @@ mongoose.connect(url, {
     });
   });
   
-//   // Start server
-// app.listen(port, () => {
-//     console.log(`Server started on port ${port}`);
-//   });
+
+  async function createMeeting(meeting) {
+    // const client = await MongoClient.connect(mongoUrl, { useUnifiedTopology: true });
+    // const db = client.db(dbName);
+    // const collection = db.collection(collectionName);
+  
+    // const result = await collection.insertOne(meeting);
+    // const insertedMeeting = result.ops[0];
+  
+    // client.close();
+  
+    // return insertedMeeting;
+  }
+
   

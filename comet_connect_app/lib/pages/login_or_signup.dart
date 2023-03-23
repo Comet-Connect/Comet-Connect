@@ -1,11 +1,8 @@
-import 'dart:convert';
+// ignore_for_file: library_private_types_in_public_api, avoid_print
 
 import 'package:comet_connect_app/pages/homepage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:mongo_dart/mongo_dart.dart' as mongo;
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
 import '../auth/login.dart';
 import '../auth/signup.dart';
 
@@ -160,41 +157,9 @@ class _LoginOrSignup extends State<LoginOrSignup> {
                       child: ElevatedButton(
                         onPressed: () async {
                           // Call function from login.dart
-                          login(context, _usernameController.text,
-                              _passwordController.text);
-                          // await authenticateUser(
-                          //   _usernameController.text,
-                          //   _passwordController.text,
-                          //   (token) async {
-                          //     // Authentication successful, navigate to home page
-                          //     final prefs =
-                          //         await SharedPreferences.getInstance();
-                          //     await prefs.setString('token', token);
-                          //     Navigator.pushReplacement(
-                          //       context,
-                          //       MaterialPageRoute(
-                          //           builder: (context) => const MyHomePage()),
-                          //     );
-                          //   },
-                          //   (error) {
-                          //     // Authentication failed, show error message
-                          //     showDialog(
-                          //       context: context,
-                          //       builder: (BuildContext context) {
-                          //         return AlertDialog(
-                          //           title: const Text('Error'),
-                          //           content: Text(error),
-                          //           actions: [
-                          //             TextButton(
-                          //               onPressed: () => Navigator.pop(context),
-                          //               child: const Text('OK'),
-                          //             ),
-                          //           ],
-                          //         );
-                          //       },
-                          //     );
-                          //   },
-                          // );
+                          login(context, _usernameController.text, _passwordController.text);
+
+                          
                         },
                         child: const Text(
                           'Login',
@@ -214,7 +179,9 @@ class _LoginOrSignup extends State<LoginOrSignup> {
                                 context,
                                 MaterialPageRoute(
                                     // TODO Create Forgot password functionality
-                                    builder: (context) => const SignupPage()));
+                                    builder: (context) => const SignupPage()
+                                )
+                            );
                           },
                           child: const Text('Forgot Password?'),
                         ),

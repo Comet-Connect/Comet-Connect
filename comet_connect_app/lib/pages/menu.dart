@@ -1,3 +1,5 @@
+// ignore_for_file: use_key_in_widget_constructors
+
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -12,36 +14,35 @@ class HamburgerMenu extends StatelessWidget {
       child: ListView(
         padding: EdgeInsets.zero,
         children: <Widget>[
+          // TODO: Link with backend
           UserAccountsDrawerHeader(
-            accountName: const Text('Username'),
-            accountEmail: const Text('user@example.com'),
+            accountName: const Text('Username'), // Need to fetch user
+            accountEmail: const Text('user@example.com'), // Need to fetch email
             currentAccountPicture: const CircleAvatar(
-              backgroundImage:
-                  NetworkImage('https://example.com/profile-picture.png'),
+              backgroundImage: NetworkImage(''),
             ),
             otherAccountsPictures: [
               GestureDetector(
                 onTap: () async {
                   // Show a file picker dialog to let the user choose an image file
-                  final pickedFile = await ImagePicker()
-                      .getImage(source: ImageSource.gallery, imageQuality: 50);
+                  //final pickedFile = await ImagePicker().getImage(source: ImageSource.gallery, imageQuality: 50);
 
                   // If the user picked an image file, update the profile picture
-                  if (pickedFile != null) {
-                    // Upload the image file to your server and get the image URL
-                    // final imageUrl =
-                    //     await uploadProfilePicture(pickedFile as XFile);
+                  //if (pickedFile != null) {
+                  // Upload the image file to your server and get the image URL
+                  // final imageUrl =
+                  //     await uploadProfilePicture(pickedFile as XFile);
 
-                    // Update the profile picture
-                    // if (imageUrl != null) {
-                    //   final drawerState = Scaffold.of(context).openDrawer();
-                    //   drawerState.then((_) {
-                    //     setState(() {
-                    //       _profilePictureUrl = imageUrl;
-                    //     });
-                    //   });
-                    // }
-                  }
+                  // Update the profile picture
+                  // if (imageUrl != null) {
+                  //   final drawerState = Scaffold.of(context).openDrawer();
+                  //   drawerState.then((_) {
+                  //     setState(() {
+                  //       _profilePictureUrl = imageUrl;
+                  //     });
+                  //   });
+                  // }
+                  //}
                 },
                 // child: const CircleAvatar(
                 //   child: Icon(Icons.camera_alt),
@@ -49,7 +50,7 @@ class HamburgerMenu extends StatelessWidget {
               ),
             ],
           ),
-          Spacer(),
+          const Spacer(),
           // List of Menu Items
           ListTile(
             leading: const Icon(Icons.home),

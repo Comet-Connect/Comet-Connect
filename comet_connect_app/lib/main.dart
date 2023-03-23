@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api, avoid_renaming_method_parameters
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'pages/login_or_signup.dart';
@@ -8,8 +10,6 @@ import 'pages/selectdate.dart';
 // Define your API endpoint URLs
 const String loginUrl = 'http://192.168.1.229:3000/api/login';
 const String dataUrl = 'http://192.168.1.229:3000/api/data'; // MongoDB database
-//const String createUrl = 'http://localhost:3000/api/create';
-//const String updateUrl = 'http://localhost:3000/api/update';
 
 void main() async {
   runApp(const MyApp());
