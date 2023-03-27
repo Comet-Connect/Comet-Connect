@@ -7,6 +7,9 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'login.dart';
 
+final emailRegex = RegExp(
+    r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+");
+
 // signUp(context, _mail, _user, _pwd, _cpwd) async {
 //   // Check if email is valid.
 //   bool isValid = RegExp(
@@ -210,13 +213,6 @@ class _SignupPageState extends State<SignupPage> {
                             _firstNameController.text,
                             _lastNameController.text,
                             _emailController.text);
-                        // TODO: Navigate to the login page if sign up successful
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const MyHomePage(),
-                          ),
-                        );
                       },
                       child: const Text('Sign Up'),
                     ),
@@ -230,79 +226,118 @@ class _SignupPageState extends State<SignupPage> {
 }
 
 signup(context, String username, String password, String firstName,
-    String lastName, String email) async {
+    String lastName, String email) {
   String auth = "chatappauthkey231r4";
-  if (username.isNotEmpty &&
-      password.isNotEmpty &&
-      firstName.isNotEmpty &&
-      lastName.isNotEmpty &&
-      email.isNotEmpty) {
-    WebSocketChannel? channel;
-    try {
-      // Create connection.
-      channel = WebSocketChannel.connect(
-        Uri.parse('ws://192.168.1.71:3000'),
-      );
-    } catch (e) {
-      print("""Error on connecting to websocket: (login.dart)
+  bool isGoodInput =
+      checkInputFields(context, username, password, firstName, lastName, email);
+  if (!isGoodInput) {
+    return;
+  }
+
+  WebSocketChannel? channel;
+  try {
+    // Create connection.
+    channel = WebSocketChannel.connect(
+      Uri.parse('ws://192.168.1.71:3000'),
+    );
+  } catch (e) {
+    print("""Error on connecting to websocket: (login.dart)
             ${e.toString()}""");
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('Connection Error'),
-            content: const Text(
-                'Unable to connect to server. Please try again later.'),
-            actions: <Widget>[
-              TextButton(
-                child: const Text('OK'),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          );
-        },
-      );
-    }
-    // Data that will be sent to Node.js
-    String signUpData =
-        '{"auth":"$auth","cmd":"signup","email":"$email","username":"$username","password":"$password","first_name":"$firstName","last_name":"$lastName"}';
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Connection Error'),
+          content: const Text(
+              'Unable to connect to server. Please try again later.'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+  // Data that will be sent to Node.js
+  String signUpData =
+      '{"auth":"$auth","cmd":"signup","email":"$email","username":"$username","password":"$password","first_name":"$firstName","last_name":"$lastName"}';
 
-    // Send data to Node.js
-    channel?.sink.add(signUpData);
+  // Send data to Node.js
+  channel?.sink.add(signUpData);
 
-    // Listen for data from the server
-    channel?.stream.listen(
-      (event) async {
-        event = event.replaceAll(RegExp("'"), '"');
-        var responseData = json.decode(event);
-        // Check if the status is successful
-        if (responseData["status"] == 'success') {
-          // Close connection.
-          channel?.sink.close();
+  // Listen for data from the server
+  channel?.stream.listen(
+    (event) async {
+      event = event.replaceAll(RegExp("'"), '"');
+      var responseData = json.decode(event);
+      // Check if the status is successful
+      if (responseData["status"] == 'success') {
+        // Close connection.
+        channel?.sink.close();
 
-          SharedPreferences prefs = await SharedPreferences.getInstance();
-          prefs.setBool('loggedin', true);
-          prefs.setString("mailOrUsername", username);
-          // Return user to home page if successful
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const MyHomePage()),
-          );
-          // Call Welcome Screen Display
-          showWelcomeDialog(context);
-          print("Login Successful!!!!!");
-        } else {
-          // TODO: update for signup instead of login
-          // Throw pop up if User Login was unsuccessful
-          channel?.sink.close();
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        prefs.setBool('loggedin', true);
+        prefs.setString("mailOrUsername", username);
+        // Return user to home page if successful
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const MyHomePage()),
+        );
+        // Call Welcome Screen Display
+        showWelcomeDialog(context);
+        print("Signup Successful!!!!!");
+      } else {
+        // TODO: update for signup instead of login
+        // Throw pop up if User Login was unsuccessful
+        channel?.sink.close();
+        if (responseData["status"] == "existing_username") {
           showDialog(
             context: context,
             builder: (BuildContext context) {
               return AlertDialog(
-                title: const Text('Login Failed'),
-                content: const Text('Invalid email/username or password.'),
+                title: const Text('Signup Failed'),
+                content: const Text('Username already in use'),
+                actions: <Widget>[
+                  TextButton(
+                    child: const Text('OK'),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              );
+            },
+          );
+        } else if (responseData["status"] == "existing_email") {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text('Signup Failed'),
+                content: const Text('Email already in use'),
+                actions: <Widget>[
+                  TextButton(
+                    child: const Text('OK'),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              );
+            },
+          );
+        } else if (responseData["status"] == "signup_error") {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text('Signup Failed'),
+                content: const Text("""Error occured while trying to sign up.\n
+                                          Please try again later."""),
                 actions: <Widget>[
                   TextButton(
                     child: const Text('OK'),
@@ -315,16 +350,85 @@ signup(context, String username, String password, String firstName,
             },
           );
         }
-      },
-      onError: (error) {
-        print("""Error on connecting to websocket: (login.dart)
+      }
+    },
+    onError: (error) {
+      print("""Error on connecting to websocket: (login.dart)
             ${error.toString()}""");
-      },
-      onDone: () {
-        print("Websocket is done!");
+    },
+    onDone: () {
+      print("Websocket is done!");
+    },
+  );
+}
+
+bool checkInputFields(context, String username, String password,
+    String firstName, String lastName, String email) {
+  bool isGoodInput = true;
+  if (username.isEmpty ||
+      password.isEmpty ||
+      firstName.isEmpty ||
+      lastName.isEmpty ||
+      email.isEmpty) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Empty Fields'),
+          content: const Text("Please fill out all fields."),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
       },
     );
-  } else {
-    print("All fields are required");
+    isGoodInput = false;
   }
+  if (username.contains(" ")) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Bad Username'),
+          content: const Text(
+              """Username can not contain a space.\nConsider using an underscore."""),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+    isGoodInput = false;
+  }
+  if (!emailRegex.hasMatch(email)) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Bad Email'),
+          content: const Text("Please enter a valid email"),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+    isGoodInput = false;
+  }
+  return isGoodInput;
 }
