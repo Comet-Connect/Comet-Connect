@@ -1,2 +1,6 @@
+# VSCode
 /.vscode
+
+# Packages
 */node_modules
+*/comet_connect_app/pubspec.lock
