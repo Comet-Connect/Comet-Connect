@@ -64,8 +64,7 @@ mongoose.connect(url, {
             ws.send(JSON.stringify({"cmd": "signup", "status": "existing_email"}));
           }
           else {
-            var connection = mongoose.connection;
-            const added = User.addUser(connection, data.username, data.password, data.first_name, data.last_name, data.email)
+            const added = User.addUser(data.username, data.password, data.first_name, data.last_name, data.email)
 
             if (added) {
               ws.send(JSON.stringify({"cmd": "signup", "status": "success"}))

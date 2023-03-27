@@ -40,7 +40,7 @@ userSchema.methods.checkPassword = async function (password) {
 };
 
 // add a user to the database
-userSchema.statics.addUser = async function (connection, username, password, first_name, last_name, email) {
+userSchema.statics.addUser = async function (username, password, first_name, last_name, email) {
   const newUser = new User({
     username: username,
     password: password,
