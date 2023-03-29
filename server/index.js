@@ -119,7 +119,7 @@ mongoose.connect(url, {
       const db = client.db('user_info');
       print(req);
       // Get the user from the database
-      const user = await db.collection('UserInfo').findOne({ username: req.body.username });
+      const user = await db.collection('user').findOne({ username: req.body.username });
 
       // Check if the user exists and the password is correct
       if (!user || !(await bcrypt.compare(req.body.password, user.password))) {
@@ -143,7 +143,7 @@ mongoose.connect(url, {
 //     try {
 //       await client.connect();
 //       const db = client.db('user_info');
-//       const collection = db.collection('UserInfo');
+//       const collection = db.collection('user');
 //       const user = await collection.findOne({ username: username });
 //       return user !== null;
 //     } finally {
@@ -157,7 +157,7 @@ mongoose.connect(url, {
 //     try {
 //       await client.connect();
 //       const db = client.db('user_info');
-//       const collection = db.collection('UserInfo');
+//       const collection = db.collection('user');
 //       const user = await collection.findOne({ username: password });
 //       if (!user) {
 //         return false;
@@ -179,7 +179,7 @@ mongoose.connect(url, {
       
       const db = client.db('user_info');
       
-      db.collection('UserInfo').find().toArray((err, results) => {
+      db.collection('user').find().toArray((err, results) => {
         if (err) {
           console.error(err);
           res.status(500).send('Error fetching data from database');

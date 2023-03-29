@@ -48,7 +48,7 @@ userSchema.statics.addUser = async function (username, password, first_name, las
     first_name: first_name,
     last_name: last_name
   });
-  // connection.collection('UserInfo').insert(newUser)
+  // connection.collection('user').insert(newUser)
   return newUser.save();
 }
 
