@@ -89,49 +89,6 @@ mongoose.connect(url, {
   process.exit(1);
 });
 
-
-
-// wss.on('connection', function(ws, req) {
-//     ws.on('message', message => { // If there is any message
-//         var datastring = message.toString();
-//         print(datastring);
-//         if(datastring.charAt(0) == "{"){ // Check if message starts with '{' to check if it's json
-//             datastring = datastring.replace(/\'/g, '"');
-//             var data = JSON.parse(datastring)
-//             if(data.auth == "chatappauthkey231r4"){
-//                 // TODO: Create login function
-//                 if (data.cmd === 'login'){
-//                   // Check if email exists 
-//                   User.findOne({email: data.email}).then((r) => {
-//                       // If email doesn't exists it will return null
-//                       if (r != null){
-//                           const hash = crypto.createHash("md5")
-//                           // Hash password to md5
-//                           let hexPwd = hash.update(data.hashcode).digest('hex');
-//                           // Check if password is correct
-//                           if (hexPwd == r.password) {
-//                               // Send username to user and status code is succes.
-//                               var loginData = '{"username":"'+r.username+'","status":"succes"}';
-//                               // Send data back to user
-//                               ws.send(loginData);
-//                           } else{
-//                               // Send error
-//                               var loginData = '{"cmd":"'+data.cmd+'","status":"wrong_pass"}';
-//                               ws.send(loginData);
-//                           }
-//                       } else{
-//                           // Send error
-//                           var loginData = '{"cmd":"'+data.cmd+'","status":"wrong_mail"}';
-//                           ws.send(loginData);
-//                       }
-//                   });
-//               } 
-//             }
-//         }
-//     }) 
-// })
-
-
   app.post('/api/login', async (req, res) => {
     try {
       // Connect to MongoDB
@@ -187,35 +144,6 @@ mongoose.connect(url, {
 //       await client.close();
 //     }
 //   }
-
-  // // Helper function to add a user to the database
-  // async function addUser(username, password, firstName, lastName, email) {
-  //   try {
-  //     const client = new MongoClient.connect(url);
-  //     const database = client.db("CommetConnectText")
-  //     const haiku = database.collection("UserInfo");
-  //     // create a document to insert
-  //     // const doc = {
-  //     //   username: username,
-  //     //   password: password,
-  //     //   first_name: firstName,
-  //     //   last_name: lastName,
-  //     //   email: email
-  //     // }
-  //     const doc = {
-  //       username: 'jd123',
-  //       password: 'password123#$',
-  //       first_name: 'john',
-  //       last_name: 'doe',
-  //       email: 'jd123@example.com'
-  //     }
-  //     const result = await haiku.insertOne(doc);
-  //     console.log(`A document was inserted with the _id: ${result.insertedId}`);
-  //     alert('Function called');
-  //   } finally {
-  //     await client.close();
-  //   }
-  // }
 
   // API endpoint to fetch data
   app.get('/api/data', (req, res) => {
