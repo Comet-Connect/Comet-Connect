@@ -32,7 +32,7 @@ userSchema.pre("save", async function (next) {
       user.password = await bcrypt.hash(user.password, 10);
     }
     next();
-  });
+});
   
 // Check if the given password matches the user's password
 userSchema.methods.checkPassword = async function (password) {
@@ -52,5 +52,23 @@ userSchema.statics.addUser = async function (username, password, first_name, las
   return newUser.save();
 }
 
-const User = mongoose.model('UserInfo', userSchema);
+const User = mongoose.model('User', userSchema);
+
+// Update an existing user document
+// const user = await User.findOne({ email: 'johndoe@example.com' });
+// user.password = 'newpassword456';
+// await user.save();
+
+
+// // Query for all user documents
+// const allUsers = await User.find();
+
+
+// // Query for a specific user document by ID
+// const userById = await User.findById('1234567890abcdef');
+
+
+// // Delete a user document
+// await User.deleteOne({ email: 'johndoe@example.com' });
+
 module.exports = User;
