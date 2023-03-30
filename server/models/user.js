@@ -36,21 +36,23 @@ userSchema.pre("save", async function (next) {
   
 // Check if the given password matches the user's password
 userSchema.methods.checkPassword = async function (password) {
-    return await bcrypt.compare(password, this.password);
+  return await bcrypt.compare(password, this.password);
 };
 
+// add a user to the database
+userSchema.statics.addUser = async function (username, password, first_name, last_name, email) {
+  const newUser = new User({
+    username: username,
+    password: password,
+    email: email,
+    first_name: first_name,
+    last_name: last_name
+  });
+  // connection.collection('user').insert(newUser)
+  return newUser.save();
+}
+
 const User = mongoose.model('User', userSchema);
-
-// Create a new user
-// const newUser = new User({
-//     username: "bob",
-//     password: "123",
-//     email: "bob@gmail.com",
-//     first_name: "bob",
-//     last_name: "test"
-//   });
-// newUser.save();
-
 
 // Update an existing user document
 // const user = await User.findOne({ email: 'johndoe@example.com' });
@@ -70,4 +72,3 @@ const User = mongoose.model('User', userSchema);
 // await User.deleteOne({ email: 'johndoe@example.com' });
 
 module.exports = User;
-

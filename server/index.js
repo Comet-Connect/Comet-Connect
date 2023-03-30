@@ -55,6 +55,28 @@ mongoose.connect(url, {
           }
         }  // TODO: Signup function
         
+        else if (data.cmd === 'signup' && data.auth === 'chatappauthkey231r4') {
+          const matchingUsername = await User.findOne({username: data.username})
+          const matchingEmail = await User.findOne({email: data.email})
+
+          if (matchingUsername) {
+            ws.send(JSON.stringify({"cmd": "signup", "status": "existing_username"}));
+          }
+          else if (matchingEmail) {
+            ws.send(JSON.stringify({"cmd": "signup", "status": "existing_email"}));
+          }
+          else {
+            const added = User.addUser(data.username, data.password, data.first_name, data.last_name, data.email)
+
+            if (added) {
+              ws.send(JSON.stringify({"cmd": "signup", "status": "success"}))
+            }
+            else {
+              ws.send(JSON.stringify({"cmd": "signup", "status": "signup_error"}))
+            }
+          }
+        }
+
         else {
           ws.send(JSON.stringify({ "cmd": data.cmd, "status": "invalid_auth" }));
         }
@@ -88,7 +110,6 @@ mongoose.connect(url, {
   console.error('Error connecting to MongoDB:', err);
   process.exit(1);
 });
-
 
 //API
   app.post('/api/login', async (req, res) => {

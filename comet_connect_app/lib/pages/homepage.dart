@@ -27,7 +27,7 @@ class MyHomePage extends StatelessWidget {
         backgroundColor: Colors.grey[300],
         // Create Hambureger Menu
         drawer: const HamburgerMenu(),
-        
+
         // Main portion of home page
         body: Padding(
           // Padding around all edges

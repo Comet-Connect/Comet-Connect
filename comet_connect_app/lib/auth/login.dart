@@ -23,7 +23,8 @@ login(context, _mailOrUsername, _pwd) async {
         builder: (BuildContext context) {
           return AlertDialog(
             title: const Text('Connection Error'),
-            content: const Text('Unable to connect to server. Please try again later.'),
+            content: const Text(
+                'Unable to connect to server. Please try again later.'),
             actions: <Widget>[
               TextButton(
                 child: const Text('OK'),
@@ -37,7 +38,8 @@ login(context, _mailOrUsername, _pwd) async {
       );
     }
     // Data that will be sent to Node.js
-    String loginData = '{"auth":"$auth","cmd":"login","email":"$_mailOrUsername","username":"$_mailOrUsername","password":"$_pwd"}';
+    String loginData =
+        '{"auth":"$auth","cmd":"login","email":"$_mailOrUsername","username":"$_mailOrUsername","password":"$_pwd"}';
 
     // Send data to Node.js
     channel?.sink.add(loginData);
@@ -61,9 +63,8 @@ login(context, _mailOrUsername, _pwd) async {
             MaterialPageRoute(builder: (context) => const MyHomePage()),
           );
           // Call Welcome Screen Display
-            _showWelcomeDialog(context);
+          showWelcomeDialog(context);
           print("Login Successful!!!!!");
-
         } else {
           // Throw pop up if User Login was unsuccessful
           channel?.sink.close();
@@ -87,7 +88,8 @@ login(context, _mailOrUsername, _pwd) async {
         }
       },
       onError: (error) {
-        print("Error on connecting to websocket: (login.dart) " + error.toString());
+        print("Error on connecting to websocket: (login.dart) " +
+            error.toString());
       },
       onDone: () {
         print("Websocket is done!");
@@ -98,9 +100,8 @@ login(context, _mailOrUsername, _pwd) async {
   }
 }
 
-
 // Welcome Menu
-void _showWelcomeDialog(BuildContext context) {
+void showWelcomeDialog(BuildContext context) {
   showDialog(
     context: context,
     builder: (BuildContext context) {
