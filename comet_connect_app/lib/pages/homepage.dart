@@ -2,7 +2,7 @@ import 'package:comet_connect_app/pages/groups_page.dart';
 import 'package:flutter/material.dart';
 import 'menu.dart';
 import 'login_or_signup.dart';
-import 'selectdate.dart.';
+import 'selectdate.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class MyHomePage extends StatelessWidget {
