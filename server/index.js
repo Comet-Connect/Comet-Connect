@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const express = require('express');
 const { Server } = require('ws');
 const bcrypt = require('bcrypt');
-const User = require('./models/User');
+const User = require('./models/user.js');
 
 // Back up approach (app)
 const bodyParser = require('body-parser');
@@ -32,7 +32,7 @@ mongoose.connect(url, {
     console.log('WebSocket client connected');
     
     ws.on('message', async (message) => {
-      console.log('WebSocket message received:\n', JSON.stringify(message, "  "));
+      console.log('WebSocket message received:')//, JSON.stringify(message, "  "));
       
       try {
         const data = JSON.parse(message);
@@ -105,6 +105,18 @@ mongoose.connect(url, {
     
     
     });
+    ws.on("close", () => {
+      console.log("Client disconnected");
+    });
+    ws.onerror = function () {
+        console.log("Some Error occurred");
+    }
+    
+    ws.on("message", (msg) => {
+        var buf = Buffer.from(msg);
+        console.log('\t' + buf.toString());
+    });
+
   });
 }).catch((err) => {
   console.error('Error connecting to MongoDB:', err);

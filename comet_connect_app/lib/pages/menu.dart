@@ -1,4 +1,3 @@
-// ignore_for_file: use_key_in_widget_constructors
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -25,7 +24,7 @@ class HamburgerMenu extends StatelessWidget {
               GestureDetector(
                 onTap: () async {
                   // Show a file picker dialog to let the user choose an image file
-                  //final pickedFile = await ImagePicker().getImage(source: ImageSource.gallery, imageQuality: 50);
+                  final pickedFile = await ImagePicker().getImage(source: ImageSource.gallery, imageQuality: 50);
 
                   // If the user picked an image file, update the profile picture
                   //if (pickedFile != null) {
@@ -50,7 +49,7 @@ class HamburgerMenu extends StatelessWidget {
               ),
             ],
           ),
-          const Spacer(),
+          //const Spacer(),
           // List of Menu Items
           ListTile(
             leading: const Icon(Icons.home),
