@@ -1,5 +1,7 @@
 import 'package:comet_connect_app/pages/groups_page.dart';
 import 'package:flutter/material.dart';
+import 'create_groups.dart';
+import 'join_groups.dart';
 import 'menu.dart';
 import 'login_or_signup.dart';
 import 'selectdate.dart';
@@ -39,6 +41,7 @@ class MyHomePage extends StatelessWidget {
                 flex: 3,
                 child: Container(
                   color: Colors.blueGrey[500],
+                  child: const SelectDate(),
                   // child: const Center(
                   //   // TODO: Insert user calendar from DB
                   //   child: Text(
@@ -86,12 +89,22 @@ class MyHomePage extends StatelessWidget {
                           ElevatedButton(
                             onPressed: () {
                               // TODO: Create Group Functionality
+                              // Navigate to the create group screen
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => const CreateGroupScreen()),
+                              );
                             },
                             child: const Text('Create Group'),
                           ),
                           ElevatedButton(
                             onPressed: () {
                               // TODO: Join Group Functionality
+                              // Navigate to the join group screen
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => const JoinGroupScreen()),
+                              );
                             },
                             child: const Text('Join Group'),
                           ),

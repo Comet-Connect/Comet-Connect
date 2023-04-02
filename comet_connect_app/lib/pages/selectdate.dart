@@ -19,21 +19,7 @@ class _SelectDateState extends State<SelectDate> {
     //   DateTime(2023, 03, 03, 12, 0, 0),      
     //   Colors.blue,      
     //   false,    
-    // ),    
-    // Meeting(     
-    //   'Business Lunch',     
-    //    DateTime(2023, 03, 03, 12, 0, 0),      
-    //    DateTime(2023, 03, 03, 13, 30, 0),      
-    //    Colors.green,      
-    //    false,    
-    // ),    
-    // Meeting(      
-    //   'Conference',      
-    //   DateTime(2022, 03, 02, 10, 0, 0),      
-    //   DateTime(2022, 03, 02, 12, 0, 0),     
-    //    Colors.pink,      
-    //    false,    
-    //    ),  
+    // )
      ];
 
   bool _isModified = false;
