@@ -21,7 +21,7 @@ class JoinGroupScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             const SizedBox(height: 16.0),
-            TextField(
+            const TextField(
               decoration: InputDecoration(
                 labelText: 'Enter Group ID',
               ),

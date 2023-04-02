@@ -189,7 +189,7 @@ signup(context, String username, String password, String firstName,
       Uri.parse('ws://192.168.1.71:3000'),
     );
   } catch (e) {
-    print("""Error on connecting to websocket: (login.dart)
+    print("""Error on connecting to websocket: (signup.dart)
             ${e.toString()}""");
     showDialog(
       context: context,
