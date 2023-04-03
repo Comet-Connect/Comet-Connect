@@ -1,0 +1,11 @@
+{
+    "server": {
+        "host": "192.168.1.71",
+        "port": "3000"
+    },
+    "database": {
+        "username": "admin",
+        "password": "bNGtOFxi3UTcv81W",
+        "url": "cometconnect.cuwtjrg.mongodb.net/user_info"
+    }
+}

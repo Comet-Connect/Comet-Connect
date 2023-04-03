@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:comet_connect_app/config.dart';
 import '../pages/homepage.dart';
 
 login(context, _mailOrUsername, _pwd) async {
@@ -11,9 +12,11 @@ login(context, _mailOrUsername, _pwd) async {
   if (_mailOrUsername.isNotEmpty && _pwd.isNotEmpty) {
     WebSocketChannel? channel;
     try {
-        // Create connection.
-        channel = WebSocketChannel.connect(
-        Uri.parse('ws://192.168.1.229:3000/$_mailOrUsername'),
+      // Create connection.
+      Map config = await getConfigFile();
+      channel = WebSocketChannel.connect(
+        Uri.parse(
+            'ws://${config["server"]["host"]}:${config["server"]["port"]}/$_mailOrUsername'),
       );
     } catch (e) {
       // Print Error Message if Not able to connect to Mongoose Server

@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'login.dart';
+import 'package:comet_connect_app/config.dart';
 
 final emailRegex = RegExp(
     r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+");
@@ -153,7 +154,7 @@ class _SignupPageState extends State<SignupPage> {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: () {
+                      onPressed: () async {
                         signup(
                             context,
                             _usernameController.text,
@@ -174,7 +175,7 @@ class _SignupPageState extends State<SignupPage> {
 }
 
 signup(context, String username, String password, String firstName,
-    String lastName, String email) {
+    String lastName, String email) async {
   String auth = "chatappauthkey231r4";
   bool isGoodInput =
       checkInputFields(context, username, password, firstName, lastName, email);
@@ -185,8 +186,9 @@ signup(context, String username, String password, String firstName,
   WebSocketChannel? channel;
   try {
     // Create connection.
+    Map config = await getConfigFile();
     channel = WebSocketChannel.connect(
-      Uri.parse('ws://192.168.1.71:3000'),
+      Uri.parse('ws://${config["server"]["host"]}:${config["server"]["port"]}'),
     );
   } catch (e) {
     print("""Error on connecting to websocket: (signup.dart)
