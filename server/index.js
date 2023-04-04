@@ -3,7 +3,10 @@ const mongoose = require('mongoose');
 const express = require('express');
 const { Server } = require('ws');
 const bcrypt = require('bcrypt');
+
+// Schemas 
 const User = require('./models/user.js');
+const Group = require('./models/group.js');   // Import the Group schema
 
 // Back up approach (app)
 const bodyParser = require('body-parser');
@@ -32,11 +35,15 @@ mongoose.connect(url, {
     console.log('WebSocket client connected');
     
     ws.on('message', async (message) => {
-      console.log('WebSocket message received:')//, JSON.stringify(message, "  "));
+      // See if WS message is recieved
+      console.log('WebSocket message received:')
       
       try {
+
+        // Retrieve Data being parsed
         const data = JSON.parse(message);
-        // Login function
+        
+        // Login function        ***Status: Done***
         if (data.auth === "chatappauthkey231r4" && data.cmd === 'login') {
           // Check if email or username exists
           const user = await User.findOne({ $or: [{ email: data.email }, { username: data.username }] });
@@ -48,13 +55,14 @@ mongoose.connect(url, {
             const match = await user.checkPassword(data.password);
             
             if (match) {
-              ws.send(JSON.stringify({ "cmd": "login", "username": user.username, "status": "success" }));
+              ws.send(JSON.stringify({ "cmd": "login", "username": user.username,"oid": user._id.toString(), "status": "success" }));
             } else {
               ws.send(JSON.stringify({ "cmd": "login", "status": "wrong_credentials" }));
             }
           }
-        }  // TODO: Signup function
-        
+        }  
+
+        // Signup function       ***Status: Done***
         else if (data.cmd === 'signup' && data.auth === 'chatappauthkey231r4') {
           const matchingUsername = await User.findOne({username: data.username})
           const matchingEmail = await User.findOne({email: data.email})
@@ -76,7 +84,172 @@ mongoose.connect(url, {
             }
           }
         }
+        
+        // Group Creation        ***Status: Done***
+        else if (data.cmd === 'create_group') {
+          // Check if all users exist in the database
+          const users = await Promise.all(data.users.map(async (username) => {
+            const existingUser = await User.findOne({ username: username });
+            if (!existingUser) {
+              console.log(`User ${username} not found in database`);
+              return null;
+            }
+              return existingUser._id;
+            }));
+            
+            if (users.some(user => !user)) {
+              // At least one user doesn't exist in the database
+              ws.send(JSON.stringify({ cmd: 'create_group', "status": 'user_not_found' }));
+            } else {
+              const session_id = generateSessionId();
+              const group = new Group({
+                name: data.name,
+                users: users,
+                description: data.description,
+                session_id: session_id
+              });
 
+              try {
+                await group.save();
+                // Add the group ID and session ID to the response message
+                ws.send(JSON.stringify({ cmd: 'create_group', status: 'success', group_id: group._id, session_id: session_id }));
+                
+              } catch (err) {
+                console.error('Error saving group:', err);
+                ws.send(JSON.stringify({ cmd: 'create_group', status: 'error' }));
+              }
+            }
+        }
+
+        // Get Groups function   ***Status: Done***
+        else if ( data.cmd === 'get_groups' && data.auth === 'chatappauthkey231r4') {
+          // Get user id from data
+          const oid = data.oid;
+
+          // Find all groups that the user is a member of
+          const groups = await Group.find({ users: oid }).populate('users');
+
+          // Convert _id field to $oid for each group
+          const formattedGroups = groups.map((group) => {
+            const { _id, ...rest } = group.toObject();
+            return { ...rest, id: _id.toString() };
+          });
+
+
+          ws.send(JSON.stringify({ cmd: 'get_groups', status: 'success', data: formattedGroups }));
+          // Debug print statement to display the data being sent to the client
+          console.log(`Sent get_groups response for user with oid ${oid}:`, formattedGroups);
+        }
+
+        // Get Group function    ***Status: In Progress  -> Not Currently Being Used***
+        // TODO: Needs work
+        else if (data.cmd === 'get_group' && data.auth === 'chatappauthkey231r4') {
+          // Check if the group exists
+          const group = await Group.findById(data.group_id).populate('users');
+
+          if (!group) {
+            ws.send(JSON.stringify({ cmd: 'get_group', status: 'group_not_found' }));
+          } else {
+            // Convert _id field to $oid
+            const { _id, ...rest } = group.toObject();
+            const formattedGroup = { ...rest, _id: _id.$oid };
+
+            ws.send(JSON.stringify({ cmd: 'get_group', status: 'success', group: formattedGroup }));
+            // Debug print statement to display the data being sent to the client
+            console.log(`Sent get_group response for group with oid ${data.group_id}:`, formattedGroup);
+          }
+        }
+
+        // Join Group Using Session ID   ***Status: Done***
+        else if (data.cmd === 'join_group' && data.auth === 'chatappauthkey231r4') {
+          const { session_id, user_id } = data;
+        
+          try {
+            // Find the group with the given session ID
+            const group = await Group.findOne({ session_id }).populate('users');
+        
+            if (!group) {
+              ws.send(JSON.stringify({ cmd: 'join_group', status: 'group_not_found' }));
+            } else if (group.users.some((user) => user._id.toString() === user_id)) {
+              ws.send(JSON.stringify({ cmd: 'join_group', status: 'already_joined' }));
+            } else {
+              // Add the user to the group
+              group.users.push(user_id);
+              await group.save();
+        
+              ws.send(JSON.stringify({ cmd: 'join_group', status: 'success', group_id: group._id }));
+            }
+          } catch (err) {
+            console.error('Error joining group:', err);
+            ws.send(JSON.stringify({ cmd: 'join_group', status: 'error' }));
+          }
+        }
+
+        // Leave Group Using group oid and user oid    ***Status: Done***
+        else if (data.cmd === 'leave_group' && data.auth === 'chatappauthkey231r4') {
+          const groupId = data._id;
+          const userId = data.user_oid;
+          
+          // Find the group with the given ID
+          const group = await Group.findById(groupId);
+          if (!group) {
+            // Group not found
+            socket.send(JSON.stringify({
+              cmd: 'leave_group',
+              auth: 'chatappauthkey231r4',
+              status: 'Group not found',
+            }));
+            return;
+          }
+        
+          // Remove the user from the group
+          const userIndex = group.users.findIndex((id) => id.toString() === userId.toString());
+          if (userIndex === -1) {
+            // User not found in group
+            socket.send(JSON.stringify({
+              cmd: 'leave_group',
+              auth: 'chatappauthkey231r4',
+              status: 'User not found in group',
+            }));
+            return;
+          }
+          group.users.splice(userIndex, 1);
+        
+          // Delete the group if no users are left
+          if (group.users.length === 0) {
+            await Group.findByIdAndDelete(groupId);
+          } else {
+            await group.save();
+          }
+        
+          // Send confirmation to the client
+          socket.send(JSON.stringify({
+            cmd: 'leave_group',
+            auth: 'chatappauthkey231r4',
+            status: 'ok',
+          }));
+        
+          // Notify all users in the group that the user has left
+          const message = `${userId} has left the group.`;
+          for (const id of group.users) {
+            if (id.toString() !== userId.toString()) {
+              const userSocket = onlineUsers.get(id.toString());
+              if (userSocket) {
+                userSocket.send(JSON.stringify({
+                  cmd: 'group_message',
+                  auth: 'chatappauthkey231r4',
+                  group_id: groupId,
+                  user_id: userId,
+                  message,
+                }));
+              }
+            }
+          }
+        }
+        
+        
+      
+        //Errors
         else {
           ws.send(JSON.stringify({ "cmd": data.cmd, "status": "invalid_auth" }));
         }
@@ -123,6 +296,17 @@ mongoose.connect(url, {
   process.exit(1);
 });
 
+
+function generateSessionId() {
+  const length = 6; // Length of session ID
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'; // Characters to use in session ID
+  let result = '';
+  for (let i = 0; i < length; i++) {
+    result += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return result;
+}
+
 //API
   app.post('/api/login', async (req, res) => {
     try {
@@ -147,6 +331,25 @@ mongoose.connect(url, {
       res.status(500).json({ error: 'Internal server error' });
     }
   });
+
+  app.post('/create_group', async (req, res) => {
+    const { name, users, description } = req.body;
+  
+    const group = new Group({
+      name,
+      users,
+      description,
+    });
+  
+    try {
+      await group.save();
+      res.status(201).json({ status: 'success', group });
+    } catch (err) {
+      console.error('Error saving group:', err);
+      res.status(500).json({ status: 'error' });
+    }
+  });
+  
 
 
 // // Helper function to check if user exists in database
