@@ -1,15 +1,20 @@
-import 'dart:convert';
 import 'package:comet_connect_app/pages/groups_page.dart';
 import 'package:flutter/material.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
-import '../auth/login.dart';
 import 'create_groups.dart';
+import 'join_groups.dart';
 import 'menu.dart';
 import 'login_or_signup.dart';
 import 'selectdate.dart';
+import 'package:table_calendar/table_calendar.dart';
 
 class MyHomePage extends StatelessWidget {
   const MyHomePage({Key? key}) : super(key: key);
+
+  // TODO: Connect with DB to import groups
+  // @override
+  // void initState() {
+
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +40,6 @@ class MyHomePage extends StatelessWidget {
               Expanded(
                 flex: 3,
                 child: Container(
-                  height: 800,
                   color: Colors.blueGrey[500],
                   child: const SelectDate(),
                   // child: const Center(
@@ -45,6 +49,9 @@ class MyHomePage extends StatelessWidget {
                   //     style: TextStyle(fontSize: 24),
                   //   ),
                   // ),
+
+                  
+
                 ),
               ),
               Expanded(
@@ -70,8 +77,8 @@ class MyHomePage extends StatelessWidget {
                           padding: const EdgeInsets.all(20),
                           crossAxisCount: 2,
                           children: const [
-                            // GroupTile(name: 'Group 1'),
-                            // GroupTile(name: 'Group 2'),
+                            GroupTile(name: 'Group 1'),
+                            GroupTile(name: 'Group 2'),
                           ],
                         ),
                       ),
@@ -81,56 +88,22 @@ class MyHomePage extends StatelessWidget {
                         children: [
                           ElevatedButton(
                             onPressed: () {
+                              // TODO: Create Group Functionality
                               // Navigate to the create group screen
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        const CreateGroupScreen()),
+                                MaterialPageRoute(builder: (context) => const CreateGroupScreen()),
                               );
                             },
                             child: const Text('Create Group'),
                           ),
-
-                          // Join Group Button for homepage
                           ElevatedButton(
                             onPressed: () {
-                              showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  String sessionId = "";
-                                  return AlertDialog(
-                                    title: const Text('Join Group'),
-                                    content: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        TextField(
-                                          onChanged: (value) {
-                                            sessionId = value;
-                                          },
-                                          decoration: const InputDecoration(
-                                            labelText: 'Session ID',
-                                            border: OutlineInputBorder(),
-                                          ),
-                                        ),
-                                        const SizedBox(height: 20),
-                                        ElevatedButton(
-                                          onPressed: () {
-                                            _joinGroup(sessionId);
-                                            Navigator.of(context).pop();
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      const GroupsPage()),
-                                            );
-                                          },
-                                          child: const Text('Join'),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                },
+                              // TODO: Join Group Functionality
+                              // Navigate to the join group screen
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => const JoinGroupScreen()),
                               );
                             },
                             child: const Text('Join Group'),
@@ -147,92 +120,23 @@ class MyHomePage extends StatelessWidget {
       ),
       onGenerateRoute: (settings) {
         if (settings.name == '/home') {
-          //return MaterialPageRoute(builder: (context) => const MyHomePage());
-          return PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) =>
-                const MyHomePage(),
-            transitionsBuilder:
-                (context, animation, secondaryAnimation, child) {
-              return FadeTransition(
-                opacity: animation,
-                child: child,
-              );
-            },
-          );
+          return MaterialPageRoute(builder: (context) => const MyHomePage());
         }
         if (settings.name == '/view-calendar') {
-          //return MaterialPageRoute(builder: (context) => const SelectDate());
-          return PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) =>
-                const SelectDate(),
-            transitionsBuilder:
-                (context, animation, secondaryAnimation, child) {
-              return FadeTransition(
-                opacity: animation,
-                child: child,
-              );
-            },
-          );
+          return MaterialPageRoute(builder: (context) => const SelectDate());
         }
         if (settings.name == '/groups') {
-          // return MaterialPageRoute(builder: (context) => const GroupsPage());
-          return PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) =>
-                const GroupsPage(),
-            transitionsBuilder:
-                (context, animation, secondaryAnimation, child) {
-              return FadeTransition(
-                opacity: animation,
-                child: child,
-              );
-            },
-          );
+          return MaterialPageRoute(builder: (context) => const GroupsPage());
         }
         if (settings.name == '/login') {
           //return MaterialPageRoute(builder: (context) => Login());
         }
         if (settings.name == '/signout') {
-          //return MaterialPageRoute(builder: (context) => const LoginOrSignup());
-          return PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) =>
-                const LoginOrSignup(),
-            transitionsBuilder:
-                (context, animation, secondaryAnimation, child) {
-              return FadeTransition(
-                opacity: animation,
-                child: child,
-              );
-            },
-          );
+          return MaterialPageRoute(builder: (context) => const LoginOrSignup());
         }
         return null;
       },
     );
-  }
-
-  void _joinGroup(String sessionId) {
-    late WebSocketChannel _channel;
-    _channel = WebSocketChannel.connect(
-      Uri.parse('ws://192.168.1.229:3000/$current_loggedin_user_oid/'),
-    );
-
-    _channel?.sink.add(json.encode({
-      'cmd': 'join_group',
-      'auth': 'chatappauthkey231r4',
-      'session_id': sessionId,
-      'user_id': current_loggedin_user_oid,
-    }));
-
-    _getGroups(_channel);
-  }
-
-  void _getGroups(WebSocketChannel _channel) {
-    final userId = current_loggedin_user_oid;
-    _channel.sink.add(json.encode({
-      'cmd': 'get_groups',
-      'auth': 'chatappauthkey231r4',
-      'oid': userId,
-    }));
   }
 }
 
@@ -270,3 +174,6 @@ class GroupTile extends StatelessWidget {
     );
   }
 }
+
+
+
