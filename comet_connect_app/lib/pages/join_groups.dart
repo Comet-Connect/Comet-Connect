@@ -23,14 +23,13 @@ class JoinGroupScreen extends StatelessWidget {
             const SizedBox(height: 16.0),
             const TextField(
               decoration: InputDecoration(
-                labelText: 'Enter Session ID',
+                labelText: 'Enter Group ID',
               ),
             ),
             const SizedBox(height: 16.0),
             ElevatedButton(
               onPressed: () {
                 // TODO: Join group functionality
-                
               },
               child: const Text('Join'),
             ),
