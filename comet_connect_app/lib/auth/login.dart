@@ -6,13 +6,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import '../pages/homepage.dart';
 
+String? current_loggedin_user;
+String? current_loggedin_user_oid;
+
 login(context, _mailOrUsername, _pwd) async {
   String auth = "chatappauthkey231r4";
   if (_mailOrUsername.isNotEmpty && _pwd.isNotEmpty) {
     WebSocketChannel? channel;
     try {
-        // Create connection.
-        channel = WebSocketChannel.connect(
+      // Create connection.
+      channel = WebSocketChannel.connect(
         Uri.parse('ws://192.168.1.229:3000/$_mailOrUsername'),
       );
     } catch (e) {
@@ -48,6 +51,8 @@ login(context, _mailOrUsername, _pwd) async {
     channel?.stream.listen(
       (event) async {
         event = event.replaceAll(RegExp("'"), '"');
+        // Print received data
+        print('Received data from server: \n\t$event');
         var responseData = json.decode(event);
         // Check if the status is successful
         if (responseData["status"] == 'success') {
@@ -58,13 +63,16 @@ login(context, _mailOrUsername, _pwd) async {
           prefs.setBool('loggedin', true);
           prefs.setString("mailOrUsername", _mailOrUsername);
           // Return user to home page if successful
+          current_loggedin_user = _mailOrUsername;
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const MyHomePage()),
           );
           // Call Welcome Screen Display
           showWelcomeDialog(context);
-          print("Login Successful!!!!!");
+          print("User [$_mailOrUsername] is logged in!\n");
+
+          current_loggedin_user_oid = responseData["oid"];
         } else {
           // Throw pop up if User Login was unsuccessful
           channel?.sink.close();
@@ -121,33 +129,23 @@ void showWelcomeDialog(BuildContext context) {
   );
 }
 
-
-// Login endpoint URL
-//const String loginUrl = 'http://localhost:3000/api/login';
-
-// Future<void> authenticateUser(
-//   String username,
-//   String password,
-//   Function(String) onSuccess,
-//   Function(String) onFail,
-// ) async {
-//   try {
-//     print("Input:  " + username + "  " + password);
-//     final response = await http.post(
-//       Uri.parse(loginUrl),
-//       headers: {'Content-Type': 'application/json'},
-//       body: json.encode({'username': username, 'password': password}),
-//     );
-
-//     if (response.statusCode == 200) {
-//       final token = json.decode(response.body)['token'];
-//       onSuccess(token);
-//     } else {
-//       onFail('Invalid username or password (login.dart)');
-//       print(username + " " + password);
-//     }
-//   } catch (e) {
-//     onFail('Failed to authenticate (login.dart)');
-//     print(username + " " + password);
-//   }
-// }
+// Welcome Menu
+void loginWelcomeDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Thank you for Signing up!'),
+        content: const Text('Please Log in!'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text('OK'),
+          ),
+        ],
+      );
+    },
+  );
+}

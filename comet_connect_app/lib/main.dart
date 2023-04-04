@@ -6,6 +6,7 @@ import 'pages/login_or_signup.dart';
 import 'pages/homepage.dart';
 import 'pages/groups_page.dart';
 import 'pages/selectdate.dart';
+import 'pages/group_details_page.dart';
 
 // Define your API endpoint URLs
 const String loginUrl = 'http://192.168.1.229:3000/api/login';
@@ -66,7 +67,7 @@ class MyRouterDelegate extends RouterDelegate<MyRoutePath>
     ),
     const MaterialPage(
       key: ValueKey('groups'),
-      child: MyHomePage(),
+      child: GroupsPage(),
     ),
   ];
 
@@ -114,18 +115,24 @@ class MyRouterDelegate extends RouterDelegate<MyRoutePath>
     } else if (path.isGroupsPage) {
       _pages.add(
         const MaterialPage(
-          key: ValueKey('GroupsPage'),
+          key: ValueKey('groups'),
           child: GroupsPage(),
         ),
       );
-      // } else if (path.isHelpPage) {
-      //   _pages.add(
-      //     MaterialPage(
-      //       key: const ValueKey('HelpPage'),
-      //       child: HelpPage(),
-      //     ),
-      //   );
+    } else if (path.isGroupDetailsPage) {
+      final groupId = path.groupId!;
+      _pages.add(
+        MaterialPage(
+          key: ValueKey('GroupDetailsPage$groupId'),
+          child: GroupDetailsPage(
+            groupId: groupId,
+            groupName: '',
+            session_id: '',
+          ),
+        ),
+      );
     }
+
     notifyListeners();
   }
 }
@@ -146,6 +153,9 @@ class MyRouteInformationParser extends RouteInformationParser<MyRoutePath> {
     } else if (uri.pathSegments.length == 1 &&
         uri.pathSegments[0] == 'groups') {
       return MyRoutePath.groups();
+    } else if (uri.pathSegments.length == 2 && uri.pathSegments[0] == 'group') {
+      final groupId = uri.pathSegments[1];
+      return MyRoutePath.groupDetails(groupId);
     } else if (uri.pathSegments.length == 1 && uri.pathSegments[0] == 'help') {
       return MyRoutePath.help();
     } else {
@@ -188,54 +198,78 @@ class MyRoutePath {
   final bool isHomePage;
   final bool isCalendarPage;
   final bool isGroupsPage;
+  final bool isGroupDetailsPage;
   final bool isHelpPage;
   final bool isUnknown;
+  final String? groupId;
 
   MyRoutePath.login()
       : isLoginPage = true,
         isHomePage = false,
         isCalendarPage = false,
         isGroupsPage = false,
+        isGroupDetailsPage = false,
         isHelpPage = false,
-        isUnknown = false;
+        isUnknown = false,
+        groupId = null;
 
   MyRoutePath.home()
       : isLoginPage = false,
         isHomePage = true,
         isCalendarPage = false,
         isGroupsPage = false,
+        isGroupDetailsPage = false,
         isHelpPage = false,
-        isUnknown = false;
+        isUnknown = false,
+        groupId = null;
 
   MyRoutePath.calendar()
       : isLoginPage = false,
         isHomePage = false,
         isCalendarPage = true,
         isGroupsPage = false,
+        isGroupDetailsPage = false,
         isHelpPage = false,
-        isUnknown = false;
+        isUnknown = false,
+        groupId = null;
 
   MyRoutePath.groups()
       : isLoginPage = false,
         isHomePage = false,
         isCalendarPage = false,
         isGroupsPage = true,
+        isGroupDetailsPage = false,
         isHelpPage = false,
-        isUnknown = false;
+        isUnknown = false,
+        groupId = null;
+
+  MyRoutePath.groupDetails(String groupId)
+      : isLoginPage = false,
+        isHomePage = false,
+        isCalendarPage = false,
+        isGroupsPage = false,
+        isGroupDetailsPage = true,
+        isHelpPage = false,
+        isUnknown = false,
+        groupId = groupId;
 
   MyRoutePath.help()
       : isLoginPage = false,
         isHomePage = false,
         isCalendarPage = false,
         isGroupsPage = false,
+        isGroupDetailsPage = false,
         isHelpPage = true,
-        isUnknown = false;
+        isUnknown = false,
+        groupId = null;
 
   MyRoutePath.unknown()
       : isLoginPage = false,
         isHomePage = false,
         isCalendarPage = false,
         isGroupsPage = false,
+        isGroupDetailsPage = false,
         isHelpPage = false,
-        isUnknown = true;
+        isUnknown = true,
+        groupId = null;
 }

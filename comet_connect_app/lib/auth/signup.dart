@@ -1,6 +1,6 @@
 // ignore_for_file: library_private_types_in_public_api
 
-import 'package:comet_connect_app/pages/homepage.dart';
+import 'package:comet_connect_app/pages/login_or_signup.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/material.dart';
@@ -186,7 +186,11 @@ signup(context, String username, String password, String firstName,
   try {
     // Create connection.
     channel = WebSocketChannel.connect(
-      Uri.parse('ws://192.168.1.71:3000'),
+      // Local Hosts:
+      // Danny: ws://192.168.1.229:3000
+      // Kevin: ws://192.168.1.71:3000
+
+      Uri.parse('ws://192.168.1.229:3000'),
     );
   } catch (e) {
     print("""Error on connecting to websocket: (signup.dart)
@@ -230,13 +234,16 @@ signup(context, String username, String password, String firstName,
         SharedPreferences prefs = await SharedPreferences.getInstance();
         prefs.setBool('loggedin', true);
         prefs.setString("mailOrUsername", username);
+
         // Return user to home page if successful
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const MyHomePage()),
+          MaterialPageRoute(builder: (context) => const LoginOrSignup()),
         );
+
         // Call Welcome Screen Display
-        showWelcomeDialog(context);
+        //showWelcomeDialog(context);
+        loginWelcomeDialog(context);
         print("Signup Successful!!!!!");
       } else {
         // TODO: update for signup instead of login
