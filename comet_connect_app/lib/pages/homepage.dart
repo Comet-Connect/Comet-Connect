@@ -138,6 +138,32 @@ class MyHomePage extends StatelessWidget {
       },
     );
   }
+
+  void _joinGroup(String sessionId) {
+    late WebSocketChannel _channel;
+    _channel = WebSocketChannel.connect(
+      Uri.parse('ws://192.168.1.229:3000/$current_loggedin_user_oid/'),
+    );
+
+    _channel.sink.add(json.encode({
+      'cmd': 'join_group',
+      'auth': 'chatappauthkey231r4',
+      'session_id': sessionId,
+      'user_id': current_loggedin_user_oid,
+    }));
+
+    _getGroups(_channel);
+  }
+
+  void _getGroups(WebSocketChannel _channel) {
+    final userId = current_loggedin_user_oid;
+    _channel.sink.add(json.encode({
+      'cmd': 'get_groups',
+      'auth': 'chatappauthkey231r4',
+      'oid': userId,
+    }));
+  }
+
 }
 
 class GroupTile extends StatelessWidget {
