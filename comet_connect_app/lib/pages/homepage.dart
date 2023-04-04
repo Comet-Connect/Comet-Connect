@@ -1,20 +1,15 @@
+import 'dart:convert';
 import 'package:comet_connect_app/pages/groups_page.dart';
 import 'package:flutter/material.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
+import '../auth/login.dart';
 import 'create_groups.dart';
-import 'join_groups.dart';
 import 'menu.dart';
 import 'login_or_signup.dart';
 import 'selectdate.dart';
-import 'package:table_calendar/table_calendar.dart';
 
 class MyHomePage extends StatelessWidget {
   const MyHomePage({Key? key}) : super(key: key);
-
-  // TODO: Connect with DB to import groups
-  // @override
-  // void initState() {
-
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -40,6 +35,7 @@ class MyHomePage extends StatelessWidget {
               Expanded(
                 flex: 3,
                 child: Container(
+                  height: 800,
                   color: Colors.blueGrey[500],
                   child: const SelectDate(),
                   // child: const Center(
@@ -49,9 +45,6 @@ class MyHomePage extends StatelessWidget {
                   //     style: TextStyle(fontSize: 24),
                   //   ),
                   // ),
-
-                  
-
                 ),
               ),
               Expanded(
@@ -77,8 +70,8 @@ class MyHomePage extends StatelessWidget {
                           padding: const EdgeInsets.all(20),
                           crossAxisCount: 2,
                           children: const [
-                            GroupTile(name: 'Group 1'),
-                            GroupTile(name: 'Group 2'),
+                            // GroupTile(name: 'Group 1'),
+                            // GroupTile(name: 'Group 2'),
                           ],
                         ),
                       ),
@@ -88,22 +81,56 @@ class MyHomePage extends StatelessWidget {
                         children: [
                           ElevatedButton(
                             onPressed: () {
-                              // TODO: Create Group Functionality
                               // Navigate to the create group screen
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (context) => const CreateGroupScreen()),
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        const CreateGroupScreen()),
                               );
                             },
                             child: const Text('Create Group'),
                           ),
+
+                          // Join Group Button for homepage
                           ElevatedButton(
                             onPressed: () {
-                              // TODO: Join Group Functionality
-                              // Navigate to the join group screen
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => const JoinGroupScreen()),
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  String sessionId = "";
+                                  return AlertDialog(
+                                    title: const Text('Join Group'),
+                                    content: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        TextField(
+                                          onChanged: (value) {
+                                            sessionId = value;
+                                          },
+                                          decoration: const InputDecoration(
+                                            labelText: 'Session ID',
+                                            border: OutlineInputBorder(),
+                                          ),
+                                        ),
+                                        const SizedBox(height: 20),
+                                        ElevatedButton(
+                                          onPressed: () {
+                                            _joinGroup(sessionId);
+                                            Navigator.of(context).pop();
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      const GroupsPage()),
+                                            );
+                                          },
+                                          child: const Text('Join'),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
                               );
                             },
                             child: const Text('Join Group'),
@@ -120,19 +147,63 @@ class MyHomePage extends StatelessWidget {
       ),
       onGenerateRoute: (settings) {
         if (settings.name == '/home') {
-          return MaterialPageRoute(builder: (context) => const MyHomePage());
+          //return MaterialPageRoute(builder: (context) => const MyHomePage());
+          return PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                const MyHomePage(),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              return FadeTransition(
+                opacity: animation,
+                child: child,
+              );
+            },
+          );
         }
         if (settings.name == '/view-calendar') {
-          return MaterialPageRoute(builder: (context) => const SelectDate());
+          //return MaterialPageRoute(builder: (context) => const SelectDate());
+          return PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                const SelectDate(),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              return FadeTransition(
+                opacity: animation,
+                child: child,
+              );
+            },
+          );
         }
         if (settings.name == '/groups') {
-          return MaterialPageRoute(builder: (context) => const GroupsPage());
+          // return MaterialPageRoute(builder: (context) => const GroupsPage());
+          return PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                const GroupsPage(),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              return FadeTransition(
+                opacity: animation,
+                child: child,
+              );
+            },
+          );
         }
         if (settings.name == '/login') {
           //return MaterialPageRoute(builder: (context) => Login());
         }
         if (settings.name == '/signout') {
-          return MaterialPageRoute(builder: (context) => const LoginOrSignup());
+          //return MaterialPageRoute(builder: (context) => const LoginOrSignup());
+          return PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                const LoginOrSignup(),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              return FadeTransition(
+                opacity: animation,
+                child: child,
+              );
+            },
+          );
         }
         return null;
       },
@@ -163,7 +234,6 @@ class MyHomePage extends StatelessWidget {
       'oid': userId,
     }));
   }
-
 }
 
 class GroupTile extends StatelessWidget {
@@ -200,6 +270,3 @@ class GroupTile extends StatelessWidget {
     );
   }
 }
-
-
-

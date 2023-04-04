@@ -1,4 +1,10 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
+import '../auth/login.dart';
+import 'groups_page.dart';
 
 class CreateGroupScreen extends StatefulWidget {
   const CreateGroupScreen({Key? key}) : super(key: key);
@@ -9,10 +15,136 @@ class CreateGroupScreen extends StatefulWidget {
 
 class _CreateGroupScreenState extends State<CreateGroupScreen> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _groupNameController = TextEditingController();
-  final TextEditingController _groupDescriptionController =
-      TextEditingController();
-  String? _selectedImageUrl;
+
+  String _groupName = '';
+  String _groupDescription = '';
+
+  List<String> _members = [];
+
+  TextEditingController _memberController = TextEditingController();
+
+  WebSocketChannel? channel;
+
+  StreamSubscription? subscription;
+
+  @override
+  void initState() {
+    super.initState();
+    _connectToWebSocketServer();
+  }
+
+  @override
+  void dispose() {
+    channel?.sink.close();
+    _memberController.dispose();
+    super.dispose();
+  }
+
+  void _connectToWebSocketServer() {
+    channel = WebSocketChannel.connect(
+      Uri.parse('ws://192.168.1.229:3000/$current_loggedin_user/$_groupName'),
+    );
+    print("Connecting to groups WSS");
+  }
+
+  void createGroup() {
+    if (channel == null) {
+      print('WebSocket channel is null');
+      return;
+    }
+
+    final members = _members.map((m) => m.trim()).toList();
+    members
+        .add(current_loggedin_user!); // Add current user to the list of members
+
+    final sessionId = Random.secure()
+        .nextInt(1000000000)
+        .toString(); // Generate random session id
+
+    final groupData = {
+      "cmd": "create_group",
+      "name": _groupName,
+      "users": members,
+      "description": _groupDescription,
+      "sessionId": sessionId, // Add session id to group data
+    };
+
+    try {
+      channel!.sink.add(json.encode(groupData));
+    } catch (e) {
+      print('Failed to send WebSocket message: $e');
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to create group')),
+      );
+    }
+
+    // Set up a one-time subscription to listen for the response
+    subscription = channel!.stream.listen(
+      (event) {
+        // Parse the JSON data from the server
+        event = event.replaceAll(RegExp("'"), '"');
+
+        // Print received data
+        print('Received data from server: \n\t$event');
+
+        var responseData = json.decode(event);
+
+        // Check if the response is for group creation
+        //if (responseData["cmd"] == 'create_group') {
+        // Check if the group creation was successful
+        if (responseData["status"] == 'success') {
+          // Close the WebSocket channel and subscription
+          channel?.sink.close();
+          subscription?.cancel();
+
+          // Show the success dialog
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text('Group Created'),
+                content:
+                    const Text('Your group has been created successfully.'),
+                actions: <Widget>[
+                  TextButton(
+                    child: const Text('OK'),
+                    onPressed: () {
+                      // check if button pressed from homescreen or groups page
+                      Navigator.of(context).pop();
+                      Navigator.of(context).pop();
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const GroupsPage()),
+                      );
+                    },
+                  ),
+                ],
+              );
+            },
+          );
+        } else if (responseData['status'] == 'user_not_found') {
+          // Show error message for user not found
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('One or more users not found.')),
+          );
+        } else {
+          // Show error message for other errors
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Failed to create group.')),
+          );
+        }
+        //}
+      },
+      onError: (e) {
+        print('WebSocket stream error: $e');
+        subscription?.cancel();
+        subscription = null;
+      },
+      cancelOnError: true,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,19 +152,19 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
       appBar: AppBar(
         title: const Text('Create Group'),
       ),
-      body: Form(
-        key: _formKey,
+      body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: SingleChildScrollView(
+          child: Form(
+            key: _formKey,
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                const SizedBox(height: 20),
                 TextFormField(
-                  controller: _groupNameController,
                   decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
                     labelText: 'Group Name',
-                    hintText: 'Enter the name of the group',
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -40,13 +172,15 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
                     }
                     return null;
                   },
+                  onSaved: (value) {
+                    _groupName = value!;
+                  },
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 20),
                 TextFormField(
-                  controller: _groupDescriptionController,
                   decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
                     labelText: 'Group Description',
-                    hintText: 'Enter a brief description of the group',
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -54,31 +188,66 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
                     }
                     return null;
                   },
-                  maxLines: 3,
-                ),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () {
-                    // TODO: Implement image selection functionality
+                  onSaved: (value) {
+                    _groupDescription = value!;
                   },
-                  child: const Text('Select Group Image'),
                 ),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      // TODO: Implement group creation functionality
-                      Navigator.pop(context);
-                    }
-                  },
-                  child: const Text('Create Group'),
+                const SizedBox(height: 20),
+                const Text(
+                  'Add Members',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
-                const SizedBox(height: 16),
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: const Text('Cancel'),
+                const SizedBox(height: 10),
+                SizedBox(
+                  width: double.infinity,
+                  child: Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Wrap(
+                        spacing: 10,
+                        children: [
+                          ..._members
+                              .map((member) => Chip(
+                                    label: Text(member),
+                                    onDeleted: () {
+                                      setState(() {
+                                        _members.remove(member);
+                                      });
+                                    },
+                                  ))
+                              .toList(),
+                          SizedBox(
+                            width: 350,
+                            child: TextFormField(
+                              controller: _memberController,
+                              decoration: const InputDecoration(
+                                hintText: 'Enter member email/username',
+                              ),
+                              onFieldSubmitted: (value) {
+                                setState(() {
+                                  _members.add(value);
+                                  _memberController.clear();
+                                });
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      if (_formKey.currentState!.validate()) {
+                        _formKey.currentState!.save();
+                        createGroup();
+                      }
+                    },
+                    child: const Text('Create Group'),
+                  ),
                 ),
               ],
             ),
