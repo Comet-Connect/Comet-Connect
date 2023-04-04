@@ -1,7 +1,8 @@
 // ignore_for_file: library_private_types_in_public_api, avoid_print
 
+import 'package:comet_connect_app/pages/homepage.dart';
 import 'package:flutter/material.dart';
-//import 'package:google_sign_in/google_sign_in.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import '../auth/login.dart';
 import '../auth/signup.dart';
 
@@ -19,19 +20,22 @@ class _LoginOrSignup extends State<LoginOrSignup> {
   final _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  //final GoogleSignIn _googleSignIn = GoogleSignIn();
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    scopes: [
+      'email',
+    ],
+  );
 
+  // Google Sign in API
   Future<void> _handleGoogleSignIn() async {
-    // try {
-    //   final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-    //   if (googleUser != null) {
-    //     // Successfully signed in with Google, navigate to home page
-    //     Navigator.of(context).pushReplacementNamed('/home');
-    //   }
-    // } catch (error) {
-    //   // Handle sign in error
-    //   print(error.toString());
-    // }
+    try {
+      await _googleSignIn.signIn();
+      // Navigate to the home page if login successful
+      const MyHomePage();
+    } catch (error) {
+      // Handle sign in error
+      print(error.toString());
+    }
   }
 
   @override
