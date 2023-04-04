@@ -20,6 +20,7 @@ class HamburgerMenu extends StatelessWidget {
                 UserAccountsDrawerHeader(
                   accountName: const Text("Welcome,"), // fetch user
                   accountEmail: Text(current_loggedin_user!), // Need to fetch email
+                  
                   // currentAccountPicture: const CircleAvatar(
                   //   backgroundImage: NetworkImage(''),
                   // ),
@@ -29,13 +30,11 @@ class HamburgerMenu extends StatelessWidget {
                   //       // Show a file picker dialog to let the user choose an image file
                   //       final pickedFile = await ImagePicker()
                   //           .getImage(source: ImageSource.gallery, imageQuality: 50);
-
                   //       // If the user picked an image file, update the profile picture
                   //       //if (pickedFile != null) {
                   //       // Upload the image file to your server and get the image URL
                   //       // final imageUrl =
                   //       //     await uploadProfilePicture(pickedFile as XFile);
-
                   //       // Update the profile picture
                   //       // if (imageUrl != null) {
                   //       //   final drawerState = Scaffold.of(context).openDrawer();
@@ -82,17 +81,15 @@ class HamburgerMenu extends StatelessWidget {
           ),
           const Divider(),
           // Logout button
-          Container(
-            child: ListTile(
-              leading: const Icon(Icons.logout),
-              title: const Text('L O G O U T'),
-              onTap: () {
-                SharedPreferences.getInstance().then((prefs) {
-                  prefs.setBool('loggedin', false);
-                  Navigator.of(context).pushNamed('/signout');
-                });
-              },
-            ),
+          ListTile(
+            leading: const Icon(Icons.logout),
+            title: const Text('L O G O U T'),
+            onTap: () {
+              SharedPreferences.getInstance().then((prefs) {
+                prefs.setBool('loggedin', false);
+                Navigator.of(context).pushNamed('/signout');
+              });
+            },
           ),
         ],
       ),

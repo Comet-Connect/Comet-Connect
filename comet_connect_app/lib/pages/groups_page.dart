@@ -182,6 +182,7 @@ class _GroupsPageState extends State<GroupsPage> {
           groupId: selectedGroup.oid,
           groupName: selectedGroup.name,
           session_id: selectedGroup.sessionId,
+          users: selectedGroup.users,
         ),
         settings: RouteSettings(
           name: '/group/${selectedGroup.name}',
