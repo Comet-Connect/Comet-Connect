@@ -216,7 +216,7 @@ class MyHomePage extends StatelessWidget {
       Uri.parse('ws://192.168.1.229:3000/$current_loggedin_user_oid/'),
     );
 
-    _channel?.sink.add(json.encode({
+    _channel.sink.add(json.encode({
       'cmd': 'join_group',
       'auth': 'chatappauthkey231r4',
       'session_id': sessionId,
