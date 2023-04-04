@@ -1,5 +1,6 @@
 // ignore_for_file: library_private_types_in_public_api, avoid_renaming_method_parameters
 
+import 'package:comet_connect_app/pages/help_page.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'pages/login_or_signup.dart';
@@ -69,6 +70,10 @@ class MyRouterDelegate extends RouterDelegate<MyRoutePath>
       key: ValueKey('groups'),
       child: GroupsPage(),
     ),
+    MaterialPage(
+      key: const ValueKey('help'),
+      child: HelpPage(),
+    ),
   ];
 
   @override
@@ -128,7 +133,15 @@ class MyRouterDelegate extends RouterDelegate<MyRoutePath>
             groupId: groupId,
             groupName: '',
             session_id: '',
+            users: [],
           ),
+        ),
+      );
+    } else if (path.isHelpPage) {
+      _pages.add(
+        const MaterialPage(
+          key: ValueKey('help'),
+          child: GroupsPage(),
         ),
       );
     }

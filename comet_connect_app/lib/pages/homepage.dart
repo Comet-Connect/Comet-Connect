@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:comet_connect_app/pages/groups_page.dart';
+import 'package:comet_connect_app/pages/help_page.dart';
 import 'package:flutter/material.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import '../auth/login.dart';
@@ -188,10 +189,22 @@ class MyHomePage extends StatelessWidget {
             },
           );
         }
-        if (settings.name == '/login') {
-          //return MaterialPageRoute(builder: (context) => Login());
+        if (settings.name == '/help') {
+          return PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) => HelpPage(),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              return FadeTransition(
+                opacity: animation,
+                child: child,
+              );
+            },
+          );
         }
-        if (settings.name == '/signout') {
+        // if (settings.name == '/login') {
+        //    //return MaterialPageRoute(builder: (context) => Login());
+        // }
+        if (settings.name == '/signout' || settings.name == '/login') {
           //return MaterialPageRoute(builder: (context) => const LoginOrSignup());
           return PageRouteBuilder(
             pageBuilder: (context, animation, secondaryAnimation) =>
