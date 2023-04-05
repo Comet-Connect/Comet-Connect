@@ -1,6 +1,7 @@
 {
+    "_comment": "Duplicate this file, rename it to 'config.json', and replace 'CHANGE ME' with your LAN facing IPv4 address.",
     "server": {
-        "host": "192.168.1.71",
+        "host": "CHANGE ME",
         "port": "3000"
     },
     "database": {

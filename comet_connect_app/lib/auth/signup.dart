@@ -189,9 +189,6 @@ signup(context, String username, String password, String firstName,
     Map config = await getServerConfigFile();
     channel = WebSocketChannel.connect(
       Uri.parse('ws://${config["host"]}:${config["port"]}'),
-      // Local Hosts:
-      // Danny: ws://192.168.1.229:3000
-      // Kevin: ws://192.168.1.71:3000
     );
   } catch (e) {
     print("""Error on connecting to websocket: (signup.dart)
