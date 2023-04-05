@@ -4,3 +4,6 @@
 # Packages
 /node_modules/*
 /comet_connect_app/pubspec.lock
+
+# Config
+/comet_connect_app/assets/config/config.json

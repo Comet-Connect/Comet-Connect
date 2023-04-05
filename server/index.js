@@ -16,11 +16,17 @@ app.use(bodyParser.json());
 const JWT_SECRET = 'Y8qKMoPgmy';
 const jwt = require('jsonwebtoken');
 
+// Config
+const config = require('../comet_connect_app/assets/config/config.json')
+
 // URLs & Ports
-const port = 3000  //process.env.PORT || 3000;
-const url = 'mongodb+srv://admin:bNGtOFxi3UTcv81W@cometconnect.cuwtjrg.mongodb.net/user_info?retryWrites=true&w=majority' 
+const port = config.server.port  //process.env.PORT || 3000;
+const dbUsername = config.database.username
+const dbPassword = config.database.password
+const dbUrl = config.database.url
+const url = `mongodb+srv://${dbUsername}:${dbPassword}@${dbUrl}?retryWrites=true&w=majority`
             //'mongodb+srv://admin:bNGtOFxi3UTcv81W@cometconnect.cuwtjrg.mongodb.net/user_info';
-            
+
 // Connect to MongoDB
 mongoose.connect(url, {
   useNewUrlParser: true,

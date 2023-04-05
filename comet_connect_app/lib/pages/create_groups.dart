@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import '../auth/login.dart';
 import 'groups_page.dart';
+import 'package:comet_connect_app/config.dart';
 
 class CreateGroupScreen extends StatefulWidget {
   const CreateGroupScreen({Key? key}) : super(key: key);
@@ -40,9 +41,10 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
     super.dispose();
   }
 
-  void _connectToWebSocketServer() {
+  void _connectToWebSocketServer() async {
+    Map config = await getServerConfigFile();
     channel = WebSocketChannel.connect(
-      Uri.parse('ws://192.168.1.229:3000/$current_loggedin_user/$_groupName'),
+      Uri.parse('ws://${config["host"]}:${config["port"]}/$_groupName'),
     );
     print("Connecting to groups WSS");
   }
