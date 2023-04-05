@@ -1,9 +1,10 @@
 // ignore_for_file: library_private_types_in_public_api, avoid_print
 
 import 'package:flutter/material.dart';
-//import 'package:google_sign_in/google_sign_in.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import '../auth/login.dart';
 import '../auth/signup.dart';
+import 'homepage.dart';
 
 class LoginOrSignup extends StatefulWidget {
   const LoginOrSignup({Key? key}) : super(key: key);
@@ -19,19 +20,24 @@ class _LoginOrSignup extends State<LoginOrSignup> {
   final _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  //final GoogleSignIn _googleSignIn = GoogleSignIn();
+  final GoogleSignIn _googleSignIn =
+      GoogleSignIn(scopes: ['https://www.googleapis.com/auth/calendar.events']);
 
   Future<void> _handleGoogleSignIn() async {
-    // try {
-    //   final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-    //   if (googleUser != null) {
-    //     // Successfully signed in with Google, navigate to home page
-    //     Navigator.of(context).pushReplacementNamed('/home');
-    //   }
-    // } catch (error) {
-    //   // Handle sign in error
-    //   print(error.toString());
-    // }
+    try {
+      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+      if (googleUser != null && context.mounted) {
+        // Successfully signed in with Google, navigate to home page
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const MyHomePage()),
+        );
+        loginWelcomeDialog(context);
+      }
+    } catch (error) {
+      // Handle sign in error
+      print(error.toString());
+    }
   }
 
   @override
@@ -153,9 +159,8 @@ class _LoginOrSignup extends State<LoginOrSignup> {
                       child: ElevatedButton(
                         onPressed: () async {
                           // Call function from login.dart
-                          login(context, _usernameController.text, _passwordController.text);
-
-                          
+                          login(context, _usernameController.text,
+                              _passwordController.text);
                         },
                         child: const Text(
                           'Login',
@@ -175,9 +180,7 @@ class _LoginOrSignup extends State<LoginOrSignup> {
                                 context,
                                 MaterialPageRoute(
                                     // TODO Create Forgot password functionality
-                                    builder: (context) => const SignupPage()
-                                )
-                            );
+                                    builder: (context) => const SignupPage()));
                           },
                           child: const Text('Forgot Password?'),
                         ),
