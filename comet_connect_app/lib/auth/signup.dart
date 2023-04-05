@@ -186,9 +186,9 @@ signup(context, String username, String password, String firstName,
   WebSocketChannel? channel;
   try {
     // Create connection.
-    Map config = await getConfigFile();
+    Map config = await getServerConfigFile();
     channel = WebSocketChannel.connect(
-      Uri.parse('ws://${config["server"]["host"]}:${config["server"]["port"]}'),
+      Uri.parse('ws://${config["host"]}:${config["port"]}'),
       // Local Hosts:
       // Danny: ws://192.168.1.229:3000
       // Kevin: ws://192.168.1.71:3000

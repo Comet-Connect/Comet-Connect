@@ -16,10 +16,9 @@ login(context, _mailOrUsername, _pwd) async {
     WebSocketChannel? channel;
     try {
       // Create connection.
-      Map config = await getConfigFile();
+      Map config = await getServerConfigFile();
       channel = WebSocketChannel.connect(
-        Uri.parse(
-            'ws://${config["server"]["host"]}:${config["server"]["port"]}/$_mailOrUsername'),
+        Uri.parse('ws://${config["host"]}:${config["port"]}/$_mailOrUsername'),
       );
     } catch (e) {
       // Print Error Message if Not able to connect to Mongoose Server

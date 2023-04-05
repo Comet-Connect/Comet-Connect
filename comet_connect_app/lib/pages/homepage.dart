@@ -7,6 +7,7 @@ import 'create_groups.dart';
 import 'menu.dart';
 import 'login_or_signup.dart';
 import 'selectdate.dart';
+import 'package:comet_connect_app/config.dart';
 
 class MyHomePage extends StatelessWidget {
   const MyHomePage({Key? key}) : super(key: key);
@@ -210,10 +211,12 @@ class MyHomePage extends StatelessWidget {
     );
   }
 
-  void _joinGroup(String sessionId) {
+  void _joinGroup(String sessionId) async {
     late WebSocketChannel _channel;
+    Map config = await getServerConfigFile();
     _channel = WebSocketChannel.connect(
-      Uri.parse('ws://192.168.1.229:3000/$current_loggedin_user_oid/'),
+      Uri.parse(
+          'ws://${config["host"]}:${config["port"]}/$current_loggedin_user_oid/'),
     );
 
     _channel.sink.add(json.encode({

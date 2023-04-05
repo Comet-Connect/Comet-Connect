@@ -5,6 +5,7 @@ import '../auth/login.dart';
 import '../classes/group_class.dart';
 import 'create_groups.dart';
 import 'group_details_page.dart';
+import 'package:comet_connect_app/config.dart';
 
 class GroupsPage extends StatefulWidget {
   const GroupsPage({Key? key}) : super(key: key);
@@ -18,6 +19,7 @@ class _GroupsPageState extends State<GroupsPage> {
   List<Group> _groups = [];
   Group? _hoveredGroup;
   WebSocketChannel? _channel;
+  String current_loggedin_user_oid = '';
 
   // Initial State
   @override
@@ -35,9 +37,11 @@ class _GroupsPageState extends State<GroupsPage> {
   }
 
   // Startup WSS
-  void _connectToWebSocketServer() {
+  void _connectToWebSocketServer() async {
+    Map config = await getServerConfigFile();
     _channel = WebSocketChannel.connect(
-      Uri.parse('ws://192.168.1.229:3000/$current_loggedin_user_oid/'),
+      Uri.parse(
+          'ws://${config["host"]}:${config["port"]}/$current_loggedin_user_oid/'),
     );
     _channel?.stream.listen((event) {
       final data = json.decode(event);
