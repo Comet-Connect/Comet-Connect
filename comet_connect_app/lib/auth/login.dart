@@ -72,9 +72,10 @@ login(context, _mailOrUsername, _pwd) async {
           );
           // Call Welcome Screen Display
           showWelcomeDialog(context);
-          print("User [$_mailOrUsername] is logged in!\n");
+          print("\tUser [$_mailOrUsername] is logged in!\n");
 
           current_loggedin_user_oid = responseData["oid"];
+          print("\tUser OID: $current_loggedin_user_oid!\n");
         } else {
           // Throw pop up if User Login was unsuccessful
           channel?.sink.close();

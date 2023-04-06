@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../classes/meeting_class.dart';
 import 'selectdate.dart';
 
 
