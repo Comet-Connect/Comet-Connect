@@ -44,7 +44,7 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
   void _connectToWebSocketServer() async {
     Map config = await getServerConfigFile();
     channel = WebSocketChannel.connect(
-      Uri.parse('ws://${config["host"]}:${config["port"]}/$_groupName'),
+      Uri.parse('ws://${config["host"]}:${config["port"]}'),
     );
     print("Connecting to groups WSS");
   }
