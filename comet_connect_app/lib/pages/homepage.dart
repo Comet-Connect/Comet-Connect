@@ -37,6 +37,7 @@ class MyHomePage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+
               // Calendar Preview
               Expanded(
                 flex: 8,
@@ -57,26 +58,6 @@ class MyHomePage extends StatelessWidget {
                 ),
               ),
 
-              // // Button to go to SelectDatePage
-              // Expanded(
-              //   flex: 1,
-              //   child: Row(
-              //     mainAxisAlignment: MainAxisAlignment.end,
-              //     children: [
-              //       IconButton(
-              //         icon: const Icon(Icons.open_in_new),
-              //         onPressed: () {
-              //           Navigator.push(
-              //             context,
-              //             MaterialPageRoute(
-              //               builder: (context) => const SelectDate(),
-              //             ),
-              //           );
-              //         },
-              //       ),
-              //     ],
-              //   ),
-              // ),
 
               // My Groups
               Expanded(
@@ -98,6 +79,7 @@ class MyHomePage extends StatelessWidget {
                         //   ],
                         // ),
 
+                        // TODO: pull groups from mongo and display
                         child: GridView.count(
                           padding: const EdgeInsets.all(20),
                           crossAxisCount: 2,
@@ -259,7 +241,7 @@ class MyHomePage extends StatelessWidget {
     Map config = await getServerConfigFile();
     _channel = WebSocketChannel.connect(
       Uri.parse(
-          'ws://${config["host"]}:${config["port"]}/$current_loggedin_user_oid/'),
+          'ws://${config["host"]}:${config["port"]}'),
     );
 
     _channel.sink.add(json.encode({
