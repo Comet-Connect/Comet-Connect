@@ -23,7 +23,10 @@ class MyHomePage extends StatelessWidget {
           title: const Text('Home Page'),
           backgroundColor: Colors.grey[900],
         ),
+
+        // Set Background Color
         backgroundColor: Colors.grey[300],
+
         // Create Hambureger Menu
         drawer: const HamburgerMenu(),
 
@@ -34,21 +37,29 @@ class MyHomePage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+
+              // Calendar Preview
               Expanded(
-                flex: 3,
+                flex: 8,
                 child: Container(
                   height: 800,
                   color: Colors.blueGrey[500],
-                  child: const SelectDate(),
-                  // child: const Center(
-                  //   // TODO: Insert user calendar from DB
-                  //   child: Text(
-                  //     'Calendar Preview',
-                  //     style: TextStyle(fontSize: 24),
-                  //   ),
-                  // ),
+                  child: GestureDetector(
+                    child: const SelectDate(),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const SelectDate(),
+                        ),
+                      );
+                    },
+                  ),
                 ),
               ),
+
+
+              // My Groups
               Expanded(
                 flex: 2,
                 child: Container(
@@ -68,6 +79,7 @@ class MyHomePage extends StatelessWidget {
                         //   ],
                         // ),
 
+                        // TODO: pull groups from mongo and display
                         child: GridView.count(
                           padding: const EdgeInsets.all(20),
                           crossAxisCount: 2,
@@ -229,7 +241,7 @@ class MyHomePage extends StatelessWidget {
     Map config = await getServerConfigFile();
     _channel = WebSocketChannel.connect(
       Uri.parse(
-          'ws://${config["host"]}:${config["port"]}/$current_loggedin_user_oid/'),
+          'ws://${config["host"]}:${config["port"]}'),
     );
 
     _channel.sink.add(json.encode({

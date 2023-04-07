@@ -38,20 +38,25 @@ class _GroupsPageState extends State<GroupsPage> {
   // Startup WSS
   void _connectToWebSocketServer() async {
     Map config = await getServerConfigFile();
+
+    // Connecting to WS Server
     _channel = WebSocketChannel.connect(
-      Uri.parse(
-          'ws://${config["host"]}:${config["port"]}/$current_loggedin_user_oid/'),
+      Uri.parse('ws://${config["host"]}:${config["port"]}'),
     );
+    // Check if current logged in user is not null
     if (current_loggedin_user != null) {
       _getGroups();
     }
+
+    // Listen to the channel Stream
     _channel?.stream.listen((event) {
       final data = json.decode(event);
-
       print('Received data from server: \n\t$event\n');
+
       if (data['cmd'] == 'get_groups') {
         final groupsData = data['data'];
         print('Received groups data: $groupsData');
+
         final groups = groupsData
             .map<Group>((groupData) => Group(
                   oid: groupData['id'],
