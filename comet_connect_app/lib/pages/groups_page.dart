@@ -19,7 +19,6 @@ class _GroupsPageState extends State<GroupsPage> {
   List<Group> _groups = [];
   Group? _hoveredGroup;
   WebSocketChannel? _channel;
-  String current_loggedin_user_oid = '';
 
   // Initial State
   @override
@@ -43,6 +42,9 @@ class _GroupsPageState extends State<GroupsPage> {
       Uri.parse(
           'ws://${config["host"]}:${config["port"]}/$current_loggedin_user_oid/'),
     );
+    if (current_loggedin_user != null) {
+      _getGroups();
+    }
     _channel?.stream.listen((event) {
       final data = json.decode(event);
 

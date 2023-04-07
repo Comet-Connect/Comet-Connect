@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
+import 'package:comet_connect_app/pages/homepage.dart';
 import 'package:flutter/material.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import '../auth/login.dart';
@@ -115,6 +116,11 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
                       // check if button pressed from homescreen or groups page
                       Navigator.of(context).pop();
                       Navigator.of(context).pop();
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const MyHomePage()),
+                      );
                       Navigator.push(
                         context,
                         MaterialPageRoute(
