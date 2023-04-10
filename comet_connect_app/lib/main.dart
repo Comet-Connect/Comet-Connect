@@ -9,16 +9,20 @@ import 'pages/groups_page.dart';
 import 'pages/selectdate.dart';
 import 'pages/group_details_page.dart';
 
-// Define your API endpoint URLs
-const String loginUrl = 'http://192.168.1.229:3000/api/login';
-const String dataUrl = 'http://192.168.1.229:3000/api/data'; // MongoDB database
-
+// Main
 void main() async {
-  runApp(const MyApp());
+  WidgetsFlutterBinding.ensureInitialized();
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  bool? loggedIn = prefs.getBool('loggedin');
+  runApp(MyApp(
+      initialPage:
+          loggedIn == true ? MyRoutePath.home() : MyRoutePath.login()));
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp({Key? key}) : super(key: key);
+  final MyRoutePath initialPage;
+
+  const MyApp({Key? key, required this.initialPage}) : super(key: key);
 
   @override
   _MyAppState createState() => _MyAppState();
@@ -28,14 +32,18 @@ class _MyAppState extends State<MyApp> {
   final routerDelegate = MyRouterDelegate();
   final routeInformationParser = MyRouteInformationParser();
 
-  autoLogin() async {
+  @override
+  void initState() {
+    super.initState();
+    autoLogin();
+  }
+
+  void autoLogin() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     bool? loggedIn = prefs.getBool('loggedin');
 
     if (loggedIn == true) {
-      return const MyHomePage();
-    } else {
-      return const LoginOrSignup();
+      routerDelegate.setNewRoutePath(MyRoutePath.home());
     }
   }
 
@@ -48,6 +56,7 @@ class _MyAppState extends State<MyApp> {
       ),
       routerDelegate: routerDelegate,
       routeInformationParser: routeInformationParser,
+      backButtonDispatcher: RootBackButtonDispatcher(),
     );
   }
 }
@@ -133,7 +142,7 @@ class MyRouterDelegate extends RouterDelegate<MyRoutePath>
             groupId: groupId,
             groupName: '',
             session_id: '',
-            users: [],
+            users: const [],
           ),
         ),
       );
@@ -256,15 +265,14 @@ class MyRoutePath {
         isUnknown = false,
         groupId = null;
 
-  MyRoutePath.groupDetails(String groupId)
+  MyRoutePath.groupDetails(String this.groupId)
       : isLoginPage = false,
         isHomePage = false,
         isCalendarPage = false,
         isGroupsPage = false,
         isGroupDetailsPage = true,
         isHelpPage = false,
-        isUnknown = false,
-        groupId = groupId;
+        isUnknown = false;
 
   MyRoutePath.help()
       : isLoginPage = false,

@@ -153,9 +153,8 @@ class _LoginOrSignup extends State<LoginOrSignup> {
                       child: ElevatedButton(
                         onPressed: () async {
                           // Call function from login.dart
-                          login(context, _usernameController.text, _passwordController.text);
-
-                          
+                          login(context, _usernameController.text,
+                              _passwordController.text);
                         },
                         child: const Text(
                           'Login',
@@ -175,9 +174,7 @@ class _LoginOrSignup extends State<LoginOrSignup> {
                                 context,
                                 MaterialPageRoute(
                                     // TODO Create Forgot password functionality
-                                    builder: (context) => const SignupPage()
-                                )
-                            );
+                                    builder: (context) => const SignupPage()));
                           },
                           child: const Text('Forgot Password?'),
                         ),
@@ -199,12 +196,6 @@ class _LoginOrSignup extends State<LoginOrSignup> {
                                 MaterialPageRoute(
                                     builder: (context) => const SignupPage()));
                           },
-                          // child: const Text(
-                          //     'Sign Up',
-                          //     style: TextStyle (
-                          //       fontWeight: FontWeight.bold,
-                          //     ),
-                          // ),
                           child: const Text('Sign Up'),
                         ),
                       ],

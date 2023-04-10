@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+// Settings Page to allow user to reset pass, etc
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
 

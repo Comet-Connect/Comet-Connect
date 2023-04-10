@@ -1,3 +1,5 @@
+// ignore_for_file: no_leading_underscores_for_local_identifiers
+
 import 'dart:convert';
 import 'package:comet_connect_app/pages/groups_page.dart';
 import 'package:comet_connect_app/pages/help_page.dart';
@@ -9,6 +11,9 @@ import 'menu.dart';
 import 'login_or_signup.dart';
 import 'selectdate.dart';
 import 'package:comet_connect_app/config.dart';
+
+final UTD_color_primary = Color.fromARGB(255, 1, 78, 11);
+final UTD_color_secondary = Color.fromARGB(255, 255, 123, 0);
 
 class MyHomePage extends StatelessWidget {
   const MyHomePage({Key? key}) : super(key: key);
@@ -37,10 +42,9 @@ class MyHomePage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-
               // Calendar Preview
               Expanded(
-                flex: 8,
+                flex: 10,
                 child: Container(
                   height: 800,
                   color: Colors.blueGrey[500],
@@ -57,7 +61,6 @@ class MyHomePage extends StatelessWidget {
                   ),
                 ),
               ),
-
 
               // My Groups
               Expanded(
@@ -103,6 +106,10 @@ class MyHomePage extends StatelessWidget {
                                         const CreateGroupScreen()),
                               );
                             },
+                            style: ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all<Color>(
+                                  Colors.grey[800]!),
+                            ),
                             child: const Text('Create Group'),
                           ),
 
@@ -139,6 +146,11 @@ class MyHomePage extends StatelessWidget {
                                                       const GroupsPage()),
                                             );
                                           },
+                                          style: ButtonStyle(
+                                            backgroundColor:
+                                                MaterialStateProperty.all<
+                                                    Color>(Colors.grey[800]!),
+                                          ),
                                           child: const Text('Join'),
                                         ),
                                       ],
@@ -147,6 +159,10 @@ class MyHomePage extends StatelessWidget {
                                 },
                               );
                             },
+                            style: ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all<Color>(
+                                  Colors.grey[800]!),
+                            ),
                             child: const Text('Join Group'),
                           ),
                         ],
@@ -240,8 +256,7 @@ class MyHomePage extends StatelessWidget {
     late WebSocketChannel _channel;
     Map config = await getServerConfigFile();
     _channel = WebSocketChannel.connect(
-      Uri.parse(
-          'ws://${config["host"]}:${config["port"]}'),
+      Uri.parse('ws://${config["host"]}:${config["port"]}'),
     );
 
     _channel.sink.add(json.encode({

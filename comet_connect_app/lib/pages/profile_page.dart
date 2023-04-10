@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 
+// Profile Page that stores user info
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
 
