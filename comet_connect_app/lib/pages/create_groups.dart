@@ -10,6 +10,11 @@ import '../auth/login.dart';
 import 'groups_page.dart';
 import 'package:comet_connect_app/config.dart';
 
+/// CreateGroupScreen Class
+///
+/// This is the Create Group form to create a group for the Comet Connect App
+/// Contains:
+///    - Group Data (group schema on MongoDB)
 class CreateGroupScreen extends StatefulWidget {
   const CreateGroupScreen({Key? key}) : super(key: key);
 

@@ -335,7 +335,7 @@ class _GroupsPageState extends State<GroupsPage> {
 
     if (_filteredGroups.isEmpty) {
       return const Center(
-        child: Text('No groups found.'),
+        child: Text('You are not in any groups.\n Create or Join a Group!'),
       );
     }
 

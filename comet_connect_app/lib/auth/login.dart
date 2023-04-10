@@ -10,6 +10,13 @@ import '../pages/homepage.dart';
 String? current_loggedin_user;
 String? current_loggedin_user_oid;
 
+
+/// Login Function
+///
+/// This is the backend functionality for logging in a User for the Comet Connect App
+/// Contains:
+///    - WebSocket Server Listening for incoming messages
+///    - Input validation for validating users
 login(context, _mailOrUsername, _pwd) async {
   String auth = "chatappauthkey231r4";
   if (_mailOrUsername.isNotEmpty && _pwd.isNotEmpty) {

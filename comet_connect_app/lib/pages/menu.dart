@@ -3,6 +3,15 @@ import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../auth/login.dart';
 
+/// HamburgerMenu Class
+///
+/// This is the Hamburger Menu button on the top left header of the Comet Connect App
+/// Contains:
+///    - Homepage (homepage.dart)
+///    - Calendar Page (selectdate.dart)
+///    - Groups Page (groups_page.dart)
+///    - Help Page (help_page.dart)
+///    - Loggout button (login_or_signup.dart)
 class HamburgerMenu extends StatelessWidget {
   const HamburgerMenu({Key? key}) : super(key: key);
 
@@ -23,9 +32,9 @@ class HamburgerMenu extends StatelessWidget {
                       Text(current_loggedin_user!), // Need to fetch email
                   // edit colors etc. of box border
                   decoration: BoxDecoration(
-                    color: Color.fromARGB(255, 1, 78, 11),
+                    color: const Color.fromARGB(255, 1, 78, 11),
                     border: Border.all(
-                        color: Color.fromARGB(255, 1, 78, 11), width: 2),
+                        color: const Color.fromARGB(255, 1, 78, 11), width: 2),
                   ),
                   // currentAccountPicture: const CircleAvatar(
                   //   backgroundImage: NetworkImage(''),
@@ -85,7 +94,9 @@ class HamburgerMenu extends StatelessWidget {
               ],
             ),
           ),
-          const Divider(color: Colors.black,),
+          const Divider(
+            color: Colors.black,
+          ),
           // Logout button
           ListTile(
             leading: const Icon(Icons.logout),

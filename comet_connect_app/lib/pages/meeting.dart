@@ -4,6 +4,14 @@ import 'package:flutter/material.dart';
 import '../classes/meeting_class.dart';
 
 
+/// NewMeetingScreen Class
+///
+/// This is the New Meeting form page of the Comet Connect App
+/// Contains:
+///    - form asking for meeting details
+///        - Meeting name
+///        - Start Time
+///        - End Time
 class NewMeetingScreen extends StatefulWidget {
   const NewMeetingScreen({Key? key}) : super(key: key);
   

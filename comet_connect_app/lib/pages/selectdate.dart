@@ -1,7 +1,6 @@
 // ignore_for_file: avoid_print, depend_on_referenced_packages, avoid_function_literals_in_foreach_calls
 
 import 'dart:convert';
-import 'dart:math';
 import 'package:comet_connect_app/pages/homepage.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -12,6 +11,15 @@ import '../classes/meeting_class.dart';
 import '../classes/new_meeting_class.dart';
 import 'package:comet_connect_app/config.dart';
 
+/// SelectDate Class
+///
+/// This is the Calendar Page of the Comet Connect App
+/// Contains:
+///    - Events/Meetings
+///    - Meeting details
+///    - User Availability 
+///    - Create Meeting Functionality
+///    - Delete Meeting Functionality
 class SelectDate extends StatefulWidget {
   const SelectDate({Key? key}) : super(key: key);
 
