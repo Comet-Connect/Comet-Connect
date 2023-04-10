@@ -1,8 +1,5 @@
 // Creating User Schema
 const mongoose = require('mongoose');
-const crypto = require('crypto');
-const express = require('express');
-const bodyParser = require('body-parser');
 const bcrypt = require('bcrypt');
 
 const userSchema = new mongoose.Schema({
@@ -21,8 +18,11 @@ const userSchema = new mongoose.Schema({
     unique: true 
   },
   first_name: String,
-  last_name: String
-
+  last_name: String,
+  calendar: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Calendar'
+  }
 });
 
 // Hash the password before saving it to the database

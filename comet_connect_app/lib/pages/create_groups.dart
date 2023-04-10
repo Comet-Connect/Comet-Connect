@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api, prefer_final_fields, avoid_print
+
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
@@ -159,6 +161,7 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Create Group'),
+        backgroundColor: UTD_color_primary,
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -254,6 +257,10 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
                         createGroup();
                       }
                     },
+                    style: ButtonStyle(
+                      backgroundColor:
+                          MaterialStateProperty.all<Color>(Colors.grey[800]!),
+                    ),
                     child: const Text('Create Group'),
                   ),
                 ),

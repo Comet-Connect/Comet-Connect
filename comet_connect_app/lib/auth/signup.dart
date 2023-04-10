@@ -1,4 +1,4 @@
-// ignore_for_file: library_private_types_in_public_api
+// ignore_for_file: library_private_types_in_public_api, avoid_print
 
 import 'package:comet_connect_app/pages/login_or_signup.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -244,7 +244,6 @@ signup(context, String username, String password, String firstName,
         loginWelcomeDialog(context);
         print("Signup Successful!!!!!");
       } else {
-        // TODO: update for signup instead of login
         // Throw pop up if User Login was unsuccessful
         channel?.sink.close();
         if (responseData["status"] == "existing_username") {

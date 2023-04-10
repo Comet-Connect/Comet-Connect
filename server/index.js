@@ -6,7 +6,10 @@ const bcrypt = require('bcrypt');
 
 // Schemas 
 const User = require('./models/user.js');
-const Group = require('./models/group.js');   // Import the Group schema
+const Group = require('./models/group.js');
+const Calendar = require('./models/calendar.js');
+const Event = require('./models/event.js');
+
 
 // Back up approach (app)
 const bodyParser = require('body-parser');
@@ -44,12 +47,13 @@ mongoose.connect(url, {
       // See if WS message is recieved
       console.log('WebSocket message received:')
       
+      // Listens to cmds called by Front-End
       try {
 
         // Retrieve Data being parsed
         const data = JSON.parse(message);
         
-        // Login function        ***Status: Done***
+        // Login function                ***Status: Done***
         if (data.auth === "chatappauthkey231r4" && data.cmd === 'login') {
           // Check if email or username exists
           const user = await User.findOne({ $or: [{ email: data.email }, { username: data.username }] });
@@ -68,21 +72,34 @@ mongoose.connect(url, {
           }
         }  
 
-        // Signup function       ***Status: Done***
+        // Signup function               ***Status: Done***
         else if (data.cmd === 'signup' && data.auth === 'chatappauthkey231r4') {
           const matchingUsername = await User.findOne({username: data.username})
           const matchingEmail = await User.findOne({email: data.email})
 
+          // Checks if username already exists 
           if (matchingUsername) {
             ws.send(JSON.stringify({"cmd": "signup", "status": "existing_username"}));
           }
+          // Checks if email already exists
           else if (matchingEmail) {
             ws.send(JSON.stringify({"cmd": "signup", "status": "existing_email"}));
           }
           else {
-            const added = User.addUser(data.username, data.password, data.first_name, data.last_name, data.email)
+            const newUser = await User.addUser(data.username, data.password, data.first_name, data.last_name, data.email)
 
-            if (added) {
+            if (newUser) {
+              // create a default calendar for the user
+              const newCalendar = new Calendar({
+                name: `${newUser.first_name}'s Calendar`,
+                owner: newUser._id
+              });
+              // save the new user and calendar
+              newUser.calendar = newCalendar._id;
+              await newCalendar.save();
+              await newUser.save();
+                  
+              // Send message back to front end for Success
               ws.send(JSON.stringify({"cmd": "signup", "status": "success"}))
             }
             else {
@@ -91,7 +108,93 @@ mongoose.connect(url, {
           }
         }
         
-        // Group Creation        ***Status: Done***
+        // Get Calendar function         ***Status: Done***
+        else if (data.cmd === 'get_calendar') {
+          const ownerId = data.oid;  // Get user oid
+          const calendar = await Calendar.findOne({ owner: ownerId }).populate('events');  // Find it in the Calendar collection
+
+          // Check if calendar does not exist
+          if (!calendar) {
+            ws.send(JSON.stringify({ cmd: 'get_calendar', status: 'calendar_not_found' }));
+          } 
+          else {  
+            // Calendar Exists
+            const events = calendar.events;
+
+            // Send calendar to be displayed in front-end
+            ws.send(JSON.stringify({ cmd: 'calendar', events }));
+          }
+        }
+        
+        // New Meeting function          ***Status: Done***
+        else if (data.cmd === 'new_meeting') {
+          const eventData = data.event;  // Get Meeting
+          const userId = data.oid;       // Get User oid
+        
+          // Find the user's calendar
+          const calendar = await Calendar.findOne({ owner: userId });
+          if (!calendar) {
+            ws.send(JSON.stringify({ cmd: 'new_meeting', status: 'calendar_not_found' }));
+            return;
+          }
+        
+          // Create a new Event object and save it to the database
+          const newEvent = new Event({
+            title: eventData.title,
+            start: new Date(eventData.start),
+            end: new Date(eventData.end),
+          });
+          await newEvent.save();
+        
+          // Add the new event to the calendar's events array
+          calendar.events.push(newEvent);
+          await calendar.save();
+        
+          // Send a confirmation message to the frontend
+          ws.send(JSON.stringify({ cmd: 'new_meeting', status: 'success', event: newEvent }));
+        }
+
+        // Deleting Meeting function     ***Status: Done***
+        else if (data.cmd === 'delete_meeting') {
+          // Meeting Data
+          const userId = data.oid;    // User oid
+          const title = data.title;   // Title of Meeting
+          const start = data.start;   // Start time of Meeting
+          const end = data.end;       // End time of Meeting
+        
+          // Find the user's calendar
+          const calendar = await Calendar.findOne({ owner: userId });
+        
+          // Check if calendar does not exist
+          if (!calendar) {
+            ws.send(JSON.stringify({ cmd: 'delete_meeting', status: 'calendar_not_found' }));
+            return;
+          }
+        
+          // Find the event to be deleted
+          const event = await Event.findOne({ title: title, start: start, end: end });
+        
+          // Check if Event does not exist
+          if (!event) {
+            ws.send(JSON.stringify({ cmd: 'delete_meeting', status: 'event_not_found' }));
+            return;
+          }
+        
+          // Remove the event from the calendar's events array
+          const index = calendar.events.indexOf(event._id);
+          calendar.events.splice(index, 1);
+        
+          // Delete the event from the database
+          await Event.deleteOne({ _id: event._id });
+        
+          // Save the updated calendar
+          await calendar.save();
+        
+          // Send a confirmation message to the frontend
+          ws.send(JSON.stringify({ cmd: 'delete_meeting', status: 'success' }));
+        }
+        
+        // Group Creation function       ***Status: Done***
         else if (data.cmd === 'create_group') {
           // Check if all users exist in the database
           const users = await Promise.all(data.users.map(async (username) => {
@@ -127,7 +230,7 @@ mongoose.connect(url, {
             }
         }
 
-        // Get Groups function   ***Status: Done***
+        // Get Groups function           ***Status: Done***
         else if ( data.cmd === 'get_groups' && data.auth === 'chatappauthkey231r4') {
           // Get user id from data
           const oid = data.oid;
@@ -147,7 +250,7 @@ mongoose.connect(url, {
           console.log(`Sent get_groups response for user with oid ${oid}:`, formattedGroups);
         }
 
-        // Get Group function    ***Status: In Progress  -> Not Currently Being Used***
+        // Get Group function            ***Status: In Progress  -> Not Currently Being Used***
         // TODO: Needs work
         else if (data.cmd === 'get_group' && data.auth === 'chatappauthkey231r4') {
           // Check if the group exists
@@ -253,36 +356,18 @@ mongoose.connect(url, {
           }
         }
         
-        
-      
-        //Errors
+        //Catching all other Errors
         else {
           ws.send(JSON.stringify({ "cmd": data.cmd, "status": "invalid_auth" }));
         }
-      } catch (err) {
+
+      } // End of Try block
+      catch (err) {
         console.error('Error parsing WebSocket message: (index.js)', err);
         ws.send(JSON.stringify({ "cmd": "error", "status": "parse_error" }));
       }
-    
-    
-      // For Meetings 
-      const { type, payload } = JSON.parse(message);
 
-      if (type === 'CREATE_MEETING') {
-        createMeeting(payload)
-          .then((meeting) => {
-            wss.clients.forEach((client) => {
-              client.send(JSON.stringify({ type: 'MEETING_CREATED', payload: meeting }));
-            });
-          })
-          .catch((err) => {
-            console.error(err);
-            ws.send(JSON.stringify({ type: 'ERROR', payload: 'Server error' }));
-          });
-      }
-    
-    
-    
+      // Closing connections
     });
     ws.on("close", () => {
       console.log("Client disconnected");
@@ -291,22 +376,26 @@ mongoose.connect(url, {
         console.log("Some Error occurred");
     }
     
+    // Buffer Message
     ws.on("message", (msg) => {
         var buf = Buffer.from(msg);
         console.log('\t' + buf.toString());
     });
 
   });
-}).catch((err) => {
+}).catch((err) => {  // Error with MongoDB
   console.error('Error connecting to MongoDB:', err);
   process.exit(1);
 });
 
 
+// Function to generate a 6 code session id
 function generateSessionId() {
   const length = 6; // Length of session ID
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'; // Characters to use in session ID
   let result = '';
+
+  // Random Generator
   for (let i = 0; i < length; i++) {
     result += chars.charAt(Math.floor(Math.random() * chars.length));
   }
@@ -355,39 +444,6 @@ function generateSessionId() {
       res.status(500).json({ status: 'error' });
     }
   });
-  
-
-
-// // Helper function to check if user exists in database
-// async function checkUser(username) {
-//     const client = new MongoClient(url, { useNewUrlParser: true, useUnifiedTopology: true });
-//     try {
-//       await client.connect();
-//       const db = client.db('user_info');
-//       const collection = db.collection('users');
-//       const user = await collection.findOne({ username: username });
-//       return user !== null;
-//     } finally {
-//       await client.close();
-//     }
-//   }
-  
-//   // Helper function to check if password matches hashed password in database
-//   async function checkPassword(username, password) {
-//     const client = new MongoClient(url, { useNewUrlParser: true, useUnifiedTopology: true });
-//     try {
-//       await client.connect();
-//       const db = client.db('user_info');
-//       const collection = db.collection('users');
-//       const user = await collection.findOne({ username: password });
-//       if (!user) {
-//         return false;
-//       }
-//       return await bcrypt.compare(password, user.password);
-//     } finally {
-//       await client.close();
-//     }
-//   }
 
   // API endpoint to fetch data
   app.get('/api/data', (req, res) => {
@@ -411,19 +467,4 @@ function generateSessionId() {
       });
     });
   });
-  
-
-  async function createMeeting(meeting) {
-    // const client = await MongoClient.connect(mongoUrl, { useUnifiedTopology: true });
-    // const db = client.db(dbName);
-    // const collection = db.collection(collectionName);
-  
-    // const result = await collection.insertOne(meeting);
-    // const insertedMeeting = result.ops[0];
-  
-    // client.close();
-  
-    // return insertedMeeting;
-  }
-
   

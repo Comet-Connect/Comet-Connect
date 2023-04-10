@@ -1,4 +1,7 @@
+// ignore_for_file: avoid_print, library_private_types_in_public_api, no_leading_underscores_for_local_identifiers
+
 import 'dart:convert';
+import 'package:comet_connect_app/pages/homepage.dart';
 import 'package:flutter/material.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import '../auth/login.dart';
@@ -104,14 +107,14 @@ class _GroupsPageState extends State<GroupsPage> {
     }));
   }
 
-  //TODO
-  void _getGroup(String oid) {
-    _channel?.sink.add(json.encode({
-      'cmd': 'get_group',
-      'auth': 'chatappauthkey231r4',
-      'oid': oid,
-    }));
-  }
+  // TODO
+  // void _getGroup(String oid) {
+  //   _channel?.sink.add(json.encode({
+  //     'cmd': 'get_group',
+  //     'auth': 'chatappauthkey231r4',
+  //     'oid': oid,
+  //   }));
+  // }
 
   //Success
   // Functionality for Search Bar to filter Groups
@@ -208,6 +211,7 @@ class _GroupsPageState extends State<GroupsPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Groups'),
+        backgroundColor: UTD_color_primary,
       ),
       body: Padding(
         // Padding around all edges
@@ -261,6 +265,10 @@ class _GroupsPageState extends State<GroupsPage> {
                     ),
                   );
                 },
+                style: ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all<Color>(
+                                  Colors.grey[800]!),
+                            ),
                 child: const Text('Create Group'),
               ),
 
@@ -292,6 +300,10 @@ class _GroupsPageState extends State<GroupsPage> {
                                 _joinGroup(sessionId);
                                 Navigator.of(context).pop();
                               },
+                              style: ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all<Color>(
+                                  Colors.grey[800]!),
+                            ),
                               child: const Text('Join'),
                             ),
                           ],
@@ -300,6 +312,10 @@ class _GroupsPageState extends State<GroupsPage> {
                     },
                   );
                 },
+                style: ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all<Color>(
+                                  Colors.grey[800]!),
+                            ),
                 child: const Text('Join Group'),
               ),
             ], //end of row line for buttons

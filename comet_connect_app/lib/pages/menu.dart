@@ -19,8 +19,14 @@ class HamburgerMenu extends StatelessWidget {
                 // TODO: Link with backend
                 UserAccountsDrawerHeader(
                   accountName: const Text("Welcome,"), // fetch user
-                  accountEmail: Text(current_loggedin_user!), // Need to fetch email
-                  
+                  accountEmail:
+                      Text(current_loggedin_user!), // Need to fetch email
+                  // edit colors etc. of box border
+                  decoration: BoxDecoration(
+                    color: Color.fromARGB(255, 1, 78, 11),
+                    border: Border.all(
+                        color: Color.fromARGB(255, 1, 78, 11), width: 2),
+                  ),
                   // currentAccountPicture: const CircleAvatar(
                   //   backgroundImage: NetworkImage(''),
                   // ),
@@ -79,7 +85,7 @@ class HamburgerMenu extends StatelessWidget {
               ],
             ),
           ),
-          const Divider(),
+          const Divider(color: Colors.black,),
           // Logout button
           ListTile(
             leading: const Icon(Icons.logout),
@@ -98,8 +104,8 @@ class HamburgerMenu extends StatelessWidget {
 
   // Image Uploader
   Future<String?> uploadProfilePicture(XFile imageFile) async {
-    // Upload the image file to your server and get the image URL
-    // Replace this with your own code to upload the image file
+    // Upload the image file to server and get the image URL
+    // Replace this to upload the image file
     return '';
   }
 }
