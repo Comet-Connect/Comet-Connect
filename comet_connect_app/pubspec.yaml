@@ -30,22 +30,20 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  google_sign_in: ^5.1.0
-  table_calendar: ^3.0.1
-  syncfusion_flutter_calendar: ^19.2.55
-
+  google_sign_in: ^6.1.0
+  syncfusion_flutter_calendar: ^21.1.38  #SF Calendar
+  shared_preferences: ^2.0.17  #Main
+  web_socket_channel: ^2.3.0   #WSS
+  intl: ^0.18.0
+  
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
-  shared_preferences: ^2.0.17
-  web_socket_channel: ^2.3.0
-  http: ^0.13.5
-  flutter_calendar_carousel: ^2.4.2
   flutter_staggered_animations: ^1.1.1
   image_picker: ^0.8.4+3
   mongo_dart: ^0.9.1
   collection: ^1.15.0
-  intl: ^0.17.0
+  
 
 
 dev_dependencies:

@@ -1,3 +1,4 @@
+import 'package:comet_connect_app/pages/homepage.dart';
 import 'package:flutter/material.dart';
 
 class HelpPage extends StatelessWidget {
@@ -17,6 +18,7 @@ class HelpPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Help'),
+        backgroundColor: UTD_color_primary,
       ),
       body: ListView.builder(
         itemCount: _faqs.length,
