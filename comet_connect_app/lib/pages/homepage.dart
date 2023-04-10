@@ -1,4 +1,4 @@
-// ignore_for_file: no_leading_underscores_for_local_identifiers
+// ignore_for_file: no_leading_underscores_for_local_identifiers, prefer_const_constructors, non_constant_identifier_names
 
 import 'dart:convert';
 import 'package:comet_connect_app/pages/groups_page.dart';
@@ -15,6 +15,12 @@ import 'package:comet_connect_app/config.dart';
 final UTD_color_primary = Color.fromARGB(255, 1, 78, 11);
 final UTD_color_secondary = Color.fromARGB(255, 255, 123, 0);
 
+/// MyHomePage Class
+/// 
+/// This is the Homepage of Comet Connect App
+/// Contains:
+///    - Hamburger Menu  (HamburgerMenu() class)
+///    - Preview of Calendar Page (SelectDate() class)
 class MyHomePage extends StatelessWidget {
   const MyHomePage({Key? key}) : super(key: key);
 
@@ -177,7 +183,6 @@ class MyHomePage extends StatelessWidget {
       ),
       onGenerateRoute: (settings) {
         if (settings.name == '/home') {
-          //return MaterialPageRoute(builder: (context) => const MyHomePage());
           return PageRouteBuilder(
             pageBuilder: (context, animation, secondaryAnimation) =>
                 const MyHomePage(),
@@ -191,7 +196,6 @@ class MyHomePage extends StatelessWidget {
           );
         }
         if (settings.name == '/view-calendar') {
-          //return MaterialPageRoute(builder: (context) => const SelectDate());
           return PageRouteBuilder(
             pageBuilder: (context, animation, secondaryAnimation) =>
                 const SelectDate(),
@@ -205,7 +209,6 @@ class MyHomePage extends StatelessWidget {
           );
         }
         if (settings.name == '/groups') {
-          // return MaterialPageRoute(builder: (context) => const GroupsPage());
           return PageRouteBuilder(
             pageBuilder: (context, animation, secondaryAnimation) =>
                 const GroupsPage(),
@@ -230,11 +233,7 @@ class MyHomePage extends StatelessWidget {
             },
           );
         }
-        // if (settings.name == '/login') {
-        //    //return MaterialPageRoute(builder: (context) => Login());
-        // }
         if (settings.name == '/signout' || settings.name == '/login') {
-          //return MaterialPageRoute(builder: (context) => const LoginOrSignup());
           return PageRouteBuilder(
             pageBuilder: (context, animation, secondaryAnimation) =>
                 const LoginOrSignup(),

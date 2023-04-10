@@ -5,6 +5,13 @@ import 'package:flutter/material.dart';
 import '../auth/login.dart';
 import '../auth/signup.dart';
 
+/// LoginOrSignup Class
+///
+/// This is the login page of the Comet Connect App
+/// Contains:
+///    - Connect with Google option
+///    - Forget Password Page
+///    - Signup Page
 class LoginOrSignup extends StatefulWidget {
   const LoginOrSignup({Key? key}) : super(key: key);
 

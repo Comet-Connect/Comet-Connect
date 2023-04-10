@@ -9,7 +9,15 @@ import 'pages/groups_page.dart';
 import 'pages/selectdate.dart';
 import 'pages/group_details_page.dart';
 
-// Main
+/// Main Class
+///
+/// This is the driver program of the Comet Connect App
+/// Contains navigation & routing:
+///    - Homepage (homepage.dart)
+///    - Calendar Page (selectdate.dart)
+///    - Groups Page (groups_page.dart)
+///    - Help Page (help_page.dart)
+///    - Login Page (login_or_signup.dart)
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SharedPreferences prefs = await SharedPreferences.getInstance();
