@@ -92,6 +92,52 @@ class _GroupsPageState extends State<GroupsPage> {
             SnackBar(content: Text('Failed to get group: $status')),
           );
         }
+      } else if (data['cmd'] == 'join_group' && data['status'] == 'success') {
+        setState(() {
+          _newestGroupOid = data['group_id'];
+          _getGroups();
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Successfully joined group!'),
+          ),
+        );
+
+      } else if (data['cmd'] == 'join_group' &&
+          data['status'] == 'already_joined') {
+        showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text('Join Group Failed'),
+                content: const Text('You are already in this group'),
+                actions: <Widget>[
+                  TextButton(
+                      child: const Text('OK'),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      })
+                ],
+              );
+            });
+      } else if (data['cmd'] == 'join_group' &&
+          data['status'] == 'group_not_found') {
+        showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text('Join Group Failed'),
+                content: const Text('Group does not exist'),
+                actions: <Widget>[
+                  TextButton(
+                      child: const Text('OK'),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      })
+                ],
+              );
+            });
       }
     });
   }
@@ -142,18 +188,6 @@ class _GroupsPageState extends State<GroupsPage> {
       'session_id': sessionId,
       'user_id': current_loggedin_user_oid,
     }));
-    ScaffoldMessenger.of(context)
-        .showSnackBar(
-          const SnackBar(
-            content: Text('Successfully joined group!'),
-          ),
-        )
-        .closed
-        .then((_) {
-      setState(() {
-        _getGroups();
-      });
-    });
   }
 
   // Success
