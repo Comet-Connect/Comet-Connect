@@ -300,9 +300,9 @@ class _GroupsPageState extends State<GroupsPage> {
                   );
                 },
                 style: ButtonStyle(
-                              backgroundColor: MaterialStateProperty.all<Color>(
-                                  Colors.grey[800]!),
-                            ),
+                  backgroundColor:
+                      MaterialStateProperty.all<Color>(Colors.grey[800]!),
+                ),
                 child: const Text('Create Group'),
               ),
 
@@ -335,9 +335,10 @@ class _GroupsPageState extends State<GroupsPage> {
                                 Navigator.of(context).pop();
                               },
                               style: ButtonStyle(
-                              backgroundColor: MaterialStateProperty.all<Color>(
-                                  Colors.grey[800]!),
-                            ),
+                                backgroundColor:
+                                    MaterialStateProperty.all<Color>(
+                                        Colors.grey[800]!),
+                              ),
                               child: const Text('Join'),
                             ),
                           ],
@@ -347,9 +348,9 @@ class _GroupsPageState extends State<GroupsPage> {
                   );
                 },
                 style: ButtonStyle(
-                              backgroundColor: MaterialStateProperty.all<Color>(
-                                  Colors.grey[800]!),
-                            ),
+                  backgroundColor:
+                      MaterialStateProperty.all<Color>(Colors.grey[800]!),
+                ),
                 child: const Text('Join Group'),
               ),
             ], //end of row line for buttons
