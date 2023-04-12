@@ -22,6 +22,7 @@ class _GroupsPageState extends State<GroupsPage> {
   List<Group> _groups = [];
   Group? _hoveredGroup;
   WebSocketChannel? _channel;
+  String? _newestGroupOid;
 
   // Initial State
   @override
@@ -104,6 +105,12 @@ class _GroupsPageState extends State<GroupsPage> {
           ),
         );
 
+        Future.delayed(const Duration(seconds: 5), () {
+          setState(() {
+            _newestGroupOid = '';
+            _getGroups();
+          });
+        });
       } else if (data['cmd'] == 'join_group' &&
           data['status'] == 'already_joined') {
         showDialog(
@@ -180,7 +187,6 @@ class _GroupsPageState extends State<GroupsPage> {
 
   // Success
   // Functionality for joining group using sessionId
-  // TODO:  Need to either highlight the group user has just joined or go directly into the Groups Detail Page for that Group
   void _joinGroup(String sessionId) {
     _channel?.sink.add(json.encode({
       'cmd': 'join_group',
@@ -396,6 +402,17 @@ class _GroupsPageState extends State<GroupsPage> {
               leading: const Icon(Icons.group),
               title: Text(group.name),
               subtitle: Text(group.description),
+              shape: group.oid == _newestGroupOid
+                  ? const Border(
+                      top: BorderSide(
+                          color: Color.fromARGB(255, 255, 123, 0), width: 2.0),
+                      left: BorderSide(
+                          color: Color.fromARGB(255, 255, 123, 0), width: 2.0),
+                      bottom: BorderSide(
+                          color: Color.fromARGB(255, 255, 123, 0), width: 2.0),
+                      right: BorderSide(
+                          color: Color.fromARGB(255, 255, 123, 0), width: 2.0))
+                  : null,
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
