@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 //import 'package:google_sign_in/google_sign_in.dart';
 import '../auth/login.dart';
+import '../auth/reset.dart';
 import '../auth/signup.dart';
 
 /// LoginOrSignup Class
@@ -181,7 +182,7 @@ class _LoginOrSignup extends State<LoginOrSignup> {
                                 context,
                                 MaterialPageRoute(
                                     // TODO Create Forgot password functionality
-                                    builder: (context) => const SignupPage()));
+                                    builder: (context) => const ResetPage()));
                           },
                           child: const Text('Forgot Password?'),
                         ),
