@@ -9,6 +9,7 @@ import '../classes/group_class.dart';
 import 'create_groups.dart';
 import 'group_details_page.dart';
 import 'package:comet_connect_app/config.dart';
+import 'dart:collection';
 
 class GroupsPage extends StatefulWidget {
   const GroupsPage({Key? key}) : super(key: key);
@@ -22,7 +23,8 @@ class _GroupsPageState extends State<GroupsPage> {
   List<Group> _groups = [];
   Group? _hoveredGroup;
   WebSocketChannel? _channel;
-  String? _newestGroupOid;
+  String? _mostRecentJoinedGroupOid;
+  final _joinedGroupOidQueue = Queue<String>();
 
   // Initial State
   @override
@@ -95,7 +97,8 @@ class _GroupsPageState extends State<GroupsPage> {
         }
       } else if (data['cmd'] == 'join_group' && data['status'] == 'success') {
         setState(() {
-          _newestGroupOid = data['group_id'];
+          _joinedGroupOidQueue.add(data['group_id']);
+          _mostRecentJoinedGroupOid = _joinedGroupOidQueue.removeFirst();
           _getGroups();
         });
 
@@ -107,7 +110,9 @@ class _GroupsPageState extends State<GroupsPage> {
 
         Future.delayed(const Duration(seconds: 5), () {
           setState(() {
-            _newestGroupOid = '';
+            _mostRecentJoinedGroupOid = (_joinedGroupOidQueue.isNotEmpty)
+                ? _joinedGroupOidQueue.removeFirst()
+                : '';
             _getGroups();
           });
         });
@@ -402,7 +407,7 @@ class _GroupsPageState extends State<GroupsPage> {
               leading: const Icon(Icons.group),
               title: Text(group.name),
               subtitle: Text(group.description),
-              shape: (group.oid == _newestGroupOid)
+              shape: (group.oid == _mostRecentJoinedGroupOid)
                   ? Border(
                       top: BorderSide(color: UTD_color_secondary, width: 2.0),
                       left: BorderSide(color: UTD_color_secondary, width: 2.0),
