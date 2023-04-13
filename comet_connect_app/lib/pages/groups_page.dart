@@ -402,16 +402,13 @@ class _GroupsPageState extends State<GroupsPage> {
               leading: const Icon(Icons.group),
               title: Text(group.name),
               subtitle: Text(group.description),
-              shape: group.oid == _newestGroupOid
-                  ? const Border(
-                      top: BorderSide(
-                          color: Color.fromARGB(255, 255, 123, 0), width: 2.0),
-                      left: BorderSide(
-                          color: Color.fromARGB(255, 255, 123, 0), width: 2.0),
-                      bottom: BorderSide(
-                          color: Color.fromARGB(255, 255, 123, 0), width: 2.0),
-                      right: BorderSide(
-                          color: Color.fromARGB(255, 255, 123, 0), width: 2.0))
+              shape: (group.oid == _newestGroupOid)
+                  ? Border(
+                      top: BorderSide(color: UTD_color_secondary, width: 2.0),
+                      left: BorderSide(color: UTD_color_secondary, width: 2.0),
+                      bottom:
+                          BorderSide(color: UTD_color_secondary, width: 2.0),
+                      right: BorderSide(color: UTD_color_secondary, width: 2.0))
                   : null,
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
