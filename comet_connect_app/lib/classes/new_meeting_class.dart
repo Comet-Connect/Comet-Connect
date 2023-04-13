@@ -40,10 +40,16 @@ class _NewMeetingScreenState extends State<NewMeetingScreen> {
 
   void _connectToWebSocketServer() async {
     Map config = await getServerConfigFile();
-    _channel = WebSocketChannel.connect(
-      Uri.parse('ws://${config["host"]}:${config["port"]}'),
-      //Uri.parse('ws://192.168.1.229:3000')
-    );
+    if(config.containsKey("is_server") && config["is_server"]=="1") {
+        _channel = WebSocketChannel.connect(
+          Uri.parse('ws://${config["host"]}/ws'),
+         );
+    }
+      else{
+          _channel = WebSocketChannel.connect(
+          Uri.parse('ws://${config["host"]}:${config["port"]}'),
+         );
+      }
   }
 
   @override

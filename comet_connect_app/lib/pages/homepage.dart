@@ -254,9 +254,16 @@ class MyHomePage extends StatelessWidget {
   void _joinGroup(String sessionId) async {
     late WebSocketChannel _channel;
     Map config = await getServerConfigFile();
-    _channel = WebSocketChannel.connect(
-      Uri.parse('ws://${config["host"]}:${config["port"]}'),
-    );
+    if(config.containsKey("is_server") && config["is_server"]=="1") {
+        _channel = WebSocketChannel.connect(
+          Uri.parse('ws://${config["host"]}/ws'),
+         );
+    }
+      else{
+          _channel = WebSocketChannel.connect(
+          Uri.parse('ws://${config["host"]}:${config["port"]}'),
+         );
+      }
 
     _channel.sink.add(json.encode({
       'cmd': 'join_group',

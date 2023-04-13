@@ -43,9 +43,16 @@ class _GroupsPageState extends State<GroupsPage> {
     Map config = await getServerConfigFile();
 
     // Connecting to WS Server
-    _channel = WebSocketChannel.connect(
-      Uri.parse('ws://${config["host"]}:${config["port"]}'),
-    );
+    if(config.containsKey("is_server") && config["is_server"]=="1") {
+        _channel = WebSocketChannel.connect(
+          Uri.parse('ws://${config["host"]}/ws'),
+         );
+    }
+      else{
+          _channel = WebSocketChannel.connect(
+          Uri.parse('ws://${config["host"]}:${config["port"]}'),
+         );
+      }
     // Check if current logged in user is not null
     if (current_loggedin_user != null) {
       _getGroups();
