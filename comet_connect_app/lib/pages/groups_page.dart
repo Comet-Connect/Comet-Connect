@@ -9,7 +9,7 @@ import '../classes/group_class.dart';
 import 'create_groups.dart';
 import 'group_details_page.dart';
 import 'package:comet_connect_app/config.dart';
-import 'dart:collection';
+import 'dart:collection' show Queue;
 
 class GroupsPage extends StatefulWidget {
   const GroupsPage({Key? key}) : super(key: key);
@@ -96,6 +96,7 @@ class _GroupsPageState extends State<GroupsPage> {
           );
         }
       } else if (data['cmd'] == 'join_group' && data['status'] == 'success') {
+        // highlights the most recently joined group
         setState(() {
           _joinedGroupOidQueue.add(data['group_id']);
           _mostRecentJoinedGroupOid = _joinedGroupOidQueue.removeFirst();
@@ -108,6 +109,7 @@ class _GroupsPageState extends State<GroupsPage> {
           ),
         );
 
+        // stops highlighting after 5 seconds
         Future.delayed(const Duration(seconds: 5), () {
           setState(() {
             _mostRecentJoinedGroupOid = (_joinedGroupOidQueue.isNotEmpty)
@@ -407,6 +409,7 @@ class _GroupsPageState extends State<GroupsPage> {
               leading: const Icon(Icons.group),
               title: Text(group.name),
               subtitle: Text(group.description),
+              // most recently joined group tile outline
               shape: (group.oid == _mostRecentJoinedGroupOid)
                   ? Border(
                       top: BorderSide(color: UTD_color_secondary, width: 2.0),
