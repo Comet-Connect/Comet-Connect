@@ -1,8 +1,10 @@
 // ignore_for_file: library_private_types_in_public_api, avoid_print
 
+import 'package:comet_connect_app/auth/reset.dart';
 import 'package:flutter/material.dart';
 //import 'package:google_sign_in/google_sign_in.dart';
 import '../auth/login.dart';
+//import '..auth/reset.dart';
 import '../auth/signup.dart';
 
 /// LoginOrSignup Class
@@ -180,8 +182,8 @@ class _LoginOrSignup extends State<LoginOrSignup> {
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                    // TODO Create Forgot password functionality
-                                    builder: (context) => const SignupPage()));
+                                    // Create Forgot password functionality
+                                    builder: (context) => const ResetPage()));
                           },
                           child: const Text('Forgot Password?'),
                         ),
