@@ -16,7 +16,7 @@ final UTD_color_primary = Color.fromARGB(255, 1, 78, 11);
 final UTD_color_secondary = Color.fromARGB(255, 255, 123, 0);
 
 /// MyHomePage Class
-/// 
+///
 /// This is the Homepage of Comet Connect App
 /// Contains:
 ///    - Hamburger Menu  (HamburgerMenu() class)
@@ -143,14 +143,8 @@ class MyHomePage extends StatelessWidget {
                                         const SizedBox(height: 20),
                                         ElevatedButton(
                                           onPressed: () {
-                                            _joinGroup(sessionId);
                                             Navigator.of(context).pop();
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      const GroupsPage()),
-                                            );
+                                            _joinGroup(context, sessionId);
                                           },
                                           style: ButtonStyle(
                                             backgroundColor:
@@ -251,7 +245,7 @@ class MyHomePage extends StatelessWidget {
     );
   }
 
-  void _joinGroup(String sessionId) async {
+  void _joinGroup(BuildContext context, String sessionId) async {
     late WebSocketChannel _channel;
     Map config = await getServerConfigFile();
     if(config.containsKey("is_server") && config["is_server"]=="1") {
@@ -272,7 +266,19 @@ class MyHomePage extends StatelessWidget {
       'user_id': current_loggedin_user_oid,
     }));
 
-    _getGroups(_channel);
+    _channel.stream.listen((event) {
+      final data = json.decode(event);
+      print('Received data from server \n\t$event\n');
+      if (data['cmd'] == 'join_group' && data['status'] == 'success') {
+        homepageJoinGroupOid = (data['group_id']);
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const GroupsPage()),
+        );
+      } else {
+        badJoinGroupPopups(context, data);
+      }
+    });
   }
 
   void _getGroups(WebSocketChannel _channel) {
