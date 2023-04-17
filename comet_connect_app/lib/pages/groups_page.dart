@@ -11,6 +11,8 @@ import 'group_details_page.dart';
 import 'package:comet_connect_app/config.dart';
 import 'dart:collection' show Queue;
 
+String? homepageJoinGroupOid;
+
 class GroupsPage extends StatefulWidget {
   const GroupsPage({Key? key}) : super(key: key);
 
@@ -23,13 +25,17 @@ class _GroupsPageState extends State<GroupsPage> {
   List<Group> _groups = [];
   Group? _hoveredGroup;
   WebSocketChannel? _channel;
-  String? _mostRecentJoinedGroupOid;
+  String? _highlightedGroupOid;
   final _joinedGroupOidQueue = Queue<String>();
 
   // Initial State
   @override
   void initState() {
     super.initState();
+    // highlight new group if navigated to from the join group on homepage
+    if (homepageJoinGroupOid != null) {
+      _tempGroupHighlight(homepageJoinGroupOid!);
+    }
     _connectToWebSocketServer();
     _getGroups();
   }
@@ -97,61 +103,14 @@ class _GroupsPageState extends State<GroupsPage> {
         }
       } else if (data['cmd'] == 'join_group' && data['status'] == 'success') {
         // highlights the most recently joined group
-        setState(() {
-          _joinedGroupOidQueue.add(data['group_id']);
-          _mostRecentJoinedGroupOid = _joinedGroupOidQueue.removeFirst();
-          _getGroups();
-        });
-
+        _tempGroupHighlight(data['group_id']);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Successfully joined group!'),
           ),
         );
-
-        // stops highlighting after 5 seconds
-        Future.delayed(const Duration(seconds: 5), () {
-          setState(() {
-            _mostRecentJoinedGroupOid = (_joinedGroupOidQueue.isNotEmpty)
-                ? _joinedGroupOidQueue.removeFirst()
-                : '';
-            _getGroups();
-          });
-        });
-      } else if (data['cmd'] == 'join_group' &&
-          data['status'] == 'already_joined') {
-        showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: const Text('Join Group Failed'),
-                content: const Text('You are already in this group'),
-                actions: <Widget>[
-                  TextButton(
-                      child: const Text('OK'),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      })
-                ],
-              );
-            });
-      } else if (data['cmd'] == 'join_group' &&
-          data['status'] == 'group_not_found') {
-        showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: const Text('Join Group Failed'),
-                content: const Text('Group does not exist'),
-                actions: <Widget>[
-                  TextButton(
-                      child: const Text('OK'),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      })
-                ],
-              );
-            });
+      } else {
+        badJoinGroupPopups(context, data);
       }
     });
   }
@@ -190,6 +149,23 @@ class _GroupsPageState extends State<GroupsPage> {
         _groups = filteredGroups;
       });
     }
+  }
+
+  void _tempGroupHighlight(String groupOid) {
+    setState(() {
+      _joinedGroupOidQueue.add(groupOid);
+      _highlightedGroupOid = _joinedGroupOidQueue.removeFirst();
+      _getGroups();
+    });
+
+    Future.delayed(const Duration(seconds: 5), () {
+      setState(() {
+        _highlightedGroupOid = (_joinedGroupOidQueue.isNotEmpty)
+            ? _joinedGroupOidQueue.removeFirst()
+            : '';
+        _getGroups();
+      });
+    });
   }
 
   // Success
@@ -410,7 +386,7 @@ class _GroupsPageState extends State<GroupsPage> {
               title: Text(group.name),
               subtitle: Text(group.description),
               // most recently joined group tile outline
-              shape: (group.oid == _mostRecentJoinedGroupOid)
+              shape: (group.oid == _highlightedGroupOid)
                   ? Border(
                       top: BorderSide(color: UTD_color_secondary, width: 2.0),
                       left: BorderSide(color: UTD_color_secondary, width: 2.0),
@@ -470,5 +446,42 @@ class _GroupsPageState extends State<GroupsPage> {
         );
       },
     );
+  }
+}
+
+void badJoinGroupPopups(BuildContext context, Map data) {
+  if (data['cmd'] == 'join_group' && data['status'] == 'already_joined') {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Join Group Failed'),
+            content: const Text('You are already in this group'),
+            actions: <Widget>[
+              TextButton(
+                  child: const Text('OK'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  })
+            ],
+          );
+        });
+  } else if (data['cmd'] == 'join_group' &&
+      data['status'] == 'group_not_found') {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Join Group Failed'),
+            content: const Text('Group does not exist'),
+            actions: <Widget>[
+              TextButton(
+                  child: const Text('OK'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  })
+            ],
+          );
+        });
   }
 }
