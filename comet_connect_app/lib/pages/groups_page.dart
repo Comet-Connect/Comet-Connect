@@ -45,12 +45,12 @@ class _GroupsPageState extends State<GroupsPage> {
     // Connecting to WS Server
     if(config.containsKey("is_server") && config["is_server"]=="1") {
         _channel = WebSocketChannel.connect(
-          Uri.parse('ws://${config["host"]}/ws'),
+          Uri.parse('wss://${config["host"]}/ws'),
          );
     }
       else{
           _channel = WebSocketChannel.connect(
-          Uri.parse('ws://${config["host"]}:${config["port"]}'),
+          Uri.parse('wss://${config["host"]}:${config["port"]}'),
          );
       }
     // Check if current logged in user is not null
