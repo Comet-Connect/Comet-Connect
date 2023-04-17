@@ -303,7 +303,7 @@ mongoose.connect(url, {
           const group = await Group.findById(groupId);
           if (!group) {
             // Group not found
-            socket.send(JSON.stringify({
+            ws.send(JSON.stringify({
               cmd: 'leave_group',
               auth: 'chatappauthkey231r4',
               status: 'Group not found',
@@ -315,7 +315,7 @@ mongoose.connect(url, {
           const userIndex = group.users.findIndex((id) => id.toString() === userId.toString());
           if (userIndex === -1) {
             // User not found in group
-            socket.send(JSON.stringify({
+            ws.send(JSON.stringify({
               cmd: 'leave_group',
               auth: 'chatappauthkey231r4',
               status: 'User not found in group',
@@ -332,7 +332,7 @@ mongoose.connect(url, {
           }
         
           // Send confirmation to the client
-          socket.send(JSON.stringify({
+          ws.send(JSON.stringify({
             cmd: 'leave_group',
             auth: 'chatappauthkey231r4',
             status: 'ok',

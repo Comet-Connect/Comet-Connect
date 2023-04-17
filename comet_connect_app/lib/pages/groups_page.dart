@@ -109,8 +109,28 @@ class _GroupsPageState extends State<GroupsPage> {
             content: Text('Successfully joined group!'),
           ),
         );
-      } else {
+      } else if (data['cmd'] == 'join_group') {
         badJoinGroupPopups(context, data);
+      } else if (data['cmd'] == 'leave_group' && data['status'] == 'ok') {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Successfully left group!'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    setState(() {
+                      _getGroups();
+                    });
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
       }
     });
   }
@@ -187,26 +207,6 @@ class _GroupsPageState extends State<GroupsPage> {
       '_id': oid,
       'user_oid': current_loggedin_user_oid,
     }));
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Successfully left group!'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                setState(() {
-                  _getGroups();
-                });
-              },
-              child: const Text('OK'),
-            ),
-          ],
-        );
-      },
-    );
   }
 
   // Success
