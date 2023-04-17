@@ -123,14 +123,6 @@ coverage/
 # Symbols
 app.*.symbols
 
-# Plugins
-comet_connect_app/windows/flutter/generated_plugins.cmake
-comet_connect_app/windows/flutter/generated_plugin_registrant.h
-comet_connect_app/macos/Flutter/GeneratedPluginRegistrant.swift
-comet_connect_app/windows/flutter/generated_plugin_registrant.cc
-comet_connect_app/linux/flutter/generated_plugins.cmake
-comet_connect_app/linux/flutter/generated_plugin_registrant.h
-
 # Exceptions to above rules.
 !**/ios/**/default.mode1v3
 !**/ios/**/default.mode2v3
