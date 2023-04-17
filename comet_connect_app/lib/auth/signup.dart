@@ -201,12 +201,12 @@ signup(context, String username, String password, String firstName,
     Map config = await getServerConfigFile();
     if(config.containsKey("is_server") && config["is_server"]=="1") {
         channel = WebSocketChannel.connect(
-          Uri.parse('ws://${config["host"]}/ws'),
+          Uri.parse('wss://${config["host"]}/ws'),
          );
     }
       else{
           channel = WebSocketChannel.connect(
-          Uri.parse('ws://${config["host"]}:${config["port"]}'),
+          Uri.parse('wss://${config["host"]}:${config["port"]}'),
          );
       }
   } catch (e) {
