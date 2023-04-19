@@ -59,7 +59,7 @@ class _GroupsPageState extends State<GroupsPage> {
     }
       else{
           _channel = WebSocketChannel.connect(
-          Uri.parse('wss://${config["host"]}:${config["port"]}'),
+          Uri.parse('ws://${config["host"]}:${config["port"]}'),
          );
       }
     // Check if current logged in user is not null

@@ -206,7 +206,7 @@ signup(context, String username, String password, String firstName,
     }
       else{
           channel = WebSocketChannel.connect(
-          Uri.parse('wss://${config["host"]}:${config["port"]}'),
+          Uri.parse('ws://${config["host"]}:${config["port"]}'),
          );
       }
   } catch (e) {

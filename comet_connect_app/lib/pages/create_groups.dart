@@ -58,7 +58,7 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
     }
       else{
           channel = WebSocketChannel.connect(
-          Uri.parse('wss://${config["host"]}:${config["port"]}'),
+          Uri.parse('ws://${config["host"]}:${config["port"]}'),
          );
       }
     print("Connecting to groups WSS");
