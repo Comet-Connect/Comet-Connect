@@ -8,5 +8,6 @@
         "username": "admin",
         "password": "bNGtOFxi3UTcv81W",
         "url": "cometconnect.cuwtjrg.mongodb.net/user_info"
-    }
+    },
+    "isServer": true
 }
