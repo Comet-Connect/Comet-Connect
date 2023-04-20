@@ -4,6 +4,9 @@ import 'package:syncfusion_flutter_calendar/calendar.dart';
 
 import 'best_schedule_form.dart';
 
+final grayMaterialStateProperty =
+    MaterialStateProperty.all<Color>(Colors.grey[800]!);
+
 /// GroupDetailsPage Class
 ///
 /// This is Groups Details Page of a Group for the Comet Connect App
@@ -80,9 +83,39 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
 
               // Current Users in Group Selected
               const SizedBox(height: 16.0),
-              const Text(
-                'Current Users in the Group:',
-                style: TextStyle(fontSize: 20.0),
+              Row(
+                children: [
+                  const Text('Current Users in the Group:',
+                      style: TextStyle(fontSize: 20.0)),
+                  const Spacer(),
+                  ElevatedButton(
+                      style: ButtonStyle(
+                          backgroundColor: grayMaterialStateProperty),
+                      onPressed: () {
+                        setState(() {
+                          widget.users.forEach((user) {
+                            _checkedUsers.add(user['username']);
+                          });
+                        });
+                      },
+                      child: const Text(
+                        'Select All Users',
+                        style: TextStyle(color: Colors.white),
+                      )),
+                  const SizedBox(width: 10),
+                  ElevatedButton(
+                      style: ButtonStyle(
+                          backgroundColor: grayMaterialStateProperty),
+                      onPressed: () {
+                        setState(() {
+                          _checkedUsers.clear();
+                        });
+                      },
+                      child: const Text(
+                        'Deselect All Users',
+                        style: TextStyle(color: Colors.white),
+                      ))
+                ],
               ),
 
               // Display users and their calendar oid's in current group selected
@@ -180,8 +213,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                       child: Expanded(
                         child: SfCalendar(
                           view: CalendarView.week,
-                          dataSource: _DataSource(
-                            [
+                          dataSource: _DataSource([
                             _Meeting(
                               user: 'Alice',
                               from: DateTime.now().add(Duration(days: 1)),
@@ -206,8 +238,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                               eventName: 'Call with Alice and Bob',
                               background: Colors.blue,
                             ),
-                          ]
-                          ),
+                          ]),
                         ),
                       ),
                     ),
