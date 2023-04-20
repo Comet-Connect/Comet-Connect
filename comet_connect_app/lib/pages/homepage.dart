@@ -26,6 +26,13 @@ class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key}) : super(key: key);
 
   @override
+  State<MyHomePage> createState() => _MyHomePage();
+}
+
+class _MyHomePage extends State<MyHomePage> {
+  var calendar = SelectDate(key: UniqueKey());
+
+  @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'My Home Page',
@@ -56,14 +63,18 @@ class MyHomePage extends StatefulWidget {
                   height: 800,
                   color: Colors.blueGrey[500],
                   child: GestureDetector(
-                    child: const SelectDate(),
+                    child: calendar,
                     onTap: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const SelectDate(),
+                          builder: (context) => calendar,
                         ),
-                      );
+                      ).then((_) {
+                        setState(() {
+                          calendar = SelectDate(key: UniqueKey());
+                        });
+                      });
                     },
                   ),
                 ),
