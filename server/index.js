@@ -9,6 +9,7 @@ const User = require('./models/user.js');
 const Group = require('./models/group.js');
 const Calendar = require('./models/calendar.js');
 const Event = require('./models/event.js');
+const ForgotPw = require('./models/forgot_pw.js');
 
 
 // Back up approach (app)
@@ -353,6 +354,43 @@ mongoose.connect(url, {
                 }));
               }
             }
+          }
+        }
+
+        // Forgot password 
+        else if (data.cmd === 'forgot_pw' && data.auth === 'chatappauthkey231r4') {
+          const matchingUsername = await User.findOne({username: data.usernameOrEmail})
+          const matchingEmail = await User.findOne({email: data.usernameOrEmail})
+
+          if (!matchingUsername && !matchingEmail) {
+            ws.send(JSON.stringify({cmd:'forgot_pw', status:'invalid_user'}))
+            return;
+          }
+          else {
+            const userToUse = matchingEmail
+            if (!matchingEmail) {
+              userToUse = matchingUsername
+            }
+
+            const existingForgotRequest = await ForgotPw.findOne({email: userToUse.email})
+            if (existingForgotRequest) {
+              ws.send(JSON.stringify({cmd:'forgot_pw', status: 'existing_request'}))
+              return;
+            }
+            
+            const verificationCode = ForgotPw.generateVerificationCode()
+            const forgotPasswordRequest = new ForgotPw({
+              email: userToUse.email,
+              reset_code: verificationCode
+            })
+            await forgotPasswordRequest.save()
+          }
+        }
+
+        else if (data.cmd === 'verify_code' && data.auth == 'chatappauthkey231r4') {
+          
+          if (data.verificationCode === '') {
+            
           }
         }
         

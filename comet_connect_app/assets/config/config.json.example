@@ -9,4 +9,11 @@
         "password": "bNGtOFxi3UTcv81W",
         "url": "cometconnect.cuwtjrg.mongodb.net/user_info"
     }
+    "email": {
+        "service": "gmail",
+        "user": "",
+        "password": "CHANGE ME",
+        "forog_pw_subject_line": "Comet Connect Verification Code",
+        "forgot_pw_email_body": "Your password for Comet Connect has been requested to be resest.\nHere is the verification code.\n\n"
+    }
 }
