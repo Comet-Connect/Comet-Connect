@@ -21,8 +21,16 @@ final UTD_color_secondary = Color.fromARGB(255, 255, 123, 0);
 /// Contains:
 ///    - Hamburger Menu  (HamburgerMenu() class)
 ///    - Preview of Calendar Page (SelectDate() class)
-class MyHomePage extends StatelessWidget {
+
+class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key}) : super(key: key);
+
+  @override
+  State<MyHomePage> createState() => _MyHomePage();
+}
+
+class _MyHomePage extends State<MyHomePage> {
+  var _calendar = SelectDate(key: UniqueKey());
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +47,7 @@ class MyHomePage extends StatelessWidget {
         backgroundColor: Colors.grey[300],
 
         // Create Hambureger Menu
-        drawer: const HamburgerMenu(),
+        drawer: HamburgerMenu(homepageCalendarUpdate: _updateCalendarPreview),
 
         // Main portion of home page
         body: Padding(
@@ -55,14 +63,18 @@ class MyHomePage extends StatelessWidget {
                   height: 800,
                   color: Colors.blueGrey[500],
                   child: GestureDetector(
-                    child: const SelectDate(),
+                    child: _calendar,
                     onTap: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const SelectDate(),
+                          builder: (context) => _calendar,
                         ),
-                      );
+                      ).then((_) {
+                        setState(() {
+                          _updateCalendarPreview();
+                        });
+                      });
                     },
                   ),
                 ),
@@ -248,16 +260,15 @@ class MyHomePage extends StatelessWidget {
   void _joinGroup(BuildContext context, String sessionId) async {
     late WebSocketChannel _channel;
     Map config = await getServerConfigFile();
-    if(config.containsKey("is_server") && config["is_server"]=="1") {
-        _channel = WebSocketChannel.connect(
-          Uri.parse('wss://${config["host"]}/ws'),
-         );
+    if (config.containsKey("is_server") && config["is_server"] == "1") {
+      _channel = WebSocketChannel.connect(
+        Uri.parse('wss://${config["host"]}/ws'),
+      );
+    } else {
+      _channel = WebSocketChannel.connect(
+        Uri.parse('ws://${config["host"]}:${config["port"]}'),
+      );
     }
-      else{
-          _channel = WebSocketChannel.connect(
-          Uri.parse('ws://${config["host"]}:${config["port"]}'),
-         );
-      }
 
     _channel.sink.add(json.encode({
       'cmd': 'join_group',
@@ -288,6 +299,12 @@ class MyHomePage extends StatelessWidget {
       'auth': 'chatappauthkey231r4',
       'oid': userId,
     }));
+  }
+
+  void _updateCalendarPreview() {
+    setState(() {
+      _calendar = SelectDate(key: UniqueKey());
+    });
   }
 }
 
