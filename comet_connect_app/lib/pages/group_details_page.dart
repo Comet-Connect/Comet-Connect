@@ -159,11 +159,8 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                         _showCalendar = true;
                       });
                     },
-                    style: ButtonStyle(
-                        backgroundColor:
-                            MaterialStateProperty.all<Color>(Colors.grey[800]!),
-                        fixedSize: MaterialStateProperty.all<Size>(
-                            const Size(220, 20))),
+                    style:
+                        ButtonStyle(backgroundColor: grayMaterialStateProperty),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: const [
@@ -174,7 +171,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 16.0),
+                  const SizedBox(height: 16.0, width: 10),
                   // Schedule a Group Meeting
                   ElevatedButton(
                     // Pass in the users that are checked to put in scheduling alg
@@ -186,17 +183,14 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                         },
                       );
                     },
-                    style: ButtonStyle(
-                        backgroundColor:
-                            MaterialStateProperty.all<Color>(Colors.grey[800]!),
-                        fixedSize: MaterialStateProperty.all<Size>(
-                            const Size(220, 20))),
+                    style:
+                        ButtonStyle(backgroundColor: grayMaterialStateProperty),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: const [
                         Icon(Icons.schedule, color: Colors.white),
                         SizedBox(width: 20, height: 10),
-                        Text(' Schedule Group Meet',
+                        Text(' Schedule Group Meeting',
                             style: TextStyle(color: Colors.white)),
                       ],
                     ),
