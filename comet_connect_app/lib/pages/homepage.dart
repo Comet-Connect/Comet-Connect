@@ -30,7 +30,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePage extends State<MyHomePage> {
-  var calendar = SelectDate(key: UniqueKey());
+  var _calendar = SelectDate(key: UniqueKey());
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +47,7 @@ class _MyHomePage extends State<MyHomePage> {
         backgroundColor: Colors.grey[300],
 
         // Create Hambureger Menu
-        drawer: const HamburgerMenu(),
+        drawer: HamburgerMenu(homepageCalendarUpdate: _updateCalendarPreview),
 
         // Main portion of home page
         body: Padding(
@@ -63,16 +63,16 @@ class _MyHomePage extends State<MyHomePage> {
                   height: 800,
                   color: Colors.blueGrey[500],
                   child: GestureDetector(
-                    child: calendar,
+                    child: _calendar,
                     onTap: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => calendar,
+                          builder: (context) => _calendar,
                         ),
                       ).then((_) {
                         setState(() {
-                          calendar = SelectDate(key: UniqueKey());
+                          _updateCalendarPreview();
                         });
                       });
                     },
@@ -299,6 +299,12 @@ class _MyHomePage extends State<MyHomePage> {
       'auth': 'chatappauthkey231r4',
       'oid': userId,
     }));
+  }
+
+  void _updateCalendarPreview() {
+    setState(() {
+      _calendar = SelectDate(key: UniqueKey());
+    });
   }
 }
 

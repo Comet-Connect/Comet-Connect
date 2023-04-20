@@ -13,7 +13,9 @@ import '../auth/login.dart';
 ///    - Help Page (help_page.dart)
 ///    - Loggout button (login_or_signup.dart)
 class HamburgerMenu extends StatelessWidget {
-  const HamburgerMenu({Key? key}) : super(key: key);
+  final Function homepageCalendarUpdate;
+  const HamburgerMenu({Key? key, required this.homepageCalendarUpdate})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -78,8 +80,11 @@ class HamburgerMenu extends StatelessWidget {
                 ListTile(
                   leading: const Icon(Icons.calendar_today),
                   title: const Text('C A L E N D A R'),
-                  onTap: () =>
-                      Navigator.of(context).pushNamed('/view-calendar'),
+                  onTap: () => Navigator.of(context)
+                      .pushNamed('/view-calendar')
+                      .then((_) {
+                    homepageCalendarUpdate();
+                  }),
                 ),
                 ListTile(
                   leading: const Icon(Icons.group),
