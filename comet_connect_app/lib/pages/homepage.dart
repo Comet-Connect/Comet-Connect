@@ -21,7 +21,8 @@ final UTD_color_secondary = Color.fromARGB(255, 255, 123, 0);
 /// Contains:
 ///    - Hamburger Menu  (HamburgerMenu() class)
 ///    - Preview of Calendar Page (SelectDate() class)
-class MyHomePage extends StatelessWidget {
+
+class MyHomePage extends StatefulWidget {
   const MyHomePage({Key? key}) : super(key: key);
 
   @override
@@ -248,16 +249,15 @@ class MyHomePage extends StatelessWidget {
   void _joinGroup(BuildContext context, String sessionId) async {
     late WebSocketChannel _channel;
     Map config = await getServerConfigFile();
-    if(config.containsKey("is_server") && config["is_server"]=="1") {
-        _channel = WebSocketChannel.connect(
-          Uri.parse('wss://${config["host"]}/ws'),
-         );
+    if (config.containsKey("is_server") && config["is_server"] == "1") {
+      _channel = WebSocketChannel.connect(
+        Uri.parse('wss://${config["host"]}/ws'),
+      );
+    } else {
+      _channel = WebSocketChannel.connect(
+        Uri.parse('ws://${config["host"]}:${config["port"]}'),
+      );
     }
-      else{
-          _channel = WebSocketChannel.connect(
-          Uri.parse('ws://${config["host"]}:${config["port"]}'),
-         );
-      }
 
     _channel.sink.add(json.encode({
       'cmd': 'join_group',
