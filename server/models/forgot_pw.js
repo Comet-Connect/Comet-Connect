@@ -5,7 +5,7 @@ const nodemailer = require('nodemailer');
 const crypto = require('crypto');
 
 // Config
-const config = require('../comet_connect_app/assets/config/config.json')
+const config = require('../../comet_connect_app/assets/config/config.json')
 
 const forgotPwSchema = new mongoose.Schema({
     email: {
@@ -21,14 +21,14 @@ const forgotPwSchema = new mongoose.Schema({
         type: Date,
         default: Date.now(),
         // time in seconds, after which the entry will be deleted.
-        expires: 30}
+        expires: 120}
 })
 
 forgotPwSchema.statics.generateVerificationCode = function() {
-    return crypto.randomBytes(8).toString('hex');
+    return crypto.randomBytes(4).toString('hex');
 };
 
-forgotPwSchema.statics.sendVerificationEmail = function() {
+forgotPwSchema.post("save", async function (doc) {
     var transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
@@ -37,12 +37,11 @@ forgotPwSchema.statics.sendVerificationEmail = function() {
         }
     })
 
-    var verificationCode = forgotPwSchema.generateVerificationCode()
-    var emailBody = config.email.forog_pw_email_body + verificationCode
+    var emailBody = config.email.forgot_pw_email_body + this.reset_code
     var email = {
         from: config.email.user,
         to: this.email,
-        subject: config.email.forog_pw_subject_line,
+        subject: config.email.forgot_pw_subject_line,
         text: emailBody
     };
 
@@ -53,7 +52,7 @@ forgotPwSchema.statics.sendVerificationEmail = function() {
             console.log('Email sent: ' + info.response);
         }
     })
-};
+});
 
-const ForgotPassword = mongoose.model('forgotPassword', forgotPwSchema);
+const ForgotPassword = mongoose.model('forgot_password', forgotPwSchema);
 module.exports = ForgotPassword;

@@ -21,7 +21,8 @@ const JWT_SECRET = 'Y8qKMoPgmy';
 const jwt = require('jsonwebtoken');
 
 // Config
-const config = require('../comet_connect_app/assets/config/config.json')
+const config = require('../comet_connect_app/assets/config/config.json');
+const { verify } = require('crypto');
 
 // URLs & Ports
 const port = config.server.port  //process.env.PORT || 3000;
@@ -359,20 +360,14 @@ mongoose.connect(url, {
 
         // Forgot password 
         else if (data.cmd === 'forgot_pw' && data.auth === 'chatappauthkey231r4') {
-          const matchingUsername = await User.findOne({username: data.usernameOrEmail})
-          const matchingEmail = await User.findOne({email: data.usernameOrEmail})
+          const matchingEmail = await User.findOne({email: data.email})
 
-          if (!matchingUsername && !matchingEmail) {
-            ws.send(JSON.stringify({cmd:'forgot_pw', status:'invalid_user'}))
+          if (!matchingEmail) {
+            ws.send(JSON.stringify({cmd:'forgot_pw', status:'invalid_email'}))
             return;
           }
           else {
-            const userToUse = matchingEmail
-            if (!matchingEmail) {
-              userToUse = matchingUsername
-            }
-
-            const existingForgotRequest = await ForgotPw.findOne({email: userToUse.email})
+            const existingForgotRequest = await ForgotPw.findOne({email: matchingEmail.email})
             if (existingForgotRequest) {
               ws.send(JSON.stringify({cmd:'forgot_pw', status: 'existing_request'}))
               return;
@@ -380,20 +375,48 @@ mongoose.connect(url, {
             
             const verificationCode = ForgotPw.generateVerificationCode()
             const forgotPasswordRequest = new ForgotPw({
-              email: userToUse.email,
+              email: matchingEmail.email,
               reset_code: verificationCode
             })
-            await forgotPasswordRequest.save()
+            await forgotPasswordRequest.save(function(e) {
+              if (e) {print(e)}
+            })
+            ws.send(JSON.stringify({'cmd': 'forgot_pw', 'status': 'success'}))
           }
         }
 
         else if (data.cmd === 'verify_code' && data.auth == 'chatappauthkey231r4') {
-          
-          if (data.verificationCode === '') {
-            
+          const resetRequest = await ForgotPw.findOne({emaill: data.email})
+
+          if (!resetRequest) {
+            return;
+          }
+
+          if (data.verificationCode === resetRequest.reset_code) {
+            ws.send(JSON.stringify({'cmd': 'verify_code', 'status': 'success'}))
+          }
+          else {
+            ws.send(JSON.stringify({'cmd': 'verify_code', 'status': 'no_matching_code'}))
           }
         }
         
+        // TODO: merge command with niha's functionality
+        else if (data.cmd === 'change_pw' && data.auth == 'chatappauthkey231r4') {
+          const userToChange = await User.findOne({email: data.email})
+          userToChange.password = data.password
+          await userToChange.save()
+
+          // delete forgot password request after fulfilled
+          const requestToDelete = await ForgotPw.findOne({email: data.email})
+          try {
+            requestToDelete.delete()
+          } catch (e) {
+            console.log(e)
+          }
+
+          ws.send(JSON.stringify({'cmd': 'change_pw', 'status': 'success'}))
+        }
+
         //Catching all other Errors
         else {
           ws.send(JSON.stringify({ "cmd": data.cmd, "status": "invalid_auth" }));

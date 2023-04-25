@@ -126,7 +126,6 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
                   TextButton(
                     child: const Text('OK'),
                     onPressed: () {
-                      // check if button pressed from homescreen or groups page
                       Navigator.of(context).pop();
                       Navigator.of(context).pop();
                       Navigator.push(
