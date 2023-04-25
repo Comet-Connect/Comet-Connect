@@ -55,6 +55,7 @@ mongoose.connect(url, {
         // Retrieve Data being parsed
         const data = JSON.parse(message);
         
+        // TODO: separate if conditions into thier own functions
         // Login function                ***Status: Done***
         if (data.auth === "chatappauthkey231r4" && data.cmd === 'login') {
           // Check if email or username exists
