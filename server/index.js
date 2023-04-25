@@ -71,7 +71,27 @@ mongoose.connect(url, {
             }
           }
         }  
-
+        
+        // Reset Function
+        else if (data.cmd === 'signup' && data.auth === 'chatappauthkey231r4') {
+          const matchingUser = await User.findOne({username: data.username, password: data.password});
+        
+          if (!matchingUser) {
+            ws.send(JSON.stringify({"cmd": "signup", "status": "wrong_credentials"}));
+          } else {
+            const result = await User.updateOne(
+              {username: data.username},
+              {$set: {password: newPassword}}
+            );
+        
+            if (result.modifiedCount === 1) {
+              ws.send(JSON.stringify({"cmd": "signup", "status": "password_changed"}));
+            } else {
+              ws.send(JSON.stringify({"cmd": "signup", "status": "password_not_changed"}));
+            }
+          }
+        }
+        
         // Signup function               ***Status: Done***
         else if (data.cmd === 'signup' && data.auth === 'chatappauthkey231r4') {
           const matchingUsername = await User.findOne({username: data.username})

@@ -1,16 +1,13 @@
+
+// ignore_for_file: unused_element
+
 import 'package:flutter/material.dart';
-import 'dart:convert';
-import 'login.dart';
-import 'package:comet_connect_app/config.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:comet_connect_app/pages/login_or_signup.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
 
 class ResetPage extends StatefulWidget {
   const ResetPage({Key? key}) : super(key: key);
   
   @override
+  // ignore: library_private_types_in_public_api
   _ResetPageState createState() => _ResetPageState();
 }
 
@@ -218,6 +215,26 @@ reset(context, String username, String password, String newPassword,
     );
     isGoodInput = false;
   }
-  
+  if (newPassword != cfPassword) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Error!'),
+          content: const Text("Confirmed password does not match with new password."),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+    isGoodInput = false;
+  }
   return isGoodInput;
     }
+    
