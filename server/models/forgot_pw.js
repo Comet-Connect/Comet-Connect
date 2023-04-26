@@ -12,6 +12,7 @@ const forgotPwSchema = new mongoose.Schema({
         type: String,
         unique: true,
         required: true,
+        ref: 'User'
     },
     reset_code: {
         type: String,

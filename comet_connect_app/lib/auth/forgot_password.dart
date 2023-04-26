@@ -144,6 +144,27 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                 ],
               );
             });
+      } else if (data['cmd'] == 'verify_code' &&
+          data['status'] == 'code_expired') {
+        showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text(
+                    'No reset code found.\nPlease send another reset request.'),
+                actions: [
+                  TextButton(
+                      onPressed: () {
+                        setState(() {
+                          _userFound = false;
+                          _verificationCodeController.text = '';
+                        });
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text('OK'))
+                ],
+              );
+            });
       } else if (data['cmd'] == 'change_pw' && data['status'] == 'success') {
         showDialog(
             context: context,
