@@ -10,6 +10,7 @@ const Group = require('./models/group.js');
 const Calendar = require('./models/calendar.js');
 const Event = require('./models/event.js');
 const ForgotPw = require('./models/forgot_pw.js');
+const GroupMembership = require('./models/user_group_mapping.js');
 
 
 // Back up approach (app)
@@ -23,6 +24,7 @@ const jwt = require('jsonwebtoken');
 // Config
 const config = require('../comet_connect_app/assets/config/config.json');
 const { verify } = require('crypto');
+const groupMembership = require('./models/user_group_mapping.js');
 
 // URLs & Ports
 const port = config.server.port  //process.env.PORT || 3000;
@@ -207,30 +209,45 @@ mongoose.connect(url, {
               return null;
             }
               return existingUser._id;
-            }));
+          }));
             
-            if (users.some(user => !user)) {
-              // At least one user doesn't exist in the database
-              ws.send(JSON.stringify({ cmd: 'create_group', "status": 'user_not_found' }));
-            } else {
-              const session_id = generateSessionId();
-              const group = new Group({
-                name: data.name,
-                users: users,
-                description: data.description,
-                session_id: session_id
-              });
+          if (users.some(user => !user)) {
+            // At least one user doesn't exist in the database
+            ws.send(JSON.stringify({ cmd: 'create_group', "status": 'user_not_found' }));
+          } else {
+            const session_id = generateSessionId();
+            const group = new Group({
+              name: data.name,
+              users: users,
+              description: data.description,
+              session_id: session_id
+            });
 
-              try {
-                await group.save();
-                // Add the group ID and session ID to the response message
-                ws.send(JSON.stringify({ cmd: 'create_group', status: 'success', group_id: group._id, session_id: session_id }));
-                
-              } catch (err) {
-                console.error('Error saving group:', err);
-                ws.send(JSON.stringify({ cmd: 'create_group', status: 'error' }));
-              }
+            try {
+              await group.save();
+              // Add the group ID and session ID to the response message
+              ws.send(JSON.stringify({ cmd: 'create_group', status: 'success', group_id: group._id, session_id: session_id }));
+
+              users.forEach(async function (user) {
+                const membershipToUpdate = await GroupMembership.findOne({'user_id': user._id})
+
+                if (!membershipToUpdate) {
+                  const newGroupMembership = new GroupMembership({
+                    user_id: user._id,
+                    groups: [group._id]
+                  })
+                  await newGroupMembership.save();
+                } else {
+                  membershipToUpdate.groups.push(group._id);
+                  await membershipToUpdate.save()
+                }
+              });
+              
+            } catch (err) {
+              console.error('Error saving group:', err);
+              ws.send(JSON.stringify({ cmd: 'create_group', status: 'error' }));
             }
+          }
         }
 
         // Get Groups function           ***Status: Done***
@@ -326,6 +343,13 @@ mongoose.connect(url, {
             return;
           }
           group.users.splice(userIndex, 1);
+
+          const userMembership = await GroupMembership.findOne({'user_id': data.user_oid});
+          const indexOfLeavegroup = userMembership.groups.indexOf(data._id);
+          if (indexOfLeavegroup != -1) {
+            userMembership.groups.splice(indexOfLeavegroup, 1);
+            await userMembership.save();
+          }
         
           // Delete the group if no users are left
           if (group.users.length === 0) {
