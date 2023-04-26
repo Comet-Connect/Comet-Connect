@@ -110,7 +110,7 @@ class ScheduleMeetingForm extends StatelessWidget {
                     );
                   }
                 },
-                child: const Text('Find Best Time(s) for Everyone'),
+                child: const Text('Schedule Meeting for All Members'),
               ),
             ],
           ),

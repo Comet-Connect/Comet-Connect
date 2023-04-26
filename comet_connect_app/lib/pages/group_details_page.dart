@@ -155,9 +155,12 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
 
                   ElevatedButton(
                     onPressed: () {
-                      setState(() {
-                        _showCalendar = true;
-                      });
+                      Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => GroupCalendarPage(),
+                      ));
+                      // setState(() {
+                      //   _showCalendar = true;
+                      // });
                     },
                     style:
                         ButtonStyle(backgroundColor: grayMaterialStateProperty),
@@ -179,7 +182,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                       showDialog(
                         context: context,
                         builder: (context) {
-                          return ScheduleMeetingForm();
+                          return const ScheduleMeetingForm();
                         },
                       );
                     },
@@ -199,73 +202,138 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
               ),
 
 // Calendar for Group
-              if (_showCalendar)
-                Stack(
-                  children: [
-                    Container(
-                      height: 500,
-                      child: Expanded(
-                        child: SfCalendar(
-                          view: CalendarView.week,
-                          dataSource: _DataSource([
-                            _Meeting(
-                              user: 'Alice',
-                              from: DateTime.now().add(Duration(days: 1)),
-                              to: DateTime.now()
-                                  .add(Duration(days: 1, hours: 1)),
-                              eventName: 'Meeting with Bob',
-                              background: Colors.red,
-                            ),
-                            _Meeting(
-                              user: 'Bob',
-                              from: DateTime.now().add(Duration(days: 2)),
-                              to: DateTime.now()
-                                  .add(Duration(days: 2, hours: 2)),
-                              eventName: 'Lunch with Alice',
-                              background: Colors.green,
-                            ),
-                            _Meeting(
-                              user: 'Charlie',
-                              from: DateTime.now().add(Duration(days: 3)),
-                              to: DateTime.now()
-                                  .add(Duration(days: 3, hours: 3)),
-                              eventName: 'Call with Alice and Bob',
-                              background: Colors.blue,
-                            ),
-                          ]),
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      top: 0,
-                      right: 0,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            _showCalendar = false;
-                          });
-                        },
-                        style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all<Color>(
-                                Colors.grey[800]!),
-                            fixedSize: MaterialStateProperty.all<Size>(
-                                const Size(220, 20))),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: const [
-                            Icon(Icons.hide_source, color: Colors.white),
-                            SizedBox(width: 10, height: 10),
-                            Text(' Hide Calendar',
-                                style: TextStyle(color: Colors.white)),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+              // if (_showCalendar)
+              //   Stack(
+              //     children: [
+              //       SizedBox(
+              //         height: 350,
+              //         child: Expanded(
+              //           child: SfCalendar(
+              //             view: CalendarView.week,
+              //             dataSource: _DataSource([
+              //               _Meeting(
+              //                 user: 'Alice',
+              //                 from: DateTime.now().add(const Duration(days: 1)),
+              //                 to: DateTime.now()
+              //                     .add(const Duration(days: 1, hours: 1)),
+              //                 eventName: 'Meeting with Bob',
+              //                 background: Colors.red,
+              //               ),
+              //               _Meeting(
+              //                 user: 'Bob',
+              //                 from: DateTime.now().add(const Duration(days: 2)),
+              //                 to: DateTime.now()
+              //                     .add(const Duration(days: 2, hours: 2)),
+              //                 eventName: 'Lunch with Alice',
+              //                 background: Colors.green,
+              //               ),
+              //               _Meeting(
+              //                 user: 'Charlie',
+              //                 from: DateTime.now().add(const Duration(days: 3)),
+              //                 to: DateTime.now()
+              //                     .add(const Duration(days: 3, hours: 3)),
+              //                 eventName: 'Call with Alice and Bob',
+              //                 background: Colors.blue,
+              //               ),
+              //             ]),
+              //           ),
+              //         ),
+              //       ),
+              //       Positioned(
+              //         top: 0,
+              //         right: 0,
+              //         child: ElevatedButton(
+              //           onPressed: () {
+              //             setState(() {
+              //               _showCalendar = false;
+              //             });
+              //           },
+              //           style: ButtonStyle(
+              //               backgroundColor: MaterialStateProperty.all<Color>(
+              //                   Colors.grey[800]!),
+              //               fixedSize: MaterialStateProperty.all<Size>(
+              //                   const Size(220, 20))),
+              //           child: Row(
+              //             mainAxisAlignment: MainAxisAlignment.start,
+              //             children: const [
+              //               Icon(Icons.hide_source, color: Colors.white),
+              //               SizedBox(width: 10, height: 10),
+              //               Text(' Hide Calendar',
+              //                   style: TextStyle(color: Colors.white)),
+              //             ],
+              //           ),
+              //         ),
+              //       ),
+              //     ],
+              //   ),
             ])));
   }
 }
+
+class GroupCalendarPage extends StatefulWidget {
+  const GroupCalendarPage({Key? key}) : super(key: key);
+
+  @override
+  _GroupCalendarPageState createState() => _GroupCalendarPageState();
+}
+
+class _GroupCalendarPageState extends State<GroupCalendarPage> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Group Calendar'),
+        backgroundColor: UTD_color_primary, // Header color
+      ),
+
+      body: SizedBox(
+        
+        child: Expanded(
+          child: SfCalendar(
+
+            allowedViews: const [
+                  CalendarView.schedule,
+                  CalendarView.day,
+                  CalendarView.week,
+                  CalendarView.workWeek,
+                  CalendarView.month,
+                  CalendarView.timelineDay,
+                  CalendarView.timelineWeek,
+                  CalendarView.timelineWorkWeek
+                ],
+
+                
+            view: CalendarView.week,
+            dataSource: _DataSource([
+              _Meeting(
+                user: 'Alice',
+                from: DateTime.now().add(const Duration(days: 1)),
+                to: DateTime.now().add(const Duration(days: 1, hours: 1)),
+                eventName: 'Meeting with Bob',
+                background: Colors.red,
+              ),
+              _Meeting(
+                user: 'Bob',
+                from: DateTime.now().add(const Duration(days: 2)),
+                to: DateTime.now().add(const Duration(days: 2, hours: 2)),
+                eventName: 'Lunch with Alice',
+                background: Colors.green,
+              ),
+              _Meeting(
+                user: 'Charlie',
+                from: DateTime.now().add(const Duration(days: 3)),
+                to: DateTime.now().add(const Duration(days: 3, hours: 3)),
+                eventName: 'Call with Alice and Bob',
+                background: Colors.blue,
+              ),
+            ]),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 
 class _Meeting {
   _Meeting({
