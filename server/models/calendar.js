@@ -16,7 +16,8 @@ const calendarSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'Event',
     }
-  ], default: []
+  ],
+  default: []
 });
 
 const Calendar = mongoose.model('Calendar', calendarSchema);
