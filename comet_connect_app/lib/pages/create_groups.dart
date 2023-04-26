@@ -250,6 +250,14 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
                                   _memberController.clear();
                                 });
                               },
+                              onTapOutside: (_) {
+                                setState(() {
+                                  if (_memberController.text != '') {
+                                    _members.add(_memberController.text);
+                                    _memberController.clear();
+                                  }
+                                });
+                              },
                             ),
                           ),
                         ],
