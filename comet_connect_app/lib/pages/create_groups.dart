@@ -51,9 +51,15 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
 
   void _connectToWebSocketServer() async {
     Map config = await getServerConfigFile();
-    channel = WebSocketChannel.connect(
-      Uri.parse('ws://${config["host"]}:${config["port"]}'),
-    );
+    if (config.containsKey("is_server") && config["is_server"] == "1") {
+      channel = WebSocketChannel.connect(
+        Uri.parse('wss://${config["host"]}/ws'),
+      );
+    } else {
+      channel = WebSocketChannel.connect(
+        Uri.parse('ws://${config["host"]}:${config["port"]}'),
+      );
+    }
     print("Connecting to groups WSS");
   }
 
@@ -120,7 +126,6 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
                   TextButton(
                     child: const Text('OK'),
                     onPressed: () {
-                      // check if button pressed from homescreen or groups page
                       Navigator.of(context).pop();
                       Navigator.of(context).pop();
                       Navigator.push(

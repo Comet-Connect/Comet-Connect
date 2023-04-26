@@ -9,6 +9,9 @@ import '../classes/group_class.dart';
 import 'create_groups.dart';
 import 'group_details_page.dart';
 import 'package:comet_connect_app/config.dart';
+import 'dart:collection' show Queue;
+
+String? homepageJoinGroupOid;
 
 class GroupsPage extends StatefulWidget {
   const GroupsPage({Key? key}) : super(key: key);
@@ -22,11 +25,17 @@ class _GroupsPageState extends State<GroupsPage> {
   List<Group> _groups = [];
   Group? _hoveredGroup;
   WebSocketChannel? _channel;
+  String? _highlightedGroupOid;
+  final _joinedGroupOidQueue = Queue<String>();
 
   // Initial State
   @override
   void initState() {
     super.initState();
+    // highlight new group if navigated to from the join group on homepage
+    if (homepageJoinGroupOid != null) {
+      _tempGroupHighlight(homepageJoinGroupOid!);
+    }
     _connectToWebSocketServer();
     _getGroups();
   }
@@ -43,9 +52,16 @@ class _GroupsPageState extends State<GroupsPage> {
     Map config = await getServerConfigFile();
 
     // Connecting to WS Server
-    _channel = WebSocketChannel.connect(
-      Uri.parse('ws://${config["host"]}:${config["port"]}'),
-    );
+    if(config.containsKey("is_server") && config["is_server"]=="1") {
+        _channel = WebSocketChannel.connect(
+          Uri.parse('wss://${config["host"]}/ws'),
+         );
+    }
+      else{
+          _channel = WebSocketChannel.connect(
+          Uri.parse('ws://${config["host"]}:${config["port"]}'),
+         );
+      }
     // Check if current logged in user is not null
     if (current_loggedin_user != null) {
       _getGroups();
@@ -92,6 +108,36 @@ class _GroupsPageState extends State<GroupsPage> {
             SnackBar(content: Text('Failed to get group: $status')),
           );
         }
+      } else if (data['cmd'] == 'join_group' && data['status'] == 'success') {
+        // highlights the most recently joined group
+        _tempGroupHighlight(data['group_id']);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Successfully joined group!'),
+          ),
+        );
+      } else if (data['cmd'] == 'join_group') {
+        badJoinGroupPopups(context, data);
+      } else if (data['cmd'] == 'leave_group' && data['status'] == 'ok') {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Successfully left group!'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    setState(() {
+                      _getGroups();
+                    });
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
       }
     });
   }
@@ -132,9 +178,25 @@ class _GroupsPageState extends State<GroupsPage> {
     }
   }
 
+  void _tempGroupHighlight(String groupOid) {
+    setState(() {
+      _joinedGroupOidQueue.add(groupOid);
+      _highlightedGroupOid = _joinedGroupOidQueue.removeFirst();
+      _getGroups();
+    });
+
+    Future.delayed(const Duration(seconds: 5), () {
+      setState(() {
+        _highlightedGroupOid = (_joinedGroupOidQueue.isNotEmpty)
+            ? _joinedGroupOidQueue.removeFirst()
+            : '';
+        _getGroups();
+      });
+    });
+  }
+
   // Success
   // Functionality for joining group using sessionId
-  // TODO:  Need to either highlight the group user has just joined or go directly into the Groups Detail Page for that Group
   void _joinGroup(String sessionId) {
     _channel?.sink.add(json.encode({
       'cmd': 'join_group',
@@ -142,18 +204,6 @@ class _GroupsPageState extends State<GroupsPage> {
       'session_id': sessionId,
       'user_id': current_loggedin_user_oid,
     }));
-    ScaffoldMessenger.of(context)
-        .showSnackBar(
-          const SnackBar(
-            content: Text('Successfully joined group!'),
-          ),
-        )
-        .closed
-        .then((_) {
-      setState(() {
-        _getGroups();
-      });
-    });
   }
 
   // Success
@@ -164,26 +214,6 @@ class _GroupsPageState extends State<GroupsPage> {
       '_id': oid,
       'user_oid': current_loggedin_user_oid,
     }));
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Successfully left group!'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                setState(() {
-                  _getGroups();
-                });
-              },
-              child: const Text('OK'),
-            ),
-          ],
-        );
-      },
-    );
   }
 
   // Success
@@ -266,9 +296,9 @@ class _GroupsPageState extends State<GroupsPage> {
                   );
                 },
                 style: ButtonStyle(
-                              backgroundColor: MaterialStateProperty.all<Color>(
-                                  Colors.grey[800]!),
-                            ),
+                  backgroundColor:
+                      MaterialStateProperty.all<Color>(Colors.grey[800]!),
+                ),
                 child: const Text('Create Group'),
               ),
 
@@ -301,9 +331,10 @@ class _GroupsPageState extends State<GroupsPage> {
                                 Navigator.of(context).pop();
                               },
                               style: ButtonStyle(
-                              backgroundColor: MaterialStateProperty.all<Color>(
-                                  Colors.grey[800]!),
-                            ),
+                                backgroundColor:
+                                    MaterialStateProperty.all<Color>(
+                                        Colors.grey[800]!),
+                              ),
                               child: const Text('Join'),
                             ),
                           ],
@@ -313,9 +344,9 @@ class _GroupsPageState extends State<GroupsPage> {
                   );
                 },
                 style: ButtonStyle(
-                              backgroundColor: MaterialStateProperty.all<Color>(
-                                  Colors.grey[800]!),
-                            ),
+                  backgroundColor:
+                      MaterialStateProperty.all<Color>(Colors.grey[800]!),
+                ),
                 child: const Text('Join Group'),
               ),
             ], //end of row line for buttons
@@ -361,6 +392,15 @@ class _GroupsPageState extends State<GroupsPage> {
               leading: const Icon(Icons.group),
               title: Text(group.name),
               subtitle: Text(group.description),
+              // most recently joined group tile outline
+              shape: (group.oid == _highlightedGroupOid)
+                  ? Border(
+                      top: BorderSide(color: UTD_color_secondary, width: 2.0),
+                      left: BorderSide(color: UTD_color_secondary, width: 2.0),
+                      bottom:
+                          BorderSide(color: UTD_color_secondary, width: 2.0),
+                      right: BorderSide(color: UTD_color_secondary, width: 2.0))
+                  : null,
               trailing: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -413,5 +453,42 @@ class _GroupsPageState extends State<GroupsPage> {
         );
       },
     );
+  }
+}
+
+void badJoinGroupPopups(BuildContext context, Map data) {
+  if (data['cmd'] == 'join_group' && data['status'] == 'already_joined') {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Join Group Failed'),
+            content: const Text('You are already in this group'),
+            actions: <Widget>[
+              TextButton(
+                  child: const Text('OK'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  })
+            ],
+          );
+        });
+  } else if (data['cmd'] == 'join_group' &&
+      data['status'] == 'group_not_found') {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Join Group Failed'),
+            content: const Text('Group does not exist'),
+            actions: <Widget>[
+              TextButton(
+                  child: const Text('OK'),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  })
+            ],
+          );
+        });
   }
 }

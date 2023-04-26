@@ -17,7 +17,7 @@ import 'package:comet_connect_app/config.dart';
 /// Contains:
 ///    - Events/Meetings
 ///    - Meeting details
-///    - User Availability 
+///    - User Availability
 ///    - Create Meeting Functionality
 ///    - Delete Meeting Functionality
 class SelectDate extends StatefulWidget {
@@ -30,7 +30,8 @@ class SelectDate extends StatefulWidget {
 class _SelectDateState extends State<SelectDate> {
   // Create a temp list of events for the calendar
   final List<Meeting> _events = [];
-
+  final CalendarController _controller = CalendarController();
+  Color? _headerColor, _viewHeaderColor, _calendarColor;
   bool _isModified = false;
 
   WebSocketChannel? _channel;
@@ -55,10 +56,15 @@ class _SelectDateState extends State<SelectDate> {
     Map config = await getServerConfigFile();
 
     // Open a new WebSocket connection, Connecting to WS Server
-    _channel = WebSocketChannel.connect(
-      Uri.parse('ws://${config["host"]}:${config["port"]}'),
-      //Uri.parse('ws://192.168.1.229:3000')
-    );
+    if (config.containsKey("is_server") && config["is_server"] == "1") {
+      _channel = WebSocketChannel.connect(
+        Uri.parse('wss://${config["host"]}/ws'),
+      );
+    } else {
+      _channel = WebSocketChannel.connect(
+        Uri.parse('ws://${config["host"]}:${config["port"]}'),
+      );
+    }
 
     // Check if current logged in user is not null
     if (current_loggedin_user != null) {
@@ -215,12 +221,31 @@ class _SelectDateState extends State<SelectDate> {
                   - CalendarView.week
                   - CalendarView.schedule
                 */
+                allowedViews: const [
+                  CalendarView.schedule,
+                  CalendarView.day,
+                  CalendarView.week,
+                  CalendarView.workWeek,
+                  CalendarView.month,
+                  CalendarView.timelineDay,
+                  CalendarView.timelineWeek,
+                  CalendarView.timelineWorkWeek
+                ],
+
+                viewHeaderStyle:
+                    ViewHeaderStyle(backgroundColor: _viewHeaderColor),
+                backgroundColor: _calendarColor,
+                controller: _controller,
+                initialDisplayDate: DateTime.now(),
+
                 view: CalendarView.week, // View of Calendar
                 dataSource: MeetingDataSource(_events), // Stores Meetings
                 todayHighlightColor: UTD_color_primary,
+                cellBorderColor: Colors.grey[500],
+                showNavigationArrow: true,
                 initialSelectedDate:
                     DateTime.now(), // Cursor to depick current time
-
+                showWeekNumber: true,
                 // edit colors etc. of box border
                 selectionDecoration: BoxDecoration(
                   color: Colors.transparent,
@@ -319,7 +344,6 @@ class _SelectDateState extends State<SelectDate> {
                   }
                 });
               },
-              
               child: const Icon(Icons.add),
             ),
           ),

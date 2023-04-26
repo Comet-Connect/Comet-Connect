@@ -10,7 +10,6 @@ import '../pages/homepage.dart';
 String? current_loggedin_user;
 String? current_loggedin_user_oid;
 
-
 /// Login Function
 ///
 /// This is the backend functionality for logging in a User for the Comet Connect App
@@ -24,9 +23,15 @@ login(context, _mailOrUsername, _pwd) async {
     try {
       // Create connection.
       Map config = await getServerConfigFile();
-      channel = WebSocketChannel.connect(
-        Uri.parse('ws://${config["host"]}:${config["port"]}'),
-      );
+      if (config.containsKey("is_server") && config["is_server"] == "1") {
+        channel = WebSocketChannel.connect(
+          Uri.parse('wss://${config["host"]}/ws'),
+        );
+      } else {
+        channel = WebSocketChannel.connect(
+          Uri.parse('ws://${config["host"]}:${config["port"]}'),
+        );
+      }
     } catch (e) {
       // Print Error Message if Not able to connect to Mongoose Server
       print("Error on connecting to websocket: (login.dart) " + e.toString());
