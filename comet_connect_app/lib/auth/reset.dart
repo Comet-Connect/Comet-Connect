@@ -1,10 +1,13 @@
-// ignore_for_file: library_private_types_in_public_api
+
+// ignore_for_file: unused_element
+
 import 'package:flutter/material.dart';
 
 class ResetPage extends StatefulWidget {
   const ResetPage({Key? key}) : super(key: key);
 
   @override
+  // ignore: library_private_types_in_public_api
   _ResetPageState createState() => _ResetPageState();
 }
 
@@ -207,6 +210,28 @@ bool checkInputFields(context, String username, String password,
     );
     isGoodInput = false;
   }
-
+  if (newPassword != cfPassword) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Error!'),
+          content: const Text("Confirmed password does not match with new password."),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+    isGoodInput = false;
+  }
   return isGoodInput;
 }
+
+
+    
