@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../classes/meeting_class.dart';
 
 class ScheduleMeetingForm extends StatelessWidget {
-  const ScheduleMeetingForm({Key? key}) : super(key: key);
+  const ScheduleMeetingForm({Key? key, required String groupId, required String session_id, required List checkedUsers}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

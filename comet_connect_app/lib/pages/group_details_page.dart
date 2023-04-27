@@ -1,23 +1,15 @@
+import 'dart:convert';
+import 'dart:math';
 import 'package:comet_connect_app/pages/homepage.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
-
+import 'package:web_socket_channel/web_socket_channel.dart';
+import '../config.dart';
 import 'best_schedule_form.dart';
 
 final grayMaterialStateProperty =
     MaterialStateProperty.all<Color>(Colors.grey[800]!);
 
-/// GroupDetailsPage Class
-///
-/// This is Groups Details Page of a Group for the Comet Connect App
-/// Contains:
-///    - Group Details
-///        - Group ID
-///        - Group Name
-///        - Session ID
-///    - Current Users in Group
-///        - Username
-///        - Calendar ID
 class GroupDetailsPage extends StatefulWidget {
   final String groupId;
   final String groupName;
@@ -37,8 +29,91 @@ class GroupDetailsPage extends StatefulWidget {
 }
 
 class _GroupDetailsPageState extends State<GroupDetailsPage> {
-  final List<String> _checkedUsers = [];
-  bool _showCalendar = false;
+  final List<dynamic> _checkedUsers = [];
+  List<_Meeting> _events = [];
+
+  DateTime date = DateTime.now();
+  WebSocketChannel? _channel;
+  List colors = [
+    Colors.red,
+    Colors.green,
+    Colors.orange,
+    Colors.purple,
+    Colors.blue
+  ];
+  late int index;
+  Random random = new Random();
+
+  // Initial State
+  @override
+  void initState() {
+    super.initState();
+    _connectToWebSocketServer();
+  }
+
+  // Closing Connections
+  @override
+  void dispose() {
+    // Close the WebSocket connection when the widget is disposed
+    _channel?.sink.close();
+    super.dispose();
+  }
+
+  // Connect with Backend
+  void _connectToWebSocketServer() async {
+    try {
+      final config = await getServerConfigFile();
+      if (config.containsKey('is_server') && config['is_server'] == '1') {
+        _channel = WebSocketChannel.connect(
+          Uri.parse('wss://${config['host']}/ws'),
+        );
+      } else {
+        _channel = WebSocketChannel.connect(
+          Uri.parse('ws://${config['host']}:${config['port']}'),
+        );
+      }
+      _channel?.stream.listen(_handleWebSocketMessage);
+    } catch (e) {
+      print('WebSocket connection failed: $e');
+    }
+  }
+
+  void _handleWebSocketMessage(message) {
+    final data = json.decode(message);
+    print('Decoded data: $data');
+    print('Received data from server: \n\t$message');
+
+    if (data['cmd'] == 'pull_group_events') {
+      List<dynamic> users = data['users'];
+      List<_Meeting> events = [];
+      index = 0;
+      for (var user in users) {
+        String username = user['username'];
+        
+        Color temp = colors[index % colors.length];
+        List<dynamic> userEvents = user['events'];
+        for (var event in userEvents) {
+          events.add(_Meeting(
+            user: username,
+            from: DateTime.parse(event['start']).toLocal(),
+            to: DateTime.parse(event['end']).toLocal(),
+            eventName: "$username: ${event['title']}",
+            background: temp, //Colors.blue,
+          ));
+        }
+        index++;
+      }
+      print('Parsed events: $events');
+      setState(() {
+        _events = events;
+      });
+
+      // Navigate to the GroupCalendarPage after updating the events
+      Navigator.of(context).push(MaterialPageRoute(
+        builder: (context) => GroupCalendarPage(events: _events),
+      ));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -155,12 +230,13 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
 
                   ElevatedButton(
                     onPressed: () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => GroupCalendarPage(),
-                      ));
-                      // setState(() {
-                      //   _showCalendar = true;
-                      // });
+                      // Send a message to the server requesting group events
+                      _channel?.sink.add(json.encode({
+                        "auth": "chatappauthkey231r4",
+                        "cmd": "pull_group_events",
+                        "group_id": widget.groupId,
+                        "usernames": _checkedUsers
+                      }));
                     },
                     style:
                         ButtonStyle(backgroundColor: grayMaterialStateProperty),
@@ -182,7 +258,10 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                       showDialog(
                         context: context,
                         builder: (context) {
-                          return const ScheduleMeetingForm();
+                          return ScheduleMeetingForm(
+                              groupId: widget.groupId,
+                              session_id: widget.session_id,
+                              checkedUsers: _checkedUsers);
                         },
                       );
                     },
@@ -200,78 +279,14 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                   ),
                 ],
               ),
-
-// Calendar for Group
-              // if (_showCalendar)
-              //   Stack(
-              //     children: [
-              //       SizedBox(
-              //         height: 350,
-              //         child: Expanded(
-              //           child: SfCalendar(
-              //             view: CalendarView.week,
-              //             dataSource: _DataSource([
-              //               _Meeting(
-              //                 user: 'Alice',
-              //                 from: DateTime.now().add(const Duration(days: 1)),
-              //                 to: DateTime.now()
-              //                     .add(const Duration(days: 1, hours: 1)),
-              //                 eventName: 'Meeting with Bob',
-              //                 background: Colors.red,
-              //               ),
-              //               _Meeting(
-              //                 user: 'Bob',
-              //                 from: DateTime.now().add(const Duration(days: 2)),
-              //                 to: DateTime.now()
-              //                     .add(const Duration(days: 2, hours: 2)),
-              //                 eventName: 'Lunch with Alice',
-              //                 background: Colors.green,
-              //               ),
-              //               _Meeting(
-              //                 user: 'Charlie',
-              //                 from: DateTime.now().add(const Duration(days: 3)),
-              //                 to: DateTime.now()
-              //                     .add(const Duration(days: 3, hours: 3)),
-              //                 eventName: 'Call with Alice and Bob',
-              //                 background: Colors.blue,
-              //               ),
-              //             ]),
-              //           ),
-              //         ),
-              //       ),
-              //       Positioned(
-              //         top: 0,
-              //         right: 0,
-              //         child: ElevatedButton(
-              //           onPressed: () {
-              //             setState(() {
-              //               _showCalendar = false;
-              //             });
-              //           },
-              //           style: ButtonStyle(
-              //               backgroundColor: MaterialStateProperty.all<Color>(
-              //                   Colors.grey[800]!),
-              //               fixedSize: MaterialStateProperty.all<Size>(
-              //                   const Size(220, 20))),
-              //           child: Row(
-              //             mainAxisAlignment: MainAxisAlignment.start,
-              //             children: const [
-              //               Icon(Icons.hide_source, color: Colors.white),
-              //               SizedBox(width: 10, height: 10),
-              //               Text(' Hide Calendar',
-              //                   style: TextStyle(color: Colors.white)),
-              //             ],
-              //           ),
-              //         ),
-              //       ),
-              //     ],
-              //   ),
             ])));
   }
 }
 
 class GroupCalendarPage extends StatefulWidget {
-  const GroupCalendarPage({Key? key}) : super(key: key);
+  final List<_Meeting> events;
+
+  const GroupCalendarPage({Key? key, required this.events}) : super(key: key);
 
   @override
   _GroupCalendarPageState createState() => _GroupCalendarPageState();
@@ -285,55 +300,58 @@ class _GroupCalendarPageState extends State<GroupCalendarPage> {
         title: const Text('Group Calendar'),
         backgroundColor: UTD_color_primary, // Header color
       ),
-
       body: SizedBox(
-        
         child: Expanded(
           child: SfCalendar(
-
             allowedViews: const [
-                  CalendarView.schedule,
-                  CalendarView.day,
-                  CalendarView.week,
-                  CalendarView.workWeek,
-                  CalendarView.month,
-                  CalendarView.timelineDay,
-                  CalendarView.timelineWeek,
-                  CalendarView.timelineWorkWeek
-                ],
-
-                
+              CalendarView.schedule,
+              CalendarView.timelineDay,
+              CalendarView.week,
+              CalendarView.timelineWeek,
+              CalendarView.month,
+            ],
             view: CalendarView.week,
-            dataSource: _DataSource([
-              _Meeting(
-                user: 'Alice',
-                from: DateTime.now().add(const Duration(days: 1)),
-                to: DateTime.now().add(const Duration(days: 1, hours: 1)),
-                eventName: 'Meeting with Bob',
-                background: Colors.red,
-              ),
-              _Meeting(
-                user: 'Bob',
-                from: DateTime.now().add(const Duration(days: 2)),
-                to: DateTime.now().add(const Duration(days: 2, hours: 2)),
-                eventName: 'Lunch with Alice',
-                background: Colors.green,
-              ),
-              _Meeting(
-                user: 'Charlie',
-                from: DateTime.now().add(const Duration(days: 3)),
-                to: DateTime.now().add(const Duration(days: 3, hours: 3)),
-                eventName: 'Call with Alice and Bob',
-                background: Colors.blue,
-              ),
-            ]),
+            dataSource: _DataSource(widget.events),
+            monthViewSettings: const MonthViewSettings(
+              appointmentDisplayMode: MonthAppointmentDisplayMode.appointment,
+            ),
+            scheduleViewMonthHeaderBuilder: (BuildContext buildContext,
+                ScheduleViewMonthHeaderDetails details) {
+              return Text(details.date.month.toString() +
+                  "/" +
+                  details.date.year.toString());
+            },
+            onTap: (CalendarTapDetails calendarTapDetails) {
+              if (calendarTapDetails.targetElement ==
+                      CalendarElement.appointment ||
+                  calendarTapDetails.targetElement == CalendarElement.agenda) {
+                showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: Text(calendarTapDetails.appointments![0].subject),
+                      content: Text(
+                          'Start Time: ${calendarTapDetails.appointments![0].startTime}\n'
+                          'End Time: ${calendarTapDetails.appointments![0].endTime}'),
+                      actions: <Widget>[
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          child: const Text('Close'),
+                        )
+                      ],
+                    );
+                  },
+                );
+              }
+            },
           ),
         ),
       ),
     );
   }
 }
-
 
 class _Meeting {
   _Meeting({
@@ -346,7 +364,7 @@ class _Meeting {
 
   final String user;
   final DateTime from;
-  final DateTime to;
+  late final DateTime to;
   final String eventName;
   final Color background;
 }
@@ -355,10 +373,23 @@ class _DataSource extends CalendarDataSource {
   _DataSource(List<_Meeting> source) {
     appointments = source
         .map((meeting) => Appointment(
+            notes: meeting.user,
             startTime: meeting.from,
             endTime: meeting.to,
             subject: meeting.eventName,
             color: meeting.background))
         .toList();
+  }
+}
+
+// Widget to display a loading indicator
+class LoadingIndicator extends StatelessWidget {
+  const LoadingIndicator({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: CircularProgressIndicator(),
+    );
   }
 }

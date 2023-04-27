@@ -104,7 +104,7 @@ class _SelectDateState extends State<SelectDate> {
       }
     });
   }
-
+  
   void _getCalendar() {
     final userId = current_loggedin_user_oid;
     _channel?.sink.add(json.encode({
@@ -223,13 +223,10 @@ class _SelectDateState extends State<SelectDate> {
                 */
                 allowedViews: const [
                   CalendarView.schedule,
-                  CalendarView.day,
-                  CalendarView.week,
-                  CalendarView.workWeek,
-                  CalendarView.month,
                   CalendarView.timelineDay,
+                  CalendarView.week,
                   CalendarView.timelineWeek,
-                  CalendarView.timelineWorkWeek
+                  CalendarView.month,
                 ],
 
                 viewHeaderStyle:

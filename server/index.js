@@ -128,6 +128,37 @@ mongoose.connect(url, {
             ws.send(JSON.stringify({ cmd: 'calendar', events }));
           }
         }
+
+        // Pull Group Events function
+        else if (data.cmd === 'pull_group_events' && data.auth === 'chatappauthkey231r4') {
+          const group = await Group.findOne({ _id: data.group_id }).populate('users');
+
+          if (!group) {
+            ws.send(JSON.stringify({ cmd: 'pull_group_events', status: 'group_not_found' }));
+          } else {
+            const usersEvents = [];
+
+            for (const user of group.users) {
+              if (data.usernames.includes(user.username)) {
+                const calendar = await Calendar.findOne({ owner: user._id }).populate('events');
+                if (calendar) {
+                  // Add user object with their events to the usersEvents array
+                  usersEvents.push({
+                    username: user.username,
+                    events: calendar.events
+                  });
+                }
+              }
+            }
+
+            // Send users and their events to the client
+            ws.send(JSON.stringify({ cmd: 'pull_group_events', users: usersEvents }));
+          }
+        }
+
+
+
+
         
         // New Meeting function          ***Status: Done***
         else if (data.cmd === 'new_meeting') {
@@ -417,6 +448,9 @@ mongoose.connect(url, {
 
           ws.send(JSON.stringify({'cmd': 'change_pw', 'status': 'success'}))
         }
+
+        
+        
 
         //Catching all other Errors
         else {
