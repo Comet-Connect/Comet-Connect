@@ -14,15 +14,13 @@ class ScheduleMeetingForm extends StatefulWidget {
   final List<dynamic> checkedUsers;
   final String groupName;
 
-  const ScheduleMeetingForm(
-  {
+  const ScheduleMeetingForm({
     Key? key,
     required this.groupId,
     required this.session_id,
     required this.checkedUsers,
     required this.groupName,
-  }
-  ) : super(key: key);
+  }) : super(key: key);
 
   @override
   _ScheduleMeetingFormState createState() => _ScheduleMeetingFormState();
@@ -59,39 +57,72 @@ class _ScheduleMeetingFormState extends State<ScheduleMeetingForm> {
           Uri.parse('ws://${config['host']}:${config['port']}'),
         );
       }
-      _channel?.stream.listen(_handleWebSocketMessage);
     } catch (e) {
       print('WebSocket connection failed: $e');
     }
+    _channel?.stream.listen(_handleWebSocketMessage);
   }
 
   void _handleWebSocketMessage(dynamic message) async {
-    final data = const JsonDecoder().convert(message);
+    final data = json.decode(message);
 
     // Print received data
     print('Received data from server: \n\t$message');
     if (data['cmd'] == 'new_group_meeting' &&
         data['status'] == 'group_not_found') {
       // Meeting scheduled successfully, display success message
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('group_not_found'),
-      ));
-      Navigator.pop(context);
+      showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text('Group not found.'),
+              actions: [
+                TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('OK'))
+              ],
+            );
+          });
     }
     if (data['cmd'] == 'new_group_meeting' &&
         data['status'] == 'calendar_not_found') {
       // Meeting scheduled successfully, display success message
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('calendar_not_found'),
-      ));
-      Navigator.pop(context);
+      showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text('Calendar not found.'),
+              actions: [
+                TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('OK'))
+              ],
+            );
+          });
     }
     if (data['cmd'] == 'new_group_meeting' && data['status'] == 'success') {
       // Meeting scheduled successfully, display success message
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('Meeting scheduled for all members'),
-      ));
-      Navigator.pop(context);
+      showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text('Group meeting successfully scheduled.'),
+              actions: [
+                TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('OK'))
+              ],
+            );
+          });
     }
   }
 
@@ -120,7 +151,6 @@ class _ScheduleMeetingFormState extends State<ScheduleMeetingForm> {
     print('Sending payload: $payload'); // Add print statement
 
     _channel?.sink.add(payload);
-    
   }
 
   @override
@@ -238,7 +268,7 @@ class _ScheduleMeetingFormState extends State<ScheduleMeetingForm> {
                     print("Attempting to schedule meetings for users!\n");
                     _scheduleMeetingForUsers(meetingData);
                   }
-                  Navigator.pop(context);
+                  // Navigator.pop(context);
                 },
                 child: const Text('Schedule Meeting for All Members'),
               ),
