@@ -42,7 +42,6 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
     Colors.blue
   ];
   late int index;
-  Random random = new Random();
 
   // Initial State
   @override
