@@ -11,6 +11,7 @@ import 'menu.dart';
 import 'login_or_signup.dart';
 import 'selectdate.dart';
 import 'package:comet_connect_app/config.dart';
+import '../auth/reset.dart';
 
 final UTD_color_primary = Color.fromARGB(255, 1, 78, 11);
 final UTD_color_secondary = Color.fromARGB(255, 255, 123, 0);
@@ -238,6 +239,15 @@ class _MyHomePage extends State<MyHomePage> {
               );
             },
           );
+        }
+        if (settings.name == '/change_password') {
+          return PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) =>
+                  ResetPage(),
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
+                return FadeTransition(opacity: animation, child: child);
+              });
         }
         if (settings.name == '/signout' || settings.name == '/login') {
           return PageRouteBuilder(

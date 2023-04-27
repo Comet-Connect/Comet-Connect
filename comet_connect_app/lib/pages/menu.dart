@@ -102,6 +102,12 @@ class HamburgerMenu extends StatelessWidget {
           const Divider(
             color: Colors.black,
           ),
+          // Change password
+          ListTile(
+            leading: const Icon(Icons.lock_reset),
+            title: const Text('C H A N G E   P A S S W O R D'),
+            onTap: () => Navigator.of(context).pushNamed('/change_password'),
+          ),
           // Logout button
           ListTile(
             leading: const Icon(Icons.logout),
