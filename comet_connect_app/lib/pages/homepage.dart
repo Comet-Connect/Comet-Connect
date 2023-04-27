@@ -1,4 +1,4 @@
-// ignore_for_file: no_leading_underscores_for_local_identifiers, prefer_const_constructors, non_constant_identifier_names
+// ignore_for_file: no_leading_underscores_for_local_identifiers, prefer_const_constructors, non_constant_identifier_names, avoid_print
 
 import 'dart:convert';
 import 'package:comet_connect_app/pages/groups_page.dart';

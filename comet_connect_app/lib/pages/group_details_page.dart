@@ -1,5 +1,6 @@
+// ignore_for_file: non_constant_identifier_names, avoid_print, library_private_types_in_public_api
+
 import 'dart:convert';
-import 'dart:math';
 import 'package:comet_connect_app/pages/homepage.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
@@ -118,7 +119,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text('${widget.groupName}'),
+          title: Text(widget.groupName),
           backgroundColor: UTD_color_primary,
         ),
         body: Padding(
@@ -167,9 +168,9 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                           backgroundColor: grayMaterialStateProperty),
                       onPressed: () {
                         setState(() {
-                          widget.users.forEach((user) {
+                          for (var user in widget.users) {
                             _checkedUsers.add(user['username']);
-                          });
+                          }
                         });
                       },
                       child: const Text(
@@ -315,9 +316,7 @@ class _GroupCalendarPageState extends State<GroupCalendarPage> {
           ),
           scheduleViewMonthHeaderBuilder: (BuildContext buildContext,
               ScheduleViewMonthHeaderDetails details) {
-            return Text(details.date.month.toString() +
-                "/" +
-                details.date.year.toString());
+            return Text("${details.date.month}/${details.date.year}");
           },
           onTap: (CalendarTapDetails calendarTapDetails) {
             if (calendarTapDetails.targetElement ==

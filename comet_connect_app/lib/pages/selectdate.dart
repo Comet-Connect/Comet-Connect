@@ -31,8 +31,7 @@ class _SelectDateState extends State<SelectDate> {
   // Create a temp list of events for the calendar
   final List<Meeting> _events = [];
   final CalendarController _controller = CalendarController();
-  Color? _headerColor, _viewHeaderColor, _calendarColor;
-  bool _isModified = false;
+  Color? _viewHeaderColor, _calendarColor;
 
   WebSocketChannel? _channel;
 
@@ -292,7 +291,6 @@ class _SelectDateState extends State<SelectDate> {
                         details.appointments![0] as Meeting);
                   }
                   setState(() {
-                    _isModified = true;
                   });
                 },
 
