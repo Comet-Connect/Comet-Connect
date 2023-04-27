@@ -30,7 +30,7 @@ class _LoginOrSignup extends State<LoginOrSignup> {
 
   //final GoogleSignIn _googleSignIn = GoogleSignIn();
 
-  Future<void> _handleGoogleSignIn() async {
+  //Future<void> _handleGoogleSignIn() async {
     // try {
     //   final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
     //   if (googleUser != null) {
@@ -41,7 +41,7 @@ class _LoginOrSignup extends State<LoginOrSignup> {
     //   // Handle sign in error
     //   print(error.toString());
     // }
-  }
+  //}
 
   @override
   Widget build(BuildContext context) {
@@ -64,8 +64,15 @@ class _LoginOrSignup extends State<LoginOrSignup> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     // Continue With Google
+                    const Text(
+                      'Comet Connect',
+                      style: TextStyle(
+                        fontSize: 30.0,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     const SizedBox(height: 20.0),
-                    ElevatedButton.icon(
+                    /*ElevatedButton.icon(
                       onPressed: _handleGoogleSignIn,
                       icon: Image.asset(
                         'images/google_logo.png',
@@ -89,16 +96,16 @@ class _LoginOrSignup extends State<LoginOrSignup> {
                           const Size(double.infinity, 48.0),
                         ),
                       ),
-                    ),
+                    ),*/
 
                     // or
-                    const SizedBox(height: 20.0),
+                    /*const SizedBox(height: 20.0),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: const [
                         Text("or"),
                       ],
-                    ),
+                    ),*/
 
                     // Email Section
                     const SizedBox(height: 20.0),
