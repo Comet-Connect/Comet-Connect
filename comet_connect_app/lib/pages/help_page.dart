@@ -16,7 +16,7 @@ class HelpPage extends StatelessWidget {
 
   final List<String> _faqAnswers = [
     'To create an account, go to the login page and clink of the "Sign Up" button. You will be redirected to the signup page to enter your account details.',
-    'To reset your password, click on the "forgot password" button on the login page. You will be redirected to another page to reset your password.',
+    'To reset your password, click on the "CHANGE PASSWORD" button in the sidebar menu. You will be redirected to another page to reset your password.',
     'To join a group, go to the group page and click the "Join" button.',
     'To leave a group, go to the group page and click the "Leave" button.',
     'To create a new group, go to the groups page and click the "Create Group" button. Then enter the information that it asks for. ',
