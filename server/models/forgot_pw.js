@@ -12,6 +12,7 @@ const forgotPwSchema = new mongoose.Schema({
         type: String,
         unique: true,
         required: true,
+        ref: 'User'
     },
     reset_code: {
         type: String,
@@ -21,7 +22,7 @@ const forgotPwSchema = new mongoose.Schema({
         type: Date,
         default: Date.now(),
         // time in seconds, after which the entry will be deleted.
-        expires: 120}
+        expires: 300}
 })
 
 forgotPwSchema.statics.generateVerificationCode = function() {

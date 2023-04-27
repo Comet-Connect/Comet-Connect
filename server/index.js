@@ -461,6 +461,7 @@ mongoose.connect(url, {
           const resetRequest = await ForgotPw.findOne({emaill: data.email})
 
           if (!resetRequest) {
+            ws.send(JSON.stringify({'cmd': 'verify_code', 'status': 'code_expired'}))
             return;
           }
 
