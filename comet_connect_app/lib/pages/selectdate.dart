@@ -265,9 +265,9 @@ class _SelectDateState extends State<SelectDate> {
 
                 // TODO: Long hold press not working
                 onLongPress: (details) {
-                  final appointment = details.appointments!.first;
-                  final startTime = appointment.startTime;
-                  final endTime = appointment.endTime;
+                  final Meeting appointment = details.appointments!.first;
+                  final startTime = appointment.from;
+                  final endTime = appointment.to;
                   showDialog(
                     context: context,
                     builder: (context) {
