@@ -97,7 +97,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
             user: username,
             from: DateTime.parse(event['start']).toLocal(),
             to: DateTime.parse(event['end']).toLocal(),
-            eventName: "$username: ${event['title']}",
+            eventName: "$username:", //${event['title']}",
             background: temp, //Colors.blue,
           ));
         }

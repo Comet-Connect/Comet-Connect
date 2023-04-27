@@ -156,10 +156,6 @@ mongoose.connect(url, {
           }
         }
 
-
-
-
-        
         // New Meeting function          ***Status: Done***
         else if (data.cmd === 'new_meeting') {
           const eventData = data.event;  // Get Meeting
