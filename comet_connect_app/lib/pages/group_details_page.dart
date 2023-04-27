@@ -300,52 +300,50 @@ class _GroupCalendarPageState extends State<GroupCalendarPage> {
         backgroundColor: UTD_color_primary, // Header color
       ),
       body: SizedBox(
-        child: Expanded(
-          child: SfCalendar(
-            allowedViews: const [
-              CalendarView.schedule,
-              CalendarView.timelineDay,
-              CalendarView.week,
-              CalendarView.timelineWeek,
-              CalendarView.month,
-            ],
-            view: CalendarView.week,
-            dataSource: _DataSource(widget.events),
-            monthViewSettings: const MonthViewSettings(
-              appointmentDisplayMode: MonthAppointmentDisplayMode.appointment,
-            ),
-            scheduleViewMonthHeaderBuilder: (BuildContext buildContext,
-                ScheduleViewMonthHeaderDetails details) {
-              return Text(details.date.month.toString() +
-                  "/" +
-                  details.date.year.toString());
-            },
-            onTap: (CalendarTapDetails calendarTapDetails) {
-              if (calendarTapDetails.targetElement ==
-                      CalendarElement.appointment ||
-                  calendarTapDetails.targetElement == CalendarElement.agenda) {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: Text(calendarTapDetails.appointments![0].subject),
-                      content: Text(
-                          'Start Time: ${calendarTapDetails.appointments![0].startTime}\n'
-                          'End Time: ${calendarTapDetails.appointments![0].endTime}'),
-                      actions: <Widget>[
-                        TextButton(
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                          child: const Text('Close'),
-                        )
-                      ],
-                    );
-                  },
-                );
-              }
-            },
+        child: SfCalendar(
+          allowedViews: const [
+            CalendarView.schedule,
+            CalendarView.timelineDay,
+            CalendarView.week,
+            CalendarView.timelineWeek,
+            CalendarView.month,
+          ],
+          view: CalendarView.week,
+          dataSource: _DataSource(widget.events),
+          monthViewSettings: const MonthViewSettings(
+            appointmentDisplayMode: MonthAppointmentDisplayMode.appointment,
           ),
+          scheduleViewMonthHeaderBuilder: (BuildContext buildContext,
+              ScheduleViewMonthHeaderDetails details) {
+            return Text(details.date.month.toString() +
+                "/" +
+                details.date.year.toString());
+          },
+          onTap: (CalendarTapDetails calendarTapDetails) {
+            if (calendarTapDetails.targetElement ==
+                    CalendarElement.appointment ||
+                calendarTapDetails.targetElement == CalendarElement.agenda) {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text(calendarTapDetails.appointments![0].subject),
+                    content: Text(
+                        'Start Time: ${calendarTapDetails.appointments![0].startTime}\n'
+                        'End Time: ${calendarTapDetails.appointments![0].endTime}'),
+                    actions: <Widget>[
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                        child: const Text('Close'),
+                      )
+                    ],
+                  );
+                },
+              );
+            }
+          },
         ),
       ),
     );
