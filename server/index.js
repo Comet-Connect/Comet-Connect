@@ -156,10 +156,6 @@ mongoose.connect(url, {
           }
         }
 
-
-
-
-        
         // New Meeting function          ***Status: Done***
         else if (data.cmd === 'new_meeting') {
           const eventData = data.event;  // Get Meeting
@@ -386,6 +382,26 @@ mongoose.connect(url, {
                   message,
                 }));
               }
+            }
+          }
+        }
+
+        // Reset Function
+        else if (data.cmd === 'reset_pw' && data.auth === 'chatappauthkey231r4') {
+          const matchingUser = await User.findOne({username: data.username, password: data.password});
+
+          if (!matchingUser) {
+            ws.send(JSON.stringify({"cmd": "reset_pw", "status": "wrong_credentials"}));
+          } else {
+            const result = await User.updateOne(
+              {username: data.username},
+              {$set: {password: newPassword}}
+            );
+
+            if (result.modifiedCount === 1) {
+              ws.send(JSON.stringify({"cmd": "reset_pw", "status": "password_changed"}));
+            } else {
+              ws.send(JSON.stringify({"cmd": "reset_pw", "status": "password_not_changed"}));
             }
           }
         }

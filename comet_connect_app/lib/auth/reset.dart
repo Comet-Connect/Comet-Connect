@@ -208,5 +208,27 @@ bool checkInputFields(context, String username, String password,
     isGoodInput = false;
   }
 
+  if (newPassword != cfPassword) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Error!'),
+          content: const Text(
+              "Confirmed password does not match with new password."),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+    isGoodInput = false;
+  }
+
   return isGoodInput;
 }
