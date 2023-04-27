@@ -184,6 +184,41 @@ mongoose.connect(url, {
           ws.send(JSON.stringify({ cmd: 'new_meeting', status: 'success', event: newEvent }));
         }
 
+        // New Group Meeting function
+        else if (data.cmd === 'new_group_meeting' && data.auth === 'chatappauthkey231r4') {
+          console.log('Received data (new_group_meeting):', data); // Output the received data
+
+          const eventData = data.event;
+          const userId = data.oid;
+          const group = await Group.findOne({ _id: data.group_id }).populate('users');
+          
+          if (!group) {
+            ws.send(JSON.stringify({ cmd: 'new_group_meeting', status: 'group_not_found' }));
+          } else {
+            for (const user of group.users) {
+              if (data.usernames.includes(user.username)) {
+                const calendar = await Calendar.findOne({ owner: user._id });
+                if (!calendar) {
+                  ws.send(JSON.stringify({ cmd: 'new_meeting', status: 'calendar_not_found' }));
+                  return; 
+                }
+              
+                const newEvent = new Event({
+                  title: eventData.title,
+                  start: new Date(eventData.start),
+                  end: new Date(eventData.end),
+                });
+                await newEvent.save();
+              
+                calendar.events.push(newEvent);
+                await calendar.save();
+              }
+            }
+            ws.send(JSON.stringify({ cmd: 'new_group_meeting', status: 'success' }));
+          }
+        }
+        
+
         else if (data.cmd === 'update_meeting') {
           const calendar = await Calendar.findOne({owner: data.user});
           if (!calendar) {

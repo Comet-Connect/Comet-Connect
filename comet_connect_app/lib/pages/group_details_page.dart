@@ -79,39 +79,42 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
   }
 
   void _handleWebSocketMessage(message) {
-    final data = json.decode(message);
-    print('Decoded data: $data');
-    print('Received data from server: \n\t$message');
+    try {
+      final data = json.decode(message);
+      print('Decoded data: $data');
+      print('Received data from server: \n\t$message');
 
-    if (data['cmd'] == 'pull_group_events') {
-      List<dynamic> users = data['users'];
-      List<_Meeting> events = [];
-      index = 0;
-      for (var user in users) {
-        String username = user['username'];
-        
-        Color temp = colors[index % colors.length];
-        List<dynamic> userEvents = user['events'];
-        for (var event in userEvents) {
-          events.add(_Meeting(
-            user: username,
-            from: DateTime.parse(event['start']).toLocal(),
-            to: DateTime.parse(event['end']).toLocal(),
-            eventName: "$username:", //${event['title']}",
-            background: temp, //Colors.blue,
-          ));
+      if (data['cmd'] == 'pull_group_events') {
+        List<dynamic> users = data['users'];
+        List<_Meeting> events = [];
+        index = 0;
+        for (var user in users) {
+          String username = user['username'];
+
+          Color temp = colors[index % colors.length];
+          List<dynamic> userEvents = user['events'];
+          for (var event in userEvents) {
+            events.add(_Meeting(
+              user: username,
+              from: DateTime.parse(event['start']).toLocal(),
+              to: DateTime.parse(event['end']).toLocal(),
+              eventName: "$username:", //${event['title']}",
+              background: temp, //Colors.blue,
+            ));
+          }
+          index++;
         }
-        index++;
-      }
-      print('Parsed events: $events');
-      setState(() {
-        _events = events;
-      });
+        setState(() {
+          _events = events;
+        });
 
-      // Navigate to the GroupCalendarPage after updating the events
-      Navigator.of(context).push(MaterialPageRoute(
-        builder: (context) => GroupCalendarPage(events: _events),
-      ));
+        // Navigate to the GroupCalendarPage after updating the events
+        Navigator.of(context).push(MaterialPageRoute(
+          builder: (context) => GroupCalendarPage(events: _events),
+        ));
+      }
+    } catch (e) {
+      print('Error in _handleWebSocketMessage: $e');
     }
   }
 
@@ -231,12 +234,16 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                   ElevatedButton(
                     onPressed: () {
                       // Send a message to the server requesting group events
-                      _channel?.sink.add(json.encode({
+
+                      final jsonString = json.encode({
                         "auth": "chatappauthkey231r4",
                         "cmd": "pull_group_events",
                         "group_id": widget.groupId,
                         "usernames": _checkedUsers
-                      }));
+                      });
+
+                      print('\nSending JSON string: $jsonString\n');
+                      _channel?.sink.add(jsonString);
                     },
                     style:
                         ButtonStyle(backgroundColor: grayMaterialStateProperty),
@@ -259,6 +266,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                         context: context,
                         builder: (context) {
                           return ScheduleMeetingForm(
+                              groupName: widget.groupName,
                               groupId: widget.groupId,
                               session_id: widget.session_id,
                               checkedUsers: _checkedUsers);
