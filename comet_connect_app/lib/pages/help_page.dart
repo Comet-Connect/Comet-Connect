@@ -27,11 +27,12 @@ class HelpPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+        return Scaffold(
       appBar: AppBar(
         title: const Text('Help Page'),
         backgroundColor: UTD_color_primary,
       ),
+      
       body: ListView.builder(
         itemCount: _faqs.length,
         itemBuilder: (context, index) {

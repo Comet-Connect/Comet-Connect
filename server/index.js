@@ -184,6 +184,31 @@ mongoose.connect(url, {
           ws.send(JSON.stringify({ cmd: 'new_meeting', status: 'success', event: newEvent }));
         }
 
+        else if (data.cmd === 'update_meeting') {
+          const calendar = await Calendar.findOne({owner: data.user});
+          if (!calendar) {
+            ws.send(JSON.stringify({ cmd: 'update_meeting', status: 'calendar_not_found' }));
+            return;
+          };
+
+          const event = await Event.findOne({
+            title: data.title,
+            start: data.oldStart,
+            end: data.oldEnd,
+          });
+
+          if (!event) {
+            ws.send(JSON.stringify({ cmd: 'update_meeting', status: 'event_not_found' }));
+            return;
+          }
+
+          event.start = data.newStart;
+          event.end = data.newEnd;
+
+          await event.save();
+          ws.send(JSON.stringify({'cmd': 'update_meeting', status: 'success'}))
+        }
+
         // Deleting Meeting function     ***Status: Done***
         else if (data.cmd === 'delete_meeting') {
           // Meeting Data

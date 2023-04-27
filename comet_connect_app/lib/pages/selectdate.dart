@@ -83,7 +83,7 @@ class _SelectDateState extends State<SelectDate> {
       if (data['cmd'] == 'calendar') {
         // Update the list of events with the calendar data received from the server
         setState(() {
-          //_events.clear();
+          _events.clear();
           final eventsData = data['events'] as List<dynamic>;
           eventsData.forEach((eventData) {
             // Format Meeting color ETC.
@@ -101,6 +101,24 @@ class _SelectDateState extends State<SelectDate> {
             print(event.eventName);
           });
         });
+      } else if (data['cmd'] == 'update_meeting') {
+        showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                title: const Text('Meeting Updated'),
+                actions: [
+                  TextButton(
+                      onPressed: () {
+                        setState(() {
+                          _getCalendar();
+                        });
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text('OK'))
+                ],
+              );
+            });
       }
     });
   }
@@ -185,6 +203,21 @@ class _SelectDateState extends State<SelectDate> {
     );
   }
 
+  void _updateMeeting(String userOid, String title, String newStart,
+      String newEnd, String oldStart, String oldEnd) {
+    Map meetingInfo = {
+      'cmd': 'update_meeting',
+      'user': current_loggedin_user_oid,
+      'title': title,
+      'newStart': newStart,
+      'newEnd': newEnd,
+      'oldStart': oldStart,
+      'oldEnd': oldEnd,
+    };
+
+    _channel!.sink.add(json.encode(meetingInfo));
+  }
+
   // Building Calendar Page
   @override
   Widget build(BuildContext context) {
@@ -265,9 +298,9 @@ class _SelectDateState extends State<SelectDate> {
 
                 // TODO: Long hold press not working
                 onLongPress: (details) {
-                  final appointment = details.appointments!.first;
-                  final startTime = appointment.startTime;
-                  final endTime = appointment.endTime;
+                  final Meeting appointment = details.appointments!.first;
+                  final startTime = appointment.from;
+                  final endTime = appointment.to;
                   showDialog(
                     context: context,
                     builder: (context) {
@@ -289,21 +322,86 @@ class _SelectDateState extends State<SelectDate> {
                             child: const Text('Cancel'),
                           ),
                           TextButton(
-                            onPressed: () {
+                            onPressed: () async {
                               // Update start and end times
-                              setState(() {
-                                final newAppointment = Meeting(
-                                  appointment.eventName,
-                                  startTime,
-                                  endTime.add(const Duration(hours: 1)),
-                                  appointment.color,
-                                  appointment.isAllDay,
-                                );
-                                _events.remove(appointment);
-                                _events.add(newAppointment);
-                              });
+                              final newStartDate = await showDatePicker(
+                                  context: context,
+                                  initialDate: DateTime.now(),
+                                  firstDate: DateTime.now(),
+                                  lastDate:
+                                      DateTime(DateTime.now().year + 100));
 
-                              Navigator.pop(context);
+                              if (newStartDate == null) {
+                                return;
+                              }
+
+                              TimeOfDay? newStartTime;
+                              if (context.mounted) {
+                                newStartTime = await showTimePicker(
+                                    context: context,
+                                    initialTime:
+                                        TimeOfDay.fromDateTime(DateTime.now()));
+                              }
+
+                              if (newStartTime == null) {
+                                return;
+                              }
+
+                              DateTime? newEndDate;
+                              if (context.mounted) {
+                                newEndDate = await showDatePicker(
+                                    context: context,
+                                    initialDate: newStartDate,
+                                    firstDate: newStartDate,
+                                    lastDate:
+                                        DateTime(DateTime.now().year + 100));
+                              }
+
+                              if (newEndDate == null) {
+                                return;
+                              }
+
+                              TimeOfDay? newEndTime;
+                              if (context.mounted) {
+                                newEndTime = await showTimePicker(
+                                    context: context,
+                                    initialTime:
+                                        TimeOfDay.fromDateTime(DateTime.now()));
+                              }
+
+                              if (newEndTime == null) {
+                                return;
+                              }
+
+                              if (context.mounted) {
+                                DateTime meetingStart = DateTime(
+                                    newStartDate.year,
+                                    newStartDate.month,
+                                    newStartDate.day,
+                                    newStartTime.hour,
+                                    newStartTime.minute);
+                                DateTime meetingEnd = DateTime(
+                                    newEndDate.year,
+                                    newEndDate.month,
+                                    newEndDate.day,
+                                    newEndTime.hour,
+                                    newEndTime.minute);
+
+                                String newStartString =
+                                    meetingStart.toUtc().toIso8601String();
+                                String newEndString =
+                                    meetingEnd.toUtc().toIso8601String();
+
+                                _updateMeeting(
+                                    current_loggedin_user_oid!,
+                                    appointment.eventName,
+                                    newStartString,
+                                    newEndString,
+                                    startTime.toString(),
+                                    endTime.toString());
+
+                                Navigator.pop(context);
+                              }
                             },
                             child: const Text('Update'),
                           ),
