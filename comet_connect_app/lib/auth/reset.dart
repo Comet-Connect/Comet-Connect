@@ -1,5 +1,10 @@
 // ignore_for_file: library_private_types_in_public_api
+import 'package:comet_connect_app/auth/login.dart';
+import 'package:comet_connect_app/pages/homepage.dart';
 import 'package:flutter/material.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:comet_connect_app/config.dart';
+import 'dart:convert';
 
 class ResetPage extends StatefulWidget {
   const ResetPage({Key? key}) : super(key: key);
@@ -10,13 +15,148 @@ class ResetPage extends StatefulWidget {
 
 class _ResetPageState extends State<ResetPage> {
   final _usernameController = TextEditingController(); // User Username
-  final _passwordController = TextEditingController(); // User Password
+  final _oldPasswordController = TextEditingController(); // User Password
   final _passwordNewController = TextEditingController(); // User New Password
   final _passwordCfController =
       TextEditingController(); // User Confirm New Password
 
   bool _obscurePassword = true; // Show password feature
-  String auth = "chatappauthkey231r4"; // Authentication Key
+  final _auth = "chatappauthkey231r4"; // Authentication Key
+
+  WebSocketChannel? _channel;
+
+  @override
+  void initState() {
+    super.initState();
+    _connectToWebSocketServer();
+  }
+
+  @override
+  void dispose() {
+    _channel?.sink.close();
+    super.dispose();
+  }
+
+  void _connectToWebSocketServer() async {
+    Map config = await getServerConfigFile();
+    if (config.containsKey("is_server") && config["is_server"] == "1") {
+      _channel = WebSocketChannel.connect(
+        Uri.parse('wss://${config["host"]}/ws'),
+      );
+    } else {
+      _channel = WebSocketChannel.connect(
+        Uri.parse('ws://${config["host"]}:${config["port"]}'),
+      );
+    }
+    print("Connecting to groups WSS");
+
+    _channel?.stream.listen((event) {
+      final data = json.decode(event);
+      print('Received data from server: \n\t$data\n');
+
+      if (data['cmd'] == 'change_pw' && data['status'] == 'password_changed') {
+        showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text('Password updated.'),
+                actions: [
+                  TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => const MyHomePage()));
+                      },
+                      child: const Text('OK'))
+                ],
+              );
+            });
+      } else if (data['cmd'] == 'change_pw' &&
+          data['status'] == 'invalid_password') {
+        showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text('New password same as old password.'),
+                actions: [
+                  TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text('OK'))
+                ],
+              );
+            });
+      }
+    });
+  }
+
+  void _reset(String password, String newPassword, String cfPassword) {
+    bool allFieldsFilled =
+        _checkInputsFilled(password, newPassword, cfPassword);
+    if (!allFieldsFilled) {
+      showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text('Please fill out all fields.'),
+              actions: [
+                TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('OK'))
+              ],
+            );
+          });
+      return;
+    }
+
+    bool matchingPasswords = _checkMatchingPasswords(newPassword, cfPassword);
+    if (!matchingPasswords) {
+      showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text('New passwords do not match.'),
+              actions: [
+                TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('OK'))
+              ],
+            );
+          });
+      return;
+    }
+
+    Map passwordInfo = {
+      'cmd': 'change_pw',
+      'auth': _auth,
+      'user_id': current_loggedin_user_oid,
+      'old_password': password,
+      'new_password': newPassword,
+    };
+    _channel!.sink.add(json.encode(passwordInfo));
+  }
+
+  bool _checkInputsFilled(
+      String password, String newPassword, String cfPassword) {
+    if (password.isEmpty || newPassword.isEmpty || cfPassword.isEmpty) {
+      return false;
+    }
+
+    return true;
+  }
+
+  bool _checkMatchingPasswords(String password, String confirmPassword) {
+    if (password != confirmPassword) {
+      return false;
+    }
+
+    return true;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,27 +176,9 @@ class _ResetPageState extends State<ResetPage> {
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // username field
-                      const Text(
-                        'Username',
-                        style: TextStyle(
-                          fontSize: 18.0,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 10.0),
-                      TextField(
-                        keyboardType: TextInputType.emailAddress,
-                        controller: _usernameController,
-                        decoration: const InputDecoration(
-                          hintText: 'Enter your username',
-                          border: OutlineInputBorder(),
-                        ),
-                      ),
-                      const SizedBox(height: 20.0),
                       // old password field
                       const Text(
-                        'Password',
+                        'Current Password',
                         style: TextStyle(
                           fontSize: 18.0,
                           fontWeight: FontWeight.bold,
@@ -65,7 +187,7 @@ class _ResetPageState extends State<ResetPage> {
                       const SizedBox(height: 10.0),
                       TextField(
                         obscureText: _obscurePassword,
-                        controller: _passwordController,
+                        controller: _oldPasswordController,
                         decoration: const InputDecoration(
                           border: OutlineInputBorder(),
                           labelText: 'Enter your password',
@@ -156,11 +278,9 @@ class _ResetPageState extends State<ResetPage> {
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
-                          onPressed: () async {
-                            reset(
-                                context,
-                                _usernameController.text,
-                                _passwordController.text,
+                          onPressed: () {
+                            _reset(
+                                _oldPasswordController.text,
                                 _passwordNewController.text,
                                 _passwordCfController.text);
                           },
@@ -169,66 +289,4 @@ class _ResetPageState extends State<ResetPage> {
                       ),
                     ]))));
   } //Widget
-}
-
-reset(context, String username, String password, String newPassword,
-    String cfPassword) async {
-  String auth = "chatappauthkey231r4";
-  bool isGoodInput =
-      checkInputFields(context, username, password, newPassword, cfPassword);
-  if (!isGoodInput) {
-    return;
-  }
-}
-
-bool checkInputFields(context, String username, String password,
-    String newPassword, String cfPassword) {
-  bool isGoodInput = true;
-  if (username.isEmpty ||
-      password.isEmpty ||
-      newPassword.isEmpty ||
-      cfPassword.isEmpty) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Empty Fields'),
-          content: const Text("Please fill out all fields."),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('OK'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
-    isGoodInput = false;
-  }
-
-  if (newPassword != cfPassword) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Error!'),
-          content: const Text(
-              "Confirmed password does not match with new password."),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('OK'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
-    isGoodInput = false;
-  }
-
-  return isGoodInput;
 }

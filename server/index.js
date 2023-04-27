@@ -387,22 +387,21 @@ mongoose.connect(url, {
         }
 
         // Reset Function
-        else if (data.cmd === 'reset_pw' && data.auth === 'chatappauthkey231r4') {
-          const matchingUser = await User.findOne({username: data.username, password: data.password});
+        else if (data.cmd === 'change_pw' && data.auth === 'chatappauthkey231r4') {
+          const matchingUser = await User.findOne({_id: data.user_id});
 
           if (!matchingUser) {
-            ws.send(JSON.stringify({"cmd": "reset_pw", "status": "wrong_credentials"}));
-          } else {
-            const result = await User.updateOne(
-              {username: data.username},
-              {$set: {password: newPassword}}
-            );
+            ws.send(JSON.stringify({"cmd": "change_pw", "status": "invalid_user"}));
+            return;
+          }
 
-            if (result.modifiedCount === 1) {
-              ws.send(JSON.stringify({"cmd": "reset_pw", "status": "password_changed"}));
-            } else {
-              ws.send(JSON.stringify({"cmd": "reset_pw", "status": "password_not_changed"}));
-            }
+          const matchingPasswords = bcrypt.compare(data.old_password, matchingUser.password);
+          if (matchingPasswords) {
+            matchingUser.password = data.new_password;
+            matchingUser.save();
+            ws.send(JSON.stringify({'cmd': 'change_pw', 'status': 'password_changed'}))
+          } else {
+            ws.send(JSON.stringify({'cmd': 'change_pw', 'status': 'invalid_password'}))
           }
         }
 
