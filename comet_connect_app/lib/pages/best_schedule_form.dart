@@ -31,6 +31,9 @@ class _ScheduleMeetingFormState extends State<ScheduleMeetingForm> {
   DateTime _startTime = DateTime.now();
   DateTime _endTime = DateTime.now().add(const Duration(hours: 1));
 
+  final _formKey = GlobalKey<FormState>();
+  final _eventNameController = TextEditingController();
+
   // Initial State
   @override
   void initState() {
@@ -157,9 +160,6 @@ class _ScheduleMeetingFormState extends State<ScheduleMeetingForm> {
 
   @override
   Widget build(BuildContext context) {
-    final _formKey = GlobalKey<FormState>();
-    final _eventNameController = TextEditingController();
-
     return AlertDialog(
       title: const Text('Schedule a Meeting'),
       content: Padding(
@@ -260,7 +260,7 @@ class _ScheduleMeetingFormState extends State<ScheduleMeetingForm> {
                     );
 
                     final meetingData = {
-                      'title': widget.groupName,
+                      'title': '${widget.groupName}: ${_eventNameController.text}',
                       'start': newMeeting.from.toUtc().toIso8601String(),
                       'end': newMeeting.to.toUtc().toIso8601String(),
                     };
