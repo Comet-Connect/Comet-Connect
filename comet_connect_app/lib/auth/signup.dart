@@ -25,15 +25,14 @@ class SignupPage extends StatefulWidget {
 }
 
 class _SignupPageState extends State<SignupPage> {
-  
-  final _firstNameController = TextEditingController();  // User First Name
-  final _lastNameController = TextEditingController();   // User Last Name
-  final _emailController = TextEditingController();      // User Email
-  final _usernameController = TextEditingController();   // User Username
-  final _passwordController = TextEditingController();   // User Password
+  final _firstNameController = TextEditingController(); // User First Name
+  final _lastNameController = TextEditingController(); // User Last Name
+  final _emailController = TextEditingController(); // User Email
+  final _usernameController = TextEditingController(); // User Username
+  final _passwordController = TextEditingController(); // User Password
 
-  bool _obscurePassword = true;          // Show password feature
-  String auth = "chatappauthkey231r4";   // Authentication Key
+  bool _obscurePassword = true; // Show password feature
+  String auth = "chatappauthkey231r4"; // Authentication Key
 
   @override
   Widget build(BuildContext context) {
@@ -199,16 +198,15 @@ signup(context, String username, String password, String firstName,
   try {
     // Create connection.
     Map config = await getServerConfigFile();
-    if(config.containsKey("is_server") && config["is_server"]=="1") {
-        channel = WebSocketChannel.connect(
-          Uri.parse('wss://${config["host"]}/ws'),
-         );
+    if (config.containsKey("is_server") && config["is_server"] == "1") {
+      channel = WebSocketChannel.connect(
+        Uri.parse('wss://${config["host"]}/ws'),
+      );
+    } else {
+      channel = WebSocketChannel.connect(
+        Uri.parse('ws://${config["host"]}:${config["port"]}'),
+      );
     }
-      else{
-          channel = WebSocketChannel.connect(
-          Uri.parse('ws://${config["host"]}:${config["port"]}'),
-         );
-      }
   } catch (e) {
     print("""Error on connecting to websocket: (signup.dart)
             ${e.toString()}""");
@@ -255,7 +253,17 @@ signup(context, String username, String password, String firstName,
         // Return user to home page if successful
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const LoginOrSignup()),
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                const LoginOrSignup(),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              return FadeTransition(
+                opacity: animation,
+                child: child,
+              );
+            },
+          ),
         );
 
         // Call Welcome Screen Display

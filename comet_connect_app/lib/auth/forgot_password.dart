@@ -1,4 +1,4 @@
-// ignore_for_file: library_private_types_in_public_api
+// ignore_for_file: library_private_types_in_public_api, avoid_print
 import 'dart:convert';
 import 'package:comet_connect_app/pages/login_or_signup.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -176,8 +176,22 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                   TextButton(
                       onPressed: () {
                         Navigator.of(context).pop();
-                        Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => const LoginOrSignup()));
+
+                        Navigator.push(
+                          context,
+                          PageRouteBuilder(
+                            pageBuilder:
+                                (context, animation, secondaryAnimation) =>
+                                    const LoginOrSignup(),
+                            transitionsBuilder: (context, animation,
+                                secondaryAnimation, child) {
+                              return FadeTransition(
+                                opacity: animation,
+                                child: child,
+                              );
+                            },
+                          ),
+                        );
                       },
                       child: const Text('OK'))
                 ],

@@ -1,16 +1,165 @@
-import 'package:flutter/material.dart';
-import '../classes/meeting_class.dart';
+// ignore_for_file: non_constant_identifier_names, no_leading_underscores_for_local_identifiers, use_build_context_synchronously, library_private_types_in_public_api, avoid_print
 
-class ScheduleMeetingForm extends StatelessWidget {
-  const ScheduleMeetingForm({Key? key, required String groupId, required String session_id, required List checkedUsers}) : super(key: key);
+import 'dart:convert';
+
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
+import '../classes/meeting_class.dart';
+import '../config.dart';
+
+class ScheduleMeetingForm extends StatefulWidget {
+  final String groupId;
+  final String session_id;
+  final List<dynamic> checkedUsers;
+  final String groupName;
+
+  const ScheduleMeetingForm({
+    Key? key,
+    required this.groupId,
+    required this.session_id,
+    required this.checkedUsers,
+    required this.groupName,
+  }) : super(key: key);
+
+  @override
+  _ScheduleMeetingFormState createState() => _ScheduleMeetingFormState();
+}
+
+class _ScheduleMeetingFormState extends State<ScheduleMeetingForm> {
+  WebSocketChannel? _channel;
+  DateTime _startTime = DateTime.now();
+  DateTime _endTime = DateTime.now().add(const Duration(hours: 1));
+
+  final _formKey = GlobalKey<FormState>();
+  final _eventNameController = TextEditingController();
+
+  // Initial State
+  @override
+  void initState() {
+    super.initState();
+    _connectToWebSocketServer();
+  }
+
+  // Closing Connections
+  @override
+  void dispose() {
+    // Close the WebSocket connection when the widget is disposed
+    _channel?.sink.close();
+    super.dispose();
+  }
+
+  // Connect with Backend
+  void _connectToWebSocketServer() async {
+    try {
+      final config = await getServerConfigFile();
+      if (config.containsKey('is_server') && config['is_server'] == '1') {
+        _channel = WebSocketChannel.connect(
+          Uri.parse('wss://${config['host']}/ws'),
+        );
+      } else {
+        _channel = WebSocketChannel.connect(
+          Uri.parse('ws://${config['host']}:${config['port']}'),
+        );
+      }
+    } catch (e) {
+      print('WebSocket connection failed: $e');
+    }
+    _channel?.stream.listen(_handleWebSocketMessage);
+  }
+
+  void _handleWebSocketMessage(dynamic message) async {
+    final data = json.decode(message);
+
+    // Print received data
+    print('Received data from server: \n\t$message');
+    if (data['cmd'] == 'new_group_meeting' &&
+        data['status'] == 'group_not_found') {
+      // Meeting scheduled successfully, display success message
+      showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text('Group not found.'),
+              actions: [
+                TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('OK'))
+              ],
+            );
+          });
+    }
+    if (data['cmd'] == 'new_group_meeting' &&
+        data['status'] == 'calendar_not_found') {
+      // Meeting scheduled successfully, display success message
+      showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text('Calendar not found.'),
+              actions: [
+                TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('OK'))
+              ],
+            );
+          });
+    }
+    if (data['cmd'] == 'new_group_meeting' && data['status'] == 'success') {
+      // Meeting scheduled successfully, display success message
+      showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text('Group meeting successfully scheduled.'),
+              actions: [
+                TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('OK'))
+              ],
+            );
+          });
+    }
+  }
+
+  void _scheduleMeetingForUsers(Map<String, dynamic> meetingData) {
+    print("ScheduledMeetingForUser Called!");
+
+    List<String> checkedUsernames = [];
+    for (String user in widget.checkedUsers) {
+      print(user);
+      checkedUsernames.add(user);
+    }
+    if (checkedUsernames.isEmpty) {
+      print('checkedUsernames is empty');
+    }
+    print(checkedUsernames);
+
+    final payload = json.encode({
+      'auth': 'chatappauthkey231r4',
+      'cmd': 'new_group_meeting',
+      'oid': '${widget.session_id}',
+      'event': meetingData,
+      'usernames': checkedUsernames,
+      'group_id': '${widget.groupId}',
+    });
+
+    print('Sending payload: $payload'); // Add print statement
+
+    _channel?.sink.add(payload);
+  }
 
   @override
   Widget build(BuildContext context) {
-    final _formKey = GlobalKey<FormState>();
-    final _eventNameController = TextEditingController();
-    DateTime _startTime = DateTime.now();
-    DateTime _endTime = DateTime.now().add(const Duration(hours: 1));
-
     return AlertDialog(
       title: const Text('Schedule a Meeting'),
       content: Padding(
@@ -50,18 +199,20 @@ class ScheduleMeetingForm extends StatelessWidget {
                       initialTime: TimeOfDay.fromDateTime(_startTime),
                     );
                     if (pickedTime != null) {
-                      _startTime = DateTime(
-                        pickedDate.year,
-                        pickedDate.month,
-                        pickedDate.day,
-                        pickedTime.hour,
-                        pickedTime.minute,
-                      );
+                      setState(() {
+                        _startTime = DateTime(
+                          pickedDate.year,
+                          pickedDate.month,
+                          pickedDate.day,
+                          pickedTime.hour,
+                          pickedTime.minute,
+                        );
+                      });
                     }
                   }
                 },
                 child: Text(
-                  '${_startTime.day}/${_startTime.month}/${_startTime.year} ${_startTime.hour}:${_startTime.minute}',
+                  DateFormat('dd/MM/yyyy HH:mm').format(_startTime),
                 ),
               ),
               const SizedBox(height: 16.0),
@@ -80,35 +231,48 @@ class ScheduleMeetingForm extends StatelessWidget {
                       initialTime: TimeOfDay.fromDateTime(_endTime),
                     );
                     if (pickedTime != null) {
-                      _endTime = DateTime(
-                        pickedDate.year,
-                        pickedDate.month,
-                        pickedDate.day,
-                        pickedTime.hour,
-                        pickedTime.minute,
-                      );
+                      setState(() {
+                        _endTime = DateTime(
+                          pickedDate.year,
+                          pickedDate.month,
+                          pickedDate.day,
+                          pickedTime.hour,
+                          pickedTime.minute,
+                        );
+                      });
                     }
                   }
                 },
                 child: Text(
-                  '${_endTime.day}/${_endTime.month}/${_endTime.year} ${_endTime.hour}:${_endTime.minute}',
+                  DateFormat('dd/MM/yyyy HH:mm').format(_endTime),
                 ),
               ),
               const SizedBox(height: 16.0),
               ElevatedButton(
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
-                    Navigator.pop(
-                      context,
-                      Meeting(
-                        _eventNameController.text,
-                        _startTime,
-                        _endTime,
-                        Colors.red,
-                        false,
-                      ),
+                    final newMeeting = Meeting(
+                      _eventNameController.text,
+                      _startTime,
+                      _endTime,
+                      Colors.yellow,
+                      false,
                     );
+
+                    final meetingData = {
+                      'title': '${widget.groupName}: ${_eventNameController.text}',
+                      'start': newMeeting.from.toUtc().toIso8601String(),
+                      'end': newMeeting.to.toUtc().toIso8601String(),
+                    };
+
+                    print("meetingData: $meetingData\n");
+                    print("Group ID: ${widget.groupId}\n");
+                    print("Session ID: ${widget.session_id}\n");
+                    print("Username: ${widget.checkedUsers.first}\n");
+                    print("Attempting to schedule meetings for users!\n");
+                    _scheduleMeetingForUsers(meetingData);
                   }
+                  // Navigator.pop(context);
                 },
                 child: const Text('Schedule Meeting for All Members'),
               ),
