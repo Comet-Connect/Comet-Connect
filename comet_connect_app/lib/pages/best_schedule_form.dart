@@ -28,6 +28,8 @@ class ScheduleMeetingForm extends StatefulWidget {
 
 class _ScheduleMeetingFormState extends State<ScheduleMeetingForm> {
   WebSocketChannel? _channel;
+  DateTime _startTime = DateTime.now();
+  DateTime _endTime = DateTime.now().add(const Duration(hours: 1));
 
   // Initial State
   @override
@@ -157,8 +159,6 @@ class _ScheduleMeetingFormState extends State<ScheduleMeetingForm> {
   Widget build(BuildContext context) {
     final _formKey = GlobalKey<FormState>();
     final _eventNameController = TextEditingController();
-    DateTime _startTime = DateTime.now();
-    DateTime _endTime = DateTime.now().add(const Duration(hours: 1));
 
     return AlertDialog(
       title: const Text('Schedule a Meeting'),
@@ -199,13 +199,15 @@ class _ScheduleMeetingFormState extends State<ScheduleMeetingForm> {
                       initialTime: TimeOfDay.fromDateTime(_startTime),
                     );
                     if (pickedTime != null) {
-                      _startTime = DateTime(
-                        pickedDate.year,
-                        pickedDate.month,
-                        pickedDate.day,
-                        pickedTime.hour,
-                        pickedTime.minute,
-                      );
+                      setState(() {
+                        _startTime = DateTime(
+                          pickedDate.year,
+                          pickedDate.month,
+                          pickedDate.day,
+                          pickedTime.hour,
+                          pickedTime.minute,
+                        );
+                      });
                     }
                   }
                 },
@@ -229,13 +231,15 @@ class _ScheduleMeetingFormState extends State<ScheduleMeetingForm> {
                       initialTime: TimeOfDay.fromDateTime(_endTime),
                     );
                     if (pickedTime != null) {
-                      _endTime = DateTime(
-                        pickedDate.year,
-                        pickedDate.month,
-                        pickedDate.day,
-                        pickedTime.hour,
-                        pickedTime.minute,
-                      );
+                      setState(() {
+                        _endTime = DateTime(
+                          pickedDate.year,
+                          pickedDate.month,
+                          pickedDate.day,
+                          pickedTime.hour,
+                          pickedTime.minute,
+                        );
+                      });
                     }
                   }
                 },
