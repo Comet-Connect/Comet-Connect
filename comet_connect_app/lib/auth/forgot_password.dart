@@ -175,8 +175,22 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                   TextButton(
                       onPressed: () {
                         Navigator.of(context).pop();
-                        Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => const LoginOrSignup()));
+
+                        Navigator.push(
+                          context,
+                          PageRouteBuilder(
+                            pageBuilder:
+                                (context, animation, secondaryAnimation) =>
+                                    const LoginOrSignup(),
+                            transitionsBuilder: (context, animation,
+                                secondaryAnimation, child) {
+                              return FadeTransition(
+                                opacity: animation,
+                                child: child,
+                              );
+                            },
+                          ),
+                        );
                       },
                       child: const Text('OK'))
                 ],

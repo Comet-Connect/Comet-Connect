@@ -109,9 +109,22 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
         });
 
         // Navigate to the GroupCalendarPage after updating the events
-        Navigator.of(context).push(MaterialPageRoute(
-          builder: (context) => GroupCalendarPage(events: _events),
-        ));
+        Navigator.push(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                GroupCalendarPage(
+              events: _events,
+            ),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              return FadeTransition(
+                opacity: animation,
+                child: child,
+              );
+            },
+          ),
+        );
       }
     } catch (e) {
       print('Error in _handleWebSocketMessage: $e');

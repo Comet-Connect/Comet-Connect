@@ -80,7 +80,17 @@ login(context, _mailOrUsername, _pwd) async {
           current_loggedin_user = _mailOrUsername;
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const MyHomePage()),
+            PageRouteBuilder(
+              pageBuilder: (context, animation, secondaryAnimation) =>
+                  const MyHomePage(),
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
+                return FadeTransition(
+                  opacity: animation,
+                  child: child,
+                );
+              },
+            ),
           );
           // Call Welcome Screen Display
           showWelcomeDialog(context);
