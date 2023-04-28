@@ -48,6 +48,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
   @override
   void initState() {
     super.initState();
+    _selectAllUsers();
     _connectToWebSocketServer();
   }
 
@@ -131,6 +132,12 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
     }
   }
 
+  void _selectAllUsers() {
+    widget.users.forEach((user) {
+      _checkedUsers.add(user['username']);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -176,17 +183,16 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
               const SizedBox(height: 16.0),
               Row(
                 children: [
-                  const Text('Current Users in the Group:',
-                      style: TextStyle(fontSize: 20.0)),
-                  const Spacer(),
+                  const Expanded(
+                    child: Text('Current Users in the Group:',
+                        style: TextStyle(fontSize: 20.0)),
+                  ),
                   ElevatedButton(
                       style: ButtonStyle(
                           backgroundColor: grayMaterialStateProperty),
                       onPressed: () {
                         setState(() {
-                          for (var user in widget.users) {
-                            _checkedUsers.add(user['username']);
-                          }
+                          _selectAllUsers();
                         });
                       },
                       child: const Text(

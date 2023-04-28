@@ -165,7 +165,8 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                 ],
               );
             });
-      } else if (data['cmd'] == 'change_pw' && data['status'] == 'success') {
+      } else if (data['cmd'] == 'forgot_password_change' &&
+          data['status'] == 'success') {
         showDialog(
             context: context,
             builder: (BuildContext context) {
@@ -298,14 +299,15 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                       if (_matchingEmailCode) ...[
                         // new password field
                         Row(children: [
-                          const Text(
-                            'New Password',
-                            style: TextStyle(
-                              fontSize: 18.0,
-                              fontWeight: FontWeight.bold,
+                          const Expanded(
+                            child: Text(
+                              'New Password',
+                              style: TextStyle(
+                                fontSize: 18.0,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
-                          const Spacer(),
                           TextButton(
                             onPressed: () {
                               setState(() {
@@ -328,14 +330,15 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            const Text(
-                              'Confirm Password',
-                              style: TextStyle(
-                                fontSize: 18.0,
-                                fontWeight: FontWeight.bold,
+                            const Expanded(
+                              child: Text(
+                                'Confirm Password',
+                                style: TextStyle(
+                                  fontSize: 18.0,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
-                            const Spacer(),
                             TextButton(
                               onPressed: () {
                                 setState(() {
@@ -427,7 +430,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
 
   _updatePassword(String email, String password, String confirmPassword) {
     final passwordInfoMap = {
-      "cmd": "change_pw",
+      "cmd": "forgot_password_change",
       "email": email,
       "password": password,
       "auth": _auth,

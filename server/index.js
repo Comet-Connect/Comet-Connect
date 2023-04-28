@@ -489,6 +489,7 @@ mongoose.connect(url, {
               if (e) {print(e)}
             })
             ws.send(JSON.stringify({'cmd': 'forgot_pw', 'status': 'success'}))
+            console.log(`User: ${data.email}, Reset Code: ${verificationCode}`);
           }
         }
 
@@ -509,7 +510,7 @@ mongoose.connect(url, {
         }
         
         // TODO: merge command with niha's functionality
-        else if (data.cmd === 'change_pw' && data.auth == 'chatappauthkey231r4') {
+        else if (data.cmd === 'forgot_password_change' && data.auth == 'chatappauthkey231r4') {
           const userToChange = await User.findOne({email: data.email})
           userToChange.password = data.password
           await userToChange.save()
@@ -522,11 +523,8 @@ mongoose.connect(url, {
             console.log(e)
           }
 
-          ws.send(JSON.stringify({'cmd': 'change_pw', 'status': 'success'}))
+          ws.send(JSON.stringify({'cmd': 'forgot_password_change', 'status': 'success'}))
         }
-
-        
-        
 
         //Catching all other Errors
         else {
