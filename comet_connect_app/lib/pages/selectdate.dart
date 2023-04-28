@@ -31,8 +31,7 @@ class _SelectDateState extends State<SelectDate> {
   // Create a temp list of events for the calendar
   final List<Meeting> _events = [];
   final CalendarController _controller = CalendarController();
-  Color? _headerColor, _viewHeaderColor, _calendarColor;
-  bool _isModified = false;
+  Color? _viewHeaderColor, _calendarColor;
 
   WebSocketChannel? _channel;
 
@@ -122,7 +121,7 @@ class _SelectDateState extends State<SelectDate> {
       }
     });
   }
-  
+
   void _getCalendar() {
     final userId = current_loggedin_user_oid;
     _channel?.sink.add(json.encode({
@@ -248,12 +247,14 @@ class _SelectDateState extends State<SelectDate> {
 
             const Divider(thickness: 2),
             // Calendar Widget
+            
             Expanded(
               child: SfCalendar(
                 /* Change view:  
                   - CalendarView.week
                   - CalendarView.schedule
                 */
+                
                 allowedViews: const [
                   CalendarView.schedule,
                   CalendarView.timelineDay,
@@ -291,9 +292,7 @@ class _SelectDateState extends State<SelectDate> {
                     _showMeetingDetailsPopup(
                         details.appointments![0] as Meeting);
                   }
-                  setState(() {
-                    _isModified = true;
-                  });
+                  setState(() {});
                 },
 
                 // TODO: Long hold press not working
@@ -429,8 +428,17 @@ class _SelectDateState extends State<SelectDate> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                      builder: (context) => const NewMeetingScreen()),
+                  PageRouteBuilder(
+                    pageBuilder: (context, animation, secondaryAnimation) =>
+                        const NewMeetingScreen(),
+                    transitionsBuilder:
+                        (context, animation, secondaryAnimation, child) {
+                      return FadeTransition(
+                        opacity: animation,
+                        child: child,
+                      );
+                    },
+                  ),
                 ).then((newMeeting) {
                   if (newMeeting != null) {
                     setState(() {

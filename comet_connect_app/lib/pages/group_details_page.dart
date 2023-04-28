@@ -1,5 +1,6 @@
+// ignore_for_file: non_constant_identifier_names, avoid_print, library_private_types_in_public_api
+
 import 'dart:convert';
-import 'dart:math';
 import 'package:comet_connect_app/pages/homepage.dart';
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
@@ -42,12 +43,12 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
     Colors.blue
   ];
   late int index;
-  Random random = new Random();
 
   // Initial State
   @override
   void initState() {
     super.initState();
+    _selectAllUsers();
     _connectToWebSocketServer();
   }
 
@@ -79,47 +80,69 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
   }
 
   void _handleWebSocketMessage(message) {
-    final data = json.decode(message);
-    print('Decoded data: $data');
-    print('Received data from server: \n\t$message');
+    try {
+      final data = json.decode(message);
+      print('Decoded data: $data');
+      print('Received data from server: \n\t$message');
 
-    if (data['cmd'] == 'pull_group_events') {
-      List<dynamic> users = data['users'];
-      List<_Meeting> events = [];
-      index = 0;
-      for (var user in users) {
-        String username = user['username'];
-        
-        Color temp = colors[index % colors.length];
-        List<dynamic> userEvents = user['events'];
-        for (var event in userEvents) {
-          events.add(_Meeting(
-            user: username,
-            from: DateTime.parse(event['start']).toLocal(),
-            to: DateTime.parse(event['end']).toLocal(),
-            eventName: "$username: ${event['title']}",
-            background: temp, //Colors.blue,
-          ));
+      if (data['cmd'] == 'pull_group_events') {
+        List<dynamic> users = data['users'];
+        List<_Meeting> events = [];
+        index = 0;
+        for (var user in users) {
+          String username = user['username'];
+
+          Color temp = colors[index % colors.length];
+          List<dynamic> userEvents = user['events'];
+          for (var event in userEvents) {
+            events.add(_Meeting(
+              user: username,
+              from: DateTime.parse(event['start']).toLocal(),
+              to: DateTime.parse(event['end']).toLocal(),
+              eventName: "$username:", //${event['title']}",
+              background: temp, //Colors.blue,
+            ));
+          }
+          index++;
         }
-        index++;
-      }
-      print('Parsed events: $events');
-      setState(() {
-        _events = events;
-      });
+        setState(() {
+          _events = events;
+        });
 
-      // Navigate to the GroupCalendarPage after updating the events
-      Navigator.of(context).push(MaterialPageRoute(
-        builder: (context) => GroupCalendarPage(events: _events),
-      ));
+        // Navigate to the GroupCalendarPage after updating the events
+        Navigator.push(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                GroupCalendarPage(
+              events: _events,
+            ),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              return FadeTransition(
+                opacity: animation,
+                child: child,
+              );
+            },
+          ),
+        );
+      }
+    } catch (e) {
+      print('Error in _handleWebSocketMessage: $e');
     }
+  }
+
+  void _selectAllUsers() {
+    widget.users.forEach((user) {
+      _checkedUsers.add(user['username']);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text('${widget.groupName}'),
+          title: Text(widget.groupName),
           backgroundColor: UTD_color_primary,
         ),
         body: Padding(
@@ -160,17 +183,16 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
               const SizedBox(height: 16.0),
               Row(
                 children: [
-                  const Text('Current Users in the Group:',
-                      style: TextStyle(fontSize: 20.0)),
-                  const Spacer(),
+                  const Expanded(
+                    child: Text('Current Users in the Group:',
+                        style: TextStyle(fontSize: 20.0)),
+                  ),
                   ElevatedButton(
                       style: ButtonStyle(
                           backgroundColor: grayMaterialStateProperty),
                       onPressed: () {
                         setState(() {
-                          widget.users.forEach((user) {
-                            _checkedUsers.add(user['username']);
-                          });
+                          _selectAllUsers();
                         });
                       },
                       child: const Text(
@@ -231,12 +253,16 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                   ElevatedButton(
                     onPressed: () {
                       // Send a message to the server requesting group events
-                      _channel?.sink.add(json.encode({
+
+                      final jsonString = json.encode({
                         "auth": "chatappauthkey231r4",
                         "cmd": "pull_group_events",
                         "group_id": widget.groupId,
                         "usernames": _checkedUsers
-                      }));
+                      });
+
+                      print('\nSending JSON string: $jsonString\n');
+                      _channel?.sink.add(jsonString);
                     },
                     style:
                         ButtonStyle(backgroundColor: grayMaterialStateProperty),
@@ -259,6 +285,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
                         context: context,
                         builder: (context) {
                           return ScheduleMeetingForm(
+                              groupName: widget.groupName,
                               groupId: widget.groupId,
                               session_id: widget.session_id,
                               checkedUsers: _checkedUsers);
@@ -309,6 +336,7 @@ class _GroupCalendarPageState extends State<GroupCalendarPage> {
             CalendarView.timelineWeek,
             CalendarView.month,
           ],
+          cellBorderColor: Colors.grey[500],
           view: CalendarView.week,
           dataSource: _DataSource(widget.events),
           monthViewSettings: const MonthViewSettings(
@@ -316,9 +344,7 @@ class _GroupCalendarPageState extends State<GroupCalendarPage> {
           ),
           scheduleViewMonthHeaderBuilder: (BuildContext buildContext,
               ScheduleViewMonthHeaderDetails details) {
-            return Text(details.date.month.toString() +
-                "/" +
-                details.date.year.toString());
+            return Text("${details.date.month}/${details.date.year}");
           },
           onTap: (CalendarTapDetails calendarTapDetails) {
             if (calendarTapDetails.targetElement ==

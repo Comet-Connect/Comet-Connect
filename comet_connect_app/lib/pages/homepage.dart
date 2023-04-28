@@ -1,4 +1,4 @@
-// ignore_for_file: no_leading_underscores_for_local_identifiers, prefer_const_constructors, non_constant_identifier_names
+// ignore_for_file: no_leading_underscores_for_local_identifiers, prefer_const_constructors, non_constant_identifier_names, avoid_print
 
 import 'dart:convert';
 import 'package:comet_connect_app/pages/groups_page.dart';
@@ -68,8 +68,17 @@ class _MyHomePage extends State<MyHomePage> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(
-                          builder: (context) => _calendar,
+                        PageRouteBuilder(
+                          pageBuilder:
+                              (context, animation, secondaryAnimation) =>
+                                  _calendar,
+                          transitionsBuilder:
+                              (context, animation, secondaryAnimation, child) {
+                            return FadeTransition(
+                              opacity: animation,
+                              child: child,
+                            );
+                          },
                         ),
                       ).then((_) {
                         setState(() {
@@ -120,9 +129,18 @@ class _MyHomePage extends State<MyHomePage> {
                               // Navigate to the create group screen
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        const CreateGroupScreen()),
+                                PageRouteBuilder(
+                                  pageBuilder: (context, animation,
+                                          secondaryAnimation) =>
+                                      const CreateGroupScreen(),
+                                  transitionsBuilder: (context, animation,
+                                      secondaryAnimation, child) {
+                                    return FadeTransition(
+                                      opacity: animation,
+                                      child: child,
+                                    );
+                                  },
+                                ),
                               );
                             },
                             style: ButtonStyle(
@@ -294,7 +312,17 @@ class _MyHomePage extends State<MyHomePage> {
         homepageJoinGroupOid = (data['group_id']);
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const GroupsPage()),
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                const GroupsPage(),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              return FadeTransition(
+                opacity: animation,
+                child: child,
+              );
+            },
+          ),
         );
       } else {
         badJoinGroupPopups(context, data);

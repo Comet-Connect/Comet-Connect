@@ -1,4 +1,4 @@
-// ignore_for_file: library_private_types_in_public_api
+// ignore_for_file: library_private_types_in_public_api, avoid_print
 import 'dart:convert';
 import 'package:comet_connect_app/pages/login_or_signup.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -165,7 +165,8 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                 ],
               );
             });
-      } else if (data['cmd'] == 'change_pw' && data['status'] == 'success') {
+      } else if (data['cmd'] == 'forgot_password_change' &&
+          data['status'] == 'success') {
         showDialog(
             context: context,
             builder: (BuildContext context) {
@@ -175,8 +176,22 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                   TextButton(
                       onPressed: () {
                         Navigator.of(context).pop();
-                        Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => const LoginOrSignup()));
+
+                        Navigator.push(
+                          context,
+                          PageRouteBuilder(
+                            pageBuilder:
+                                (context, animation, secondaryAnimation) =>
+                                    const LoginOrSignup(),
+                            transitionsBuilder: (context, animation,
+                                secondaryAnimation, child) {
+                              return FadeTransition(
+                                opacity: animation,
+                                child: child,
+                              );
+                            },
+                          ),
+                        );
                       },
                       child: const Text('OK'))
                 ],
@@ -284,14 +299,15 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                       if (_matchingEmailCode) ...[
                         // new password field
                         Row(children: [
-                          const Text(
-                            'New Password',
-                            style: TextStyle(
-                              fontSize: 18.0,
-                              fontWeight: FontWeight.bold,
+                          const Expanded(
+                            child: Text(
+                              'New Password',
+                              style: TextStyle(
+                                fontSize: 18.0,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
-                          const Spacer(),
                           TextButton(
                             onPressed: () {
                               setState(() {
@@ -314,14 +330,15 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            const Text(
-                              'Confirm Password',
-                              style: TextStyle(
-                                fontSize: 18.0,
-                                fontWeight: FontWeight.bold,
+                            const Expanded(
+                              child: Text(
+                                'Confirm Password',
+                                style: TextStyle(
+                                  fontSize: 18.0,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
-                            const Spacer(),
                             TextButton(
                               onPressed: () {
                                 setState(() {
@@ -413,7 +430,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
 
   _updatePassword(String email, String password, String confirmPassword) {
     final passwordInfoMap = {
-      "cmd": "change_pw",
+      "cmd": "forgot_password_change",
       "email": email,
       "password": password,
       "auth": _auth,

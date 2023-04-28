@@ -1,4 +1,4 @@
-// ignore_for_file: library_private_types_in_public_api
+// ignore_for_file: library_private_types_in_public_api, avoid_print
 import 'package:comet_connect_app/auth/login.dart';
 import 'package:comet_connect_app/pages/homepage.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +14,7 @@ class ResetPage extends StatefulWidget {
 }
 
 class _ResetPageState extends State<ResetPage> {
+  //final _usernameController = TextEditingController(); // User Username
   final _oldPasswordController = TextEditingController(); // User Password
   final _passwordNewController = TextEditingController(); // User New Password
   final _passwordCfController =
@@ -63,8 +64,21 @@ class _ResetPageState extends State<ResetPage> {
                   TextButton(
                       onPressed: () {
                         Navigator.of(context).pop();
-                        Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => const MyHomePage()));
+                        Navigator.push(
+                          context,
+                          PageRouteBuilder(
+                            pageBuilder:
+                                (context, animation, secondaryAnimation) =>
+                                    const MyHomePage(),
+                            transitionsBuilder: (context, animation,
+                                secondaryAnimation, child) {
+                              return FadeTransition(
+                                opacity: animation,
+                                child: child,
+                              );
+                            },
+                          ),
+                        );
                       },
                       child: const Text('OK'))
                 ],
