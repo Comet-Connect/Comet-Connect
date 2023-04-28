@@ -14,7 +14,6 @@ class ResetPage extends StatefulWidget {
 }
 
 class _ResetPageState extends State<ResetPage> {
-  final _usernameController = TextEditingController(); // User Username
   final _oldPasswordController = TextEditingController(); // User Password
   final _passwordNewController = TextEditingController(); // User New Password
   final _passwordCfController =
@@ -168,6 +167,7 @@ class _ResetPageState extends State<ResetPage> {
             icon: const Icon(Icons.arrow_back),
             onPressed: () => Navigator.of(context).pop(),
           ),
+          backgroundColor: UTD_color_primary,
         ),
         // Main Body of Signup
         body: SingleChildScrollView(
@@ -285,6 +285,9 @@ class _ResetPageState extends State<ResetPage> {
                                 _passwordCfController.text);
                           },
                           child: const Text('Reset'),
+                          style: ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all<Color>(
+                                  Colors.grey[800]!)),
                         ),
                       ),
                     ]))));
