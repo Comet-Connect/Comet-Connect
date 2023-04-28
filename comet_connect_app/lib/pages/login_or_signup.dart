@@ -33,16 +33,16 @@ class _LoginOrSignup extends State<LoginOrSignup> {
   //final GoogleSignIn _googleSignIn = GoogleSignIn();
 
   //Future<void> _handleGoogleSignIn() async {
-    // try {
-    //   final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-    //   if (googleUser != null) {
-    //     // Successfully signed in with Google, navigate to home page
-    //     Navigator.of(context).pushReplacementNamed('/home');
-    //   }
-    // } catch (error) {
-    //   // Handle sign in error
-    //   print(error.toString());
-    // }
+  // try {
+  //   final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+  //   if (googleUser != null) {
+  //     // Successfully signed in with Google, navigate to home page
+  //     Navigator.of(context).pushReplacementNamed('/home');
+  //   }
+  // } catch (error) {
+  //   // Handle sign in error
+  //   print(error.toString());
+  // }
   //}
 
   @override
@@ -189,11 +189,20 @@ class _LoginOrSignup extends State<LoginOrSignup> {
                         TextButton(
                           onPressed: () {
                             Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    // Create Forgot password functionality
-                                    builder: (context) =>
-                                        const ForgotPassword()));
+                              context,
+                              PageRouteBuilder(
+                                pageBuilder:
+                                    (context, animation, secondaryAnimation) =>
+                                        const ForgotPassword(),
+                                transitionsBuilder: (context, animation,
+                                    secondaryAnimation, child) {
+                                  return FadeTransition(
+                                    opacity: animation,
+                                    child: child,
+                                  );
+                                },
+                              ),
+                            );
                           },
                           child: const Text('Forgot Password?'),
                         ),
@@ -211,9 +220,20 @@ class _LoginOrSignup extends State<LoginOrSignup> {
                         TextButton(
                           onPressed: () {
                             Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => const SignupPage()));
+                              context,
+                              PageRouteBuilder(
+                                pageBuilder:
+                                    (context, animation, secondaryAnimation) =>
+                                        const SignupPage(),
+                                transitionsBuilder: (context, animation,
+                                    secondaryAnimation, child) {
+                                  return FadeTransition(
+                                    opacity: animation,
+                                    child: child,
+                                  );
+                                },
+                              ),
+                            );
                           },
                           child: const Text('Sign Up'),
                         ),

@@ -48,6 +48,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
   @override
   void initState() {
     super.initState();
+    _selectAllUsers();
     _connectToWebSocketServer();
   }
 
@@ -109,13 +110,32 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
         });
 
         // Navigate to the GroupCalendarPage after updating the events
-        Navigator.of(context).push(MaterialPageRoute(
-          builder: (context) => GroupCalendarPage(events: _events),
-        ));
+        Navigator.push(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                GroupCalendarPage(
+              events: _events,
+            ),
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+              return FadeTransition(
+                opacity: animation,
+                child: child,
+              );
+            },
+          ),
+        );
       }
     } catch (e) {
       print('Error in _handleWebSocketMessage: $e');
     }
+  }
+
+  void _selectAllUsers() {
+    widget.users.forEach((user) {
+      _checkedUsers.add(user['username']);
+    });
   }
 
   @override
@@ -163,17 +183,16 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
               const SizedBox(height: 16.0),
               Row(
                 children: [
-                  const Text('Current Users in the Group:',
-                      style: TextStyle(fontSize: 20.0)),
-                  const Spacer(),
+                  const Expanded(
+                    child: Text('Current Users in the Group:',
+                        style: TextStyle(fontSize: 20.0)),
+                  ),
                   ElevatedButton(
                       style: ButtonStyle(
                           backgroundColor: grayMaterialStateProperty),
                       onPressed: () {
                         setState(() {
-                          for (var user in widget.users) {
-                            _checkedUsers.add(user['username']);
-                          }
+                          _selectAllUsers();
                         });
                       },
                       child: const Text(
@@ -317,6 +336,7 @@ class _GroupCalendarPageState extends State<GroupCalendarPage> {
             CalendarView.timelineWeek,
             CalendarView.month,
           ],
+          cellBorderColor: Colors.grey[500],
           view: CalendarView.week,
           dataSource: _DataSource(widget.events),
           monthViewSettings: const MonthViewSettings(

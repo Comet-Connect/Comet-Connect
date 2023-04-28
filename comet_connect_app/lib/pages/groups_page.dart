@@ -52,16 +52,15 @@ class _GroupsPageState extends State<GroupsPage> {
     Map config = await getServerConfigFile();
 
     // Connecting to WS Server
-    if(config.containsKey("is_server") && config["is_server"]=="1") {
-        _channel = WebSocketChannel.connect(
-          Uri.parse('wss://${config["host"]}/ws'),
-         );
+    if (config.containsKey("is_server") && config["is_server"] == "1") {
+      _channel = WebSocketChannel.connect(
+        Uri.parse('wss://${config["host"]}/ws'),
+      );
+    } else {
+      _channel = WebSocketChannel.connect(
+        Uri.parse('ws://${config["host"]}:${config["port"]}'),
+      );
     }
-      else{
-          _channel = WebSocketChannel.connect(
-          Uri.parse('ws://${config["host"]}:${config["port"]}'),
-         );
-      }
     // Check if current logged in user is not null
     if (current_loggedin_user != null) {
       _getGroups();
@@ -221,8 +220,9 @@ class _GroupsPageState extends State<GroupsPage> {
   void navigateToGroupDetailsPage(Group selectedGroup) {
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (context) => GroupDetailsPage(
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            GroupDetailsPage(
           groupId: selectedGroup.oid,
           groupName: selectedGroup.name,
           session_id: selectedGroup.sessionId,
@@ -231,6 +231,12 @@ class _GroupsPageState extends State<GroupsPage> {
         settings: RouteSettings(
           name: '/group/${selectedGroup.name}',
         ),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(
+            opacity: animation,
+            child: child,
+          );
+        },
       ),
     );
   }
@@ -290,8 +296,16 @@ class _GroupsPageState extends State<GroupsPage> {
                   // Navigate to the create group screen
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (context) => const CreateGroupScreen(),
+                    PageRouteBuilder(
+                      pageBuilder: (context, animation, secondaryAnimation) =>
+                          const CreateGroupScreen(),
+                      transitionsBuilder:
+                          (context, animation, secondaryAnimation, child) {
+                        return FadeTransition(
+                          opacity: animation,
+                          child: child,
+                        );
+                      },
                     ),
                   );
                 },
