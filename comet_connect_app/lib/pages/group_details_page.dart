@@ -336,6 +336,7 @@ class _GroupCalendarPageState extends State<GroupCalendarPage> {
             CalendarView.timelineWeek,
             CalendarView.month,
           ],
+          cellBorderColor: Colors.grey[500],
           view: CalendarView.week,
           dataSource: _DataSource(widget.events),
           monthViewSettings: const MonthViewSettings(
