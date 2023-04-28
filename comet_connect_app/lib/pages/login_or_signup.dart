@@ -2,6 +2,8 @@
 
 import 'package:comet_connect_app/auth/forgot_password.dart';
 import 'package:flutter/material.dart';
+import 'package:comet_connect_app/pages/help_page.dart';
+
 //import 'package:google_sign_in/google_sign_in.dart';
 import '../auth/login.dart';
 //import '..auth/reset.dart';
@@ -214,6 +216,23 @@ class _LoginOrSignup extends State<LoginOrSignup> {
                                     builder: (context) => const SignupPage()));
                           },
                           child: const Text('Sign Up'),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10.0),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text("Need Help?"),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  
+                                    builder: (context) =>  HelpPage()));
+                          },
+                          child: const Text('Click Here!'),
                         ),
                       ],
                     ),
