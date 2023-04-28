@@ -89,7 +89,7 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
       index = 0;
       for (var user in users) {
         String username = user['username'];
-        
+
         Color temp = colors[index % colors.length];
         List<dynamic> userEvents = user['events'];
         for (var event in userEvents) {
@@ -160,9 +160,10 @@ class _GroupDetailsPageState extends State<GroupDetailsPage> {
               const SizedBox(height: 16.0),
               Row(
                 children: [
-                  const Text('Current Users in the Group:',
-                      style: TextStyle(fontSize: 20.0)),
-                  const Spacer(),
+                  const Expanded(
+                    child: Text('Current Users in the Group:',
+                        style: TextStyle(fontSize: 20.0)),
+                  ),
                   ElevatedButton(
                       style: ButtonStyle(
                           backgroundColor: grayMaterialStateProperty),
